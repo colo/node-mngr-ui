@@ -1,0 +1,55 @@
+<div class="navbar navbar-fixed-top" data-bind="with: topNavbar">
+  <div class="navbar-inner">
+	<div class="container-fluid">
+	  <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+		<span class="icon-bar"></span>
+	  </a>
+<!-- 	  <a class="brand" data-bind="page-href: brand().pagehref, text: brand().text">{nombre_aplicacion}</a> -->
+	  <a class="brand" data-bind="attr: { href: brand().href }, text: brand().text">{nombre_aplicacion}</a>
+	  <div class="nav-collapse" data-bind="with: menu">
+		<!--<ul class="nav">
+		  <li class="active"><a href="#">Home</a></li>
+			<li class="dropdown">
+			<a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+			<ul class="dropdown-menu">
+			  <li><a href="#">Action</a></li>
+			  <li><a href="#">Another action</a></li>
+			  <li><a href="#">Something else here</a></li>
+			  <li class="divider"></li>
+			  <li class="nav-header">Nav header</li>
+			  <li><a href="#">Separated link</a></li>
+			  <li><a href="#">One more separated link</a></li>
+			</ul>
+		  </li>                    
+		  <li class="dropdown">
+			<a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+			<ul class="dropdown-menu">
+			  <li><a href="#">Action</a></li>
+			  <li><a href="#">Another action</a></li>
+			  <li><a href="#">Something else here</a></li>
+			  <li class="divider"></li>
+			  <li class="nav-header">Nav header</li>
+			  <li><a href="#">Separated link</a></li>
+			  <li><a href="#">One more separated link</a></li>
+			</ul>
+		  </li>
+		</ul>    -->
+		<ul class="nav pull-right" data-bind="with: user">
+		  <li class="divider-vertical"></li>
+		  <li class="dropdown">
+			<a href="#" data-bind="attr: { 'href': href }, html: html" class="dropdown-toggle" data-toggle="dropdown">
+			  <i class="icon-user"></i> {usuario} <b class="caret"></b>
+			</a>
+			<ul class="dropdown-menu" data-bind="with: menu">
+			  <li data-bind="with: profile"><a href="#" data-bind="page-href: pagehref, html: html"><i class="icon-cog"></i> {link_perfil}</a></li>
+			  <li class="divider"></li>
+			  <li data-bind="with: logout"><a href="#" data-bind="attr: { 'href': href }, html: html"><i class="icon-off"></i> {link_cerrar_sesion}</a></li>
+			</ul>
+		  </li>
+		</ul>
+	  </div><!-- /.nav-collapse -->
+	</div>
+  </div>
+</div>

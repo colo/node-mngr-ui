@@ -7,7 +7,9 @@ var App = require('node-express-app'),
 	multer = require('multer'), // v1.0.5
 	upload = multer(), // for parsing multipart/form-data
 	serveIndex = require('serve-index'),
-	serveStatic = require('serve-static');
+	serveStatic = require('serve-static'),
+	//cons = require('consolidate'),//template engine wrapper
+	exphbs  = require('express-handlebars');//template engine
 
 	//AdminApp = require(path.join(__dirname,'apps/admin/'));
 	
@@ -84,25 +86,28 @@ var MyApp = new Class({
   },
   
   get: function(req, res, next){
-		console.log('root get');
-		console.log('req.isAuthenticated');
-		console.log(req.isAuthenticated());
+		res.render(path.join(__dirname, '/public/views/root'), {
+			title: "Root page",
+		});
+		//console.log('root get');
+		//console.log('req.isAuthenticated');
+		//console.log(req.isAuthenticated());
 		
-		console.log('isAuthorized');
-		console.log(this.isAuthorized({ op: 'view', res: 'abm'}));
-		console.log(this.getSession().getRole().getID());
+		//console.log('isAuthorized');
+		//console.log(this.isAuthorized({ op: 'view', res: 'abm'}));
+		//console.log(this.getSession().getRole().getID());
 
 		
-		if(Object.getLength(req.params) == 0){
-			res.json({ title: 'Root app', content_type: req.get('content-type') });
-		}
-		else if(req.params.service_action){
-			res.json({ title: 'Root app', param: req.params, content_type: req.get('content-type') });
-		}
-		else{
-			//console.log({ title: 'Admin app', param: req.params });
-			next();
-		}
+		//if(Object.getLength(req.params) == 0){
+			//res.json({ title: 'Root app', content_type: req.get('content-type') });
+		//}
+		//else if(req.params.service_action){
+			//res.json({ title: 'Root app', param: req.params, content_type: req.get('content-type') });
+		//}
+		//else{
+			////console.log({ title: 'Admin app', param: req.params });
+			//next();
+		//}
 		
   },
   
@@ -172,6 +177,25 @@ var MyApp = new Class({
 		
 		this.express().use('/public', serveIndex(__dirname + '/public', {icons: true}));
 		this.express().use('/public', serveStatic(__dirname + '/public'));
+		
+		var hbs = exphbs.create({
+						defaultLayout: 'main',
+						layoutsDir: 'public/views/layouts/',
+						//helpers      : helpers,
+						
+						extname: '.html',
+						// Uses multiple partials dirs, templates in "shared/templates/" are shared
+						// with the client-side of the app (see below).
+						partialsDir: [
+										'public/shared/',
+										'public/views/partials/'
+						]
+		});
+		
+		this.express().engine('html', hbs.engine);
+		this.express().set('view engine', 'html');
+		
+		//this.express().set('views', __dirname + '/public/views');
 
 		this.profile('root_init');//end profiling
 		

@@ -1,0 +1,16 @@
+<div data-bind="with: breadcrumb" >
+<!-- ko if: pages().length > 1 -->
+<ul class="breadcrumb" data-bind="foreach: pages">
+  <!-- ko if: $index() != $parent.pages().length - 1 -->
+  <li>
+	<a data-bind="attr: { href: $data.href }, text: $data.name">{{name}}</a>
+	<span class="divider">/</span>
+  <!-- /ko -->
+  <!-- ko if: $index() == $parent.pages().length - 1 -->
+  <li class="active" data-bind="text: $data.name">
+  <!-- /ko -->
+  
+  </li>
+</ul>
+<!-- /ko -->
+</div>
