@@ -5,7 +5,9 @@ var App = require('node-express-app'),
 	fs = require('fs'),
 	bodyParser = require('body-parser'),
 	multer = require('multer'), // v1.0.5
-	upload = multer(); // for parsing multipart/form-data
+	upload = multer(), // for parsing multipart/form-data
+	serveIndex = require('serve-index'),
+	serveStatic = require('serve-static');
 
 	//AdminApp = require(path.join(__dirname,'apps/admin/'));
 	
@@ -113,6 +115,14 @@ var MyApp = new Class({
   },
   
   initialize: function(options){
+		this.addEvent(this.ON_USE, function(mount){
+			console.log('loading app...');
+			console.log(mount);
+			console.log(path.join(__dirname, 'apps', mount, '/assets'));
+			
+			this.express().use('/public/apps' + mount, serveIndex(path.join(__dirname, 'apps', mount, '/assets'), {icons: true}));
+			this.express().use('/public/apps' + mount, serveStatic(path.join(__dirname, 'apps', mount, '/assets')));
+		});
 		
 		this.parent(options);//override default options
 		
@@ -159,6 +169,9 @@ var MyApp = new Class({
 		
 		this.express().use(bodyParser.json()); // for parsing application/json
 		this.express().use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+		
+		this.express().use('/public', serveIndex(__dirname + '/public', {icons: true}));
+		this.express().use('/public', serveStatic(__dirname + '/public'));
 
 		this.profile('root_init');//end profiling
 		
