@@ -1,0 +1,19 @@
+{
+  "name": "express-test2",
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "homepage": "https://github.com/colo/node-mngr-ui",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "pagerjs": "^1.0.1",
+    "headjs": "^1.0.3"
+  }
+}

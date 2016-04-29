@@ -25,6 +25,7 @@ var MyApp = new Class({
   authorization:null,
   authentication: null,
   
+  apps: [],
   options: {
 	  
 	id: 'root',
@@ -112,13 +113,17 @@ var MyApp = new Class({
 
 
       ],
-      link: [
+      links: [
 				'rel="icon" sizes="192x192" href="/public/mdl-dashboard/images/android-desktop.png"',
 				'rel="apple-touch-icon-precomposed" href="images/ios-desktop.png"',
 				'rel="shortcut icon" href="images/favicon.png"'
       ],
-      script: [
-            "/public/mdl/material.min.js"
+      scripts: [
+				"/public/bower/headjs/dist/1.0.0/head.min.js",
+      ],
+      body_scripts: [
+            //"/public/mdl/material.min.js"
+				"/public/js/dashboard.js",
       ],
       css: [
             //"/public/mdl/material.min.css",
@@ -137,6 +142,8 @@ var MyApp = new Class({
 				"margin-bottom: 40px;\n" +
 				"z-index: 900;\n" +
 			"}",
+			
+			app: this.apps,
 			
 		});
 		//console.log('root get');
@@ -170,13 +177,29 @@ var MyApp = new Class({
   },
   
   initialize: function(options){
-		this.addEvent(this.ON_USE, function(mount){
+		
+		this.apps.push({name: 'Home', href: '/', icon: 'home'});
+		
+		this.addEvent(this.ON_USE, function(mount, app){
+			var app_info = {};
+			
 			console.log('loading app...');
 			console.log(mount);
 			console.log(path.join(__dirname, 'apps', mount, '/assets'));
 			
 			this.express().use('/public/apps' + mount, serveIndex(path.join(__dirname, 'apps', mount, '/assets'), {icons: true}));
 			this.express().use('/public/apps' + mount, serveStatic(path.join(__dirname, 'apps', mount, '/assets')));
+			
+			this.express().use('/public/apps' + mount + '/bower', serveIndex(path.join(__dirname, 'apps', mount, '/bower_components'), {icons: true}));
+			this.express().use('/public/apps' + mount + '/bower', serveStatic(path.join(__dirname, 'apps', mount, '/bower_components')));
+			
+			app_info['name'] = (app.name) ? app.name : mount.substr(1); //remove mount '/'
+			app_info['href'] = mount;
+			app_info['icon'] = (app.icon) ? app.icon: 'build'; //remove mount '/'
+			
+			this.apps.push(app_info);
+			
+			console.log(this.apps);
 		});
 		
 		this.parent(options);//override default options
@@ -227,6 +250,10 @@ var MyApp = new Class({
 		
 		this.express().use('/public', serveIndex(__dirname + '/public', {icons: true}));
 		this.express().use('/public', serveStatic(__dirname + '/public'));
+		
+		this.express().use('/public/bower', serveIndex(__dirname + '/bower_components', {icons: true}));
+		this.express().use('/public/bower', serveStatic(__dirname + '/bower_components'));
+		
 		
 		var hbs = exphbs.create({
 						defaultLayout: 'main',

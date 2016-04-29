@@ -7,5 +7,22 @@
   <body id="main-body">
 	{{{body}}}
 	
+	{{#each body_scripts}}
+	<script src="{{{this}}}"></script>
+	{{/each}}
+	
+	{{#each body_css}}
+  <link href="{{{this}}}" rel="stylesheet">
+	{{/each}}
+
+	<script>
+	{{{body_script}}}
+	</script>
+	
+	<style>
+	{{{body_style}}}
+	</style>
+	
+	
   </body>
 </html>
