@@ -178,7 +178,7 @@ var MyApp = new Class({
   
   initialize: function(options){
 		
-		this.apps.push({name: 'Home', href: '/', icon: 'home'});
+		this.apps.push({name: 'Home', href: "'/'", icon: 'home'});
 		
 		this.addEvent(this.ON_USE, function(mount, app){
 			var app_info = {};
@@ -194,7 +194,7 @@ var MyApp = new Class({
 			this.express().use('/public/apps' + mount + '/bower', serveStatic(path.join(__dirname, 'apps', mount, '/bower_components')));
 			
 			app_info['name'] = (app.name) ? app.name : mount.substr(1); //remove mount '/'
-			app_info['href'] = mount;
+			app_info['href'] = "'"+mount.substr(1)+"'";
 			app_info['icon'] = (app.icon) ? app.icon: 'build'; //remove mount '/'
 			
 			this.apps.push(app_info);

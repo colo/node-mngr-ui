@@ -51,7 +51,7 @@ module.exports = new Class({
 		all: [
 		  {
 			path: '',
-			callbacks: ['check_authentication', 'get']
+			callbacks: ['get']
 		  },
 		]
 	},
