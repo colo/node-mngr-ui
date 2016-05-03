@@ -89,7 +89,7 @@ var MyApp = new Class({
 		
 		this.express().set('default_view',{
 			title: "",
-			base: "",
+			base: "/",
 			/**
 			 * @hosted
       scripts: [
@@ -149,31 +149,34 @@ var MyApp = new Class({
 		
 	},
   get: function(req, res, next){
-		var view = this.express().get('default_view');
-		view.tile = "Panel",
-		view.base= "/";
 		
-		res.render(path.join(__dirname, '/public/views/root'), view);
+		res.redirect('/dashboard');
 		
-		//console.log('root get');
-		//console.log('req.isAuthenticated');
-		//console.log(req.isAuthenticated());
+		//var view = this.express().get('default_view');
+		//view.tile = "Panel",
+		//view.base= "/";
 		
-		//console.log('isAuthorized');
-		//console.log(this.isAuthorized({ op: 'view', res: 'abm'}));
-		//console.log(this.getSession().getRole().getID());
+		//res.render(path.join(__dirname, '/public/views/root'), view);
+		
+		////console.log('root get');
+		////console.log('req.isAuthenticated');
+		////console.log(req.isAuthenticated());
+		
+		////console.log('isAuthorized');
+		////console.log(this.isAuthorized({ op: 'view', res: 'abm'}));
+		////console.log(this.getSession().getRole().getID());
 
 		
-		//if(Object.getLength(req.params) == 0){
-			//res.json({ title: 'Root app', content_type: req.get('content-type') });
-		//}
-		//else if(req.params.service_action){
-			//res.json({ title: 'Root app', param: req.params, content_type: req.get('content-type') });
-		//}
-		//else{
-			////console.log({ title: 'Admin app', param: req.params });
-			//next();
-		//}
+		////if(Object.getLength(req.params) == 0){
+			////res.json({ title: 'Root app', content_type: req.get('content-type') });
+		////}
+		////else if(req.params.service_action){
+			////res.json({ title: 'Root app', param: req.params, content_type: req.get('content-type') });
+		////}
+		////else{
+			//////console.log({ title: 'Admin app', param: req.params });
+			////next();
+		////}
 		
   },
   

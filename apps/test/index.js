@@ -15,88 +15,88 @@ module.exports = new Class({
   
   options: {
 	  
-	id: 'test',
-	path: '/test',
-	
-	/*authentication: {
-		users : [
-			  { id: 1, username: 'lbueno' , role: 'admin', password: '40bd001563085fc35165329ea1ff5c5ecbdbbeef'}, //sha-1 hash
-			  { id: 2, username: 'test' , role: 'user', password: '123'}
-		],
-	},*/
-	
-	authorization: {
-		init: false,
-		config: path.join(__dirname,'./config/rbac.json'),
-	},
-	
-	params: {
-	  service_action: /start|stop/,
-	},
-	
-	routes: {
+		id: 'test',
+		path: '/test',
 		
-		get: [
-			{
-				path: '/:service_action',
-				callbacks: ['check_authentication', 'get'],
-			},
-		],
-		post: [
-		  {
-			path: '',
-			callbacks: ['check_authentication', 'post']
-		  },
-		],
-		all: [
-		  {
-			path: '',
-			callbacks: ['get']
-		  },
-		]
-	},
-	
-	api: {
+		/*authentication: {
+			users : [
+					{ id: 1, username: 'lbueno' , role: 'admin', password: '40bd001563085fc35165329ea1ff5c5ecbdbbeef'}, //sha-1 hash
+					{ id: 2, username: 'test' , role: 'user', password: '123'}
+			],
+		},*/
 		
-		version: '1.0.0',
+		authorization: {
+			init: false,
+			config: path.join(__dirname,'./config/rbac.json'),
+		},
+		
+		params: {
+			service_action: /start|stop/,
+		},
 		
 		routes: {
+			
 			get: [
-				/*{
-				path: '',
-				callbacks: ['get_api'],
-				content_type: /^application\/(?:x-www-form-urlencoded|x-.*\+json|json)(?:[\s;]|$)/,
-				//version: '1.0.1',
-				},*/
 				{
-				path: ':service_action',
-				callbacks: ['get_api'],
-				content_type: /^application\/(?:x-www-form-urlencoded|x-.*\+json|json)(?:[\s;]|$)/,
-				version: '2.0.0',
-				},
-				{
-				path: ':service_action',
-				callbacks: ['get_api'],
-				content_type: /^application\/(?:x-www-form-urlencoded|x-.*\+json|json)(?:[\s;]|$)/,
-				version: '1.0.1',
+					path: '/:service_action',
+					callbacks: ['check_authentication', 'get'],
 				},
 			],
 			post: [
-			  {
+				{
 				path: '',
-				callbacks: ['check_authentication', 'post'],
-			  },
+				callbacks: ['check_authentication', 'post']
+				},
 			],
 			all: [
-			  {
+				{
 				path: '',
-				callbacks: ['get_no_version_available'],
-				version: '',
-			  },
+				callbacks: ['get']
+				},
 			]
 		},
 		
-	},
+		api: {
+			
+			version: '1.0.0',
+			
+			routes: {
+				get: [
+					/*{
+					path: '',
+					callbacks: ['get_api'],
+					content_type: /^application\/(?:x-www-form-urlencoded|x-.*\+json|json)(?:[\s;]|$)/,
+					//version: '1.0.1',
+					},*/
+					{
+					path: ':service_action',
+					callbacks: ['get_api'],
+					content_type: /^application\/(?:x-www-form-urlencoded|x-.*\+json|json)(?:[\s;]|$)/,
+					version: '2.0.0',
+					},
+					{
+					path: ':service_action',
+					callbacks: ['get_api'],
+					content_type: /^application\/(?:x-www-form-urlencoded|x-.*\+json|json)(?:[\s;]|$)/,
+					version: '1.0.1',
+					},
+				],
+				post: [
+					{
+					path: '',
+					callbacks: ['check_authentication', 'post'],
+					},
+				],
+				all: [
+					{
+					path: '',
+					callbacks: ['get_no_version_available'],
+					version: '',
+					},
+				]
+			},
+			
+		},
   },
   
   get_api: function(req, res, next){
@@ -120,9 +120,21 @@ module.exports = new Class({
   
   get: function(req, res, next){
 		var view = this.express().get('default_view');
-		view.tile = "Test",
+		view.tile = "Test";
+		
+		view.apps.each(function(value, index){
+			if(value.id == this.options.id){
+				
+				//value.role = 'start';
+				view.apps[index]['role'] = 'start';
+			}
+			else{
+				view.apps[index]['role'] = null;
+			}
+		}.bind(this));
 		//view.base= "/test";
 		
+			
 		res.render(path.join(__dirname, '/assets/index'), view);
 		
   },
