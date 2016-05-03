@@ -70,7 +70,7 @@ module.exports = new Class({
   
   get: function(req, res, next){
 		var view = this.express().get('default_view');
-		view.tile = "Test";
+		view.tile = "Dashboard";
 		
 		view.apps.each(function(value, index){
 			if(value.id == this.options.id){
@@ -96,7 +96,7 @@ module.exports = new Class({
 		
 		this.profile('dashboard_init');//end profiling
 		
-		this.log('dashboard', 'info', 'test started');
+		this.log('dashboard', 'info', 'dashboard started');
   },
 	
 });

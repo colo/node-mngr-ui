@@ -213,7 +213,10 @@ var MyApp = new Class({
 			//nav_bar.push(app_info);
 			//this.express().set('nav_bar', nav_bar);
 			
-			this.express().get('default_view').apps.push(app_info);
+			if(!app.hidden){
+				this.express().get('default_view').apps.push(app_info);
+			}
+			
 			//console.log(this.apps);
 		});
 		
