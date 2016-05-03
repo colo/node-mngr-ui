@@ -119,27 +119,35 @@ module.exports = new Class({
   },
   
   get: function(req, res, next){
-		console.log('test get');
-		console.log('req.isAuthenticated');
-		console.log(req.isAuthenticated());
+		var view = this.express().get('default_view');
+		view.tile = "Test",
+		//view.base= "/test";
 		
-		console.log('isAuthorized');
-		console.log(this.isAuthorized({ op: 'view', res: 'abm'}));
-		console.log(this.getSession().getRole().getID());
-
-		
-		if(Object.getLength(req.params) == 0){
-			res.json({ title: 'test app', content_type: req.get('content-type') });
-		}
-		else if(req.params.service_action){
-			res.json({ title: 'test app', param: req.params, content_type: req.get('content-type') });
-		}
-		else{
-			//console.log({ title: 'test app', param: req.params });
-			next();
-		}
+		res.render(path.join(__dirname, '/assets/index'), view);
 		
   },
+  //get: function(req, res, next){
+		//console.log('test get');
+		//console.log('req.isAuthenticated');
+		//console.log(req.isAuthenticated());
+		
+		//console.log('isAuthorized');
+		//console.log(this.isAuthorized({ op: 'view', res: 'abm'}));
+		//console.log(this.getSession().getRole().getID());
+
+		
+		//if(Object.getLength(req.params) == 0){
+			//res.json({ title: 'test app', content_type: req.get('content-type') });
+		//}
+		//else if(req.params.service_action){
+			//res.json({ title: 'test app', param: req.params, content_type: req.get('content-type') });
+		//}
+		//else{
+			////console.log({ title: 'test app', param: req.params });
+			//next();
+		//}
+		
+  //},
   
   post: function(req, res, next){
 	  

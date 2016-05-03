@@ -25,7 +25,7 @@ var MyApp = new Class({
   authorization:null,
   authentication: null,
   
-  apps: [],
+  //apps: [],
   options: {
 	  
 	id: 'root',
@@ -85,11 +85,11 @@ var MyApp = new Class({
 		
 	},
   },
-  
-  get: function(req, res, next){
-		res.render(path.join(__dirname, '/public/views/mdl_dashboard'), {
-			title: "Dashboard",
-			base: "/",
+  set_default_view: function(){
+		
+		this.express().set('default_view',{
+			title: "",
+			base: "",
 			/**
 			 * @hosted
       scripts: [
@@ -123,7 +123,7 @@ var MyApp = new Class({
       ],
       body_scripts: [
             //"/public/mdl/material.min.js"
-				"/public/js/dashboard.js",
+				"/public/js/root.js",
       ],
       css: [
             //"/public/mdl/material.min.css",
@@ -143,9 +143,18 @@ var MyApp = new Class({
 				"z-index: 900;\n" +
 			"}",
 			
-			app: this.apps,
+			apps: [],
 			
 		});
+		
+	},
+  get: function(req, res, next){
+		var view = this.express().get('default_view');
+		view.tile = "Panel",
+		view.base= "/";
+		
+		res.render(path.join(__dirname, '/public/views/root'), view);
+		
 		//console.log('root get');
 		//console.log('req.isAuthenticated');
 		//console.log(req.isAuthenticated());
@@ -178,8 +187,6 @@ var MyApp = new Class({
   
   initialize: function(options){
 		
-		this.apps.push({name: 'Home', href: "'/'", icon: 'home'});
-		
 		this.addEvent(this.ON_USE, function(mount, app){
 			var app_info = {};
 			
@@ -194,12 +201,17 @@ var MyApp = new Class({
 			this.express().use('/public/apps' + mount + '/bower', serveStatic(path.join(__dirname, 'apps', mount, '/bower_components')));
 			
 			app_info['name'] = (app.name) ? app.name : mount.substr(1); //remove mount '/'
-			app_info['href'] = "'"+mount.substr(1)+"'";
-			app_info['icon'] = (app.icon) ? app.icon: 'build'; //remove mount '/'
+			app_info['id'] = mount.substr(1); //remove mount '/'
+			app_info['href'] = mount+"/";
+			app_info['icon'] = (app.icon) ? app.icon: 'build';
 			
-			this.apps.push(app_info);
+			//var nav_bar = this.express().get('nav_bar');
+			////this.apps.push(app_info);
+			//nav_bar.push(app_info);
+			//this.express().set('nav_bar', nav_bar);
 			
-			console.log(this.apps);
+			this.express().get('default_view').apps.push(app_info);
+			//console.log(this.apps);
 		});
 		
 		this.parent(options);//override default options
@@ -273,6 +285,14 @@ var MyApp = new Class({
 		this.express().set('view engine', 'html');
 		
 		//this.express().set('views', __dirname + '/public/views');
+		
+		this.set_default_view();
+		
+		//console.log('DEFAULT_VIEW');
+		//this.express().get('default_view').apps.push({name: 'Home', href: "'/'", icon: 'home'});
+		
+		//this.express().set('nav_bar', [{name: 'Home', href: "'/'", icon: 'home'}]);
+
 
 		this.profile('root_init');//end profiling
 		
