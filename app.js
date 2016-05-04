@@ -37,8 +37,8 @@ var MyApp = new Class({
 	
 	authentication: {
 		users : [
-			  //{ id: 1, username: 'lbueno' , role: 'admin', password: '40bd001563085fc35165329ea1ff5c5ecbdbbeef'}, //sha-1 hash
-			  { id: 1, username: 'lbueno' , role: 'admin', password: '123'}, //sha-1 hash
+			  { id: 1, username: 'lbueno' , role: 'admin', password: '40bd001563085fc35165329ea1ff5c5ecbdbbeef'}, //sha-1 hash
+			  //{ id: 1, username: 'lbueno' , role: 'admin', password: '123'}, //sha-1 hash
 			  { id: 2, username: 'test' , role: 'user', password: '123'}
 		],
 	},
