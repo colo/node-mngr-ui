@@ -1,72 +1,70 @@
-<!-- https://gist.github.com/CodeMyUI/3b6b91091baed94aa8d5 -->
-<div class="materialContainer">
-	
-	<section id="login" data-bind="with: login">
-   
-   <div class="box">
-
-      <div class="title">LOGIN</div>
-			<form method="POST" action="/login" accept-charset="UTF-8" data-bind="submit: crypt">
-				<input type="hidden" name="password" id="password" data-bind="value: password"/>
-				
-<!--
-				<fieldset>
--->
-					<div class="input">
-						 <label for="name">Username</label>
-						 <input type="text" name="username" id="username">
-						 <span class="spin"></span>
-					</div>
-
-					<div class="input">
-						 <label for="pass">Password</label>
-						 <input type="password" name="clearpassword" id="clearpassword">
-						 <span class="spin"></span>
-					</div>
-					
-					<div class="button login">
-						 <button type="submit"><span>GO</span> <i class="fa fa-check"></i></button>
-					</div>
-<!--
-				</fieldset>
--->
-				
-			</form>
+	<!-- @removed: mdl-layout--fixed-drawer -->
+	<div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-header"> 
+		
+		
+		<main class="mdl-layout__content mdl-color--grey-100">
+		<div class="mdl-grid demo-content">
 			
-      <a href="" class="pass-forgot">Forgot your password?</a>
+			<div class="mdl-cell mdl-cell--4-col"></div>
+			
+			<div class="mdl-cell mdl-cell--4-col">
+				<section id="login" data-bind="with: login">	
+				<form method="POST" accept-charset="UTF-8" data-bind="submit: crypt">
+					
+					<input type="hidden" name="password" id="password" data-bind="value: password"/>
+					
+					<div class="demo-card-square mdl-card mdl-shadow--2dp">
+						<div class="mdl-card__title mdl-card--expand">
+							<h2 class="mdl-card__title-text">Welcome</h2>
+						</div>
+						<div class="mdl-card__actions mdl-card--border">
+							<div class="mdl-textfield mdl-js-textfield">
+								<input class="mdl-textfield__input" type="text" id="username">
+								<label class="mdl-textfield__label" for="username">Username</label>
+							</div>
+							<div class="mdl-textfield mdl-js-textfield">
+								<input class="mdl-textfield__input" type="password" name="clearpassword" id="clearpassword">
+								<label class="mdl-textfield__label" for="clearpassword">Password</label>
+							</div>
+						</div>
+	<!--
+						<div class="mdl-card__supporting-text">
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+							Aenan convallis.
+						</div>
+	-->
 
-   </div>
-	
-	</section>
-	
-   <div class="overbox">
-      <div class="material-button alt-2"><span class="shape"></span></div>
+						<div class="mdl-card__actions mdl-card--border">
 
-      <div class="title">LOGIN</div>
+							<label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="switch-1">
+								<input type="checkbox" id="switch-1" class="mdl-switch__input" checked>
+								<span class="mdl-switch__label">Remember me</span>
+							</label>
 
-      <div class="input">
-         <label for="regname">Username</label>
-         <input type="text" name="regname" id="regname">
-         <span class="spin"></span>
-      </div>
+						</div>
 
-      <div class="input">
-         <label for="regpass">Password</label>
-         <input type="password" name="regpass" id="regpass">
-         <span class="spin"></span>
-      </div>
+						<div class="mdl-card__actions mdl-card--border">
+	<!--
+							<a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+								View Updates
+							</a>
+	-->
+							<button type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+								Login
+							</button>
+						</div>
 
-      <div class="input">
-         <label for="reregpass">Repeat Password</label>
-         <input type="password" name="reregpass" id="reregpass">
-         <span class="spin"></span>
-      </div>
+					</div>
+			
+				</form>
+				</section>
+			</div>
+			<div class="mdl-cell mdl-cell--4-col"></div>
+		</div>
+		
+		
+		</main>
+		
+	</div>
+		
 
-      <div class="button">
-         <button><span>NEXT</span></button>
-      </div>
-
-
-   </div>
-
-</div>

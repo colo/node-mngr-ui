@@ -35,6 +35,8 @@ module.exports = new Class({
 		
 		api: {
 			
+			path: '/api',
+			
 			version: '1.0.0',
 			
 			routes: {
@@ -71,7 +73,9 @@ module.exports = new Class({
 				return next(err)
 			}
 			if (!user) {
-				console.log('info: '+info);
+				console.log('info: ');
+				console.log(info);
+				
 				this.log('login', 'warn', 'login authenticate ' + info);
 				
 				res.cookie('bad', true, { maxAge: 99999999, httpOnly: false });
@@ -142,13 +146,13 @@ module.exports = new Class({
 				"/public/apps/login/index.js",
       ],
       css: [
-            //"https://code.getmdl.io/1.1.3/material.cyan-light_blue.min.css",
-            //"/public/mdl-dashboard/styles.css",
-            //'https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en',
-            //"https://fonts.googleapis.com/icon?family=Material+Icons"
-            "http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css",
-            "http://fonts.googleapis.com/css?family=Roboto:400,100,300,500,700,900&subset=latin,latin-ext",
-            "/public/apps/login/index.css",
+            "https://code.getmdl.io/1.1.3/material.cyan-light_blue.min.css",
+            "/public/mdl-dashboard/styles.css",
+            'https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en',
+            "https://fonts.googleapis.com/icon?family=Material+Icons",
+            //"http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css",
+            //"http://fonts.googleapis.com/css?family=Roboto:400,100,300,500,700,900&subset=latin,latin-ext",
+            "/public/apps/login/index.css"
             
       ],
       style: null,

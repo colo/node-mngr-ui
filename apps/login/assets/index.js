@@ -4,7 +4,9 @@ head.js({ mdl: "/public/mdl/material.min.js" }); //no dependencies
 head.js({ mootools: "/public/apps/login/mootools-core-1.4.5-full-nocompat-yc.js" }); //no dependencies
 head.js({ crypto: "/public/apps/login/bower/cryptojslib/rollups/sha1.js" }); //no dependencies
 
-//head.js({ jQuery: "/public/bower/jquery/dist/jquery.min.js" }); 
+head.js({ resilient: "/public/apps/login/bower/resilient/resilient.min.js" }); //no dependencies
+
+
 head.load([
 	{ ko: "/public/bower/knockoutjs/dist/knockout.js" },//no dependencies
 	{ jQuery: "/public/bower/jquery/dist/jquery.min.js" }//no dependencies
@@ -152,19 +154,43 @@ head.load([
 		self.password = ko.observable(null);
 		
 		self.crypt = function(form){
-			//console.log(form.clearpassword.value);
+			console.log(form.clearpassword.value);
 			
 			//console.log(self.clearpassword());
 			
 			var hash = CryptoJS.SHA1(form.clearpassword.value);
-	 	  //console.log(hash.toString());
+	 	  console.log(hash.toString());
 			
 			self.password(hash.toString());
 			
 	 	  //console.log(self.password());
 			
-			form.clearpassword.value = "";
-			return true;
+			//form.clearpassword.value = "";
+			
+			//console.log(window.location.host);
+			
+			var servers = [
+				'http://'+window.location.host
+			];
+			var client = resilient({
+				 service: { 
+					 basePath: '/login/api',
+					 headers : { "Content-Type": "application/json" },
+					 data: { "username": form.username.value, "password": form.password.value }
+				 }
+			 });
+			client.setServers(servers);
+			
+
+			//var login = function(){
+				client.post('/', function(err, res){
+					console.log('Error:', err);
+					console.log('Response:', res);
+					console.log('Body:', res.data);
+				});
+			//}
+	
+			return false;//don't submit
 		};
   };
   
@@ -176,6 +202,27 @@ head.load([
 		
 });
 
+//head.ready("resilient", function(){
+	//var servers = [
+		//'http://localhost:8080'
+	//];
+	//var client = Resilient({ service: { basePath: '/login/', headers : { "Content-Type": "application/json" }}});
+	//client.setServers(servers);
+	
 
+	//var login = function(){
+		//client.post('/', function(err, res){
+			//console.log('Error:', err);
+			//console.log('Response:', res);
+			//console.log('Body:', res.data);
+		//});
+	//}
+	
+	//var submit = document.getElementById("submita");
+	//submit.set("onclick", "login()");
+	
+	
+
+//});
 
 
