@@ -1,21 +1,16 @@
 var loginBodyModel = {};
-
-head.js({ mdl: "/public/mdl/material.min.js" }); //no dependencies
-head.js({ mootools: "/public/apps/login/mootools-core-1.4.5-full-nocompat-yc.js" }); //no dependencies
 head.js({ crypto: "/public/apps/login/bower/cryptojslib/rollups/sha1.js" }); //no dependencies
 
-head.js({ resilient: "/public/apps/login/bower/resilient/resilient.min.js" }); //no dependencies
 
-
-head.load([
+/* head.load([
 	{ ko: "/public/bower/knockoutjs/dist/knockout.js" },//no dependencies
-	{ jQuery: "/public/bower/jquery/dist/jquery.min.js" }//no dependencies
-], function() {
+	{ resilient: "/public/apps/login/bower/resilient/resilient.min.js" }//no dependencies
+]
+*/
+head.ready('history'
+, function() {
 
-	/**
-	 * styling
-	 * 
-	 * */
+	/*
    $(".input input").focus(function() {
 
       $(this).parent(".input").each(function() {
@@ -131,29 +126,26 @@ head.load([
       }
 
    });
-		/**
-		 * finish styling
-		 * */
+	*/
 		 
 	var LoginModel = function(){
 		//Cookie.options = {domain : '192.168.0.80:8080'};
 			
-		var error = Cookie.read('bad') || false;
-		//console.log('cookie: ');
-		//console.log(error);
-		//console.log(document.cookie);
-
+		//var error = Cookie.read('bad') || false;
+		
 		self = this;
 		
 	 	//self.clearpasswordname = Math.random().toString(36).substring(7);
 		
-		self.error = ko.observable(error);
+		//self.error = ko.observable(error);
+		
+		//self.name = "Hola";
 		
 		self.clearpassword = ko.observable();
 		
 		self.password = ko.observable(null);
 		
-		self.crypt = function(form){
+		self.submit = function(form){
 			console.log(form.clearpassword.value);
 			
 			//console.log(self.clearpassword());
@@ -170,7 +162,7 @@ head.load([
 			//console.log(window.location.host);
 			
 			var servers = [
-				'http://'+window.location.host
+				window.location.protocol+'//'+window.location.host
 			];
 			var client = resilient({
 				 service: { 
@@ -182,47 +174,43 @@ head.load([
 			client.setServers(servers);
 			
 
-			//var login = function(){
-				client.post('/', function(err, res){
+			client.post('/', function(err, res){
+				if(err){
 					console.log('Error:', err);
-					console.log('Response:', res);
+					console.log('Response:', err.data);
+				}
+				else{
+					console.log('Ok:', res);
 					console.log('Body:', res.data);
-				});
-			//}
+					//window.location.assign(res.headers.Link.split(';')[0]);
+					window.location.replace(res.headers.Link.split(';')[0].replace(/<|>/g, ''));
+				}
+			});
 	
 			return false;//don't submit
 		};
   };
   
-  loginBodyModel = {
-		login: new LoginModel()
-  }
   
-  ko.applyBindings(loginBodyModel, document.getElementById("main-body"));
-		
-});
-
-//head.ready("resilient", function(){
-	//var servers = [
-		//'http://localhost:8080'
-	//];
-	//var client = Resilient({ service: { basePath: '/login/', headers : { "Content-Type": "application/json" }}});
-	//client.setServers(servers);
+	mainBodyModel.login = new LoginModel();
 	
-
-	//var login = function(){
-		//client.post('/', function(err, res){
-			//console.log('Error:', err);
-			//console.log('Response:', res);
-			//console.log('Body:', res.data);
-		//});
+	ko.cleanNode(document.getElementById("main-body"));
+	ko.applyBindings(mainBodyModel, document.getElementById("main-body"));
+	
+  //mainBodyModel = {
+		//login: new LoginModel()
 	//}
 	
-	//var submit = document.getElementById("submita");
-	//submit.set("onclick", "login()");
+	//ko.applyBindings(loginBodyModel, document.getElementById("loginBodyModel"));
+	console.log('Login binding applied');
 	
-	
+  //head.ready('pager', function(){
+		//var page = new pager.Page();
+		//loginBodyModel['$__page__'] = page;
 
-//});
-
+		//ko.applyBindings(loginBodyModel, document.getElementById("loginBodyModel"));
+	//});
+  
+		
+});
 

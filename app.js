@@ -122,7 +122,7 @@ var MyApp = new Class({
 				"/public/bower/headjs/dist/1.0.0/head.min.js",
       ],
       body_scripts: [
-            //"/public/mdl/material.min.js"
+				//"/public/mdl/material.min.js"
 				"/public/js/root.js",
       ],
       css: [
@@ -150,7 +150,12 @@ var MyApp = new Class({
 	},
   get: function(req, res, next){
 		
-		res.redirect('/dashboard');
+		if(req.isAuthenticated()){
+			res.redirect('/dashboard');
+		}
+		else{
+			res.status(403).redirect('/login');
+		}
 		
 		//var view = this.express().get('default_view');
 		//view.tile = "Panel",

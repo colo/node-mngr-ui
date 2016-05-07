@@ -68,7 +68,8 @@ module.exports = new Class({
 		
 
 		if(req.is('application/json') || req.path.indexOf('/api') == 0){
-			res.send({'status': 'success'});
+			//res.send({'status': 'success'});
+			res.status(201).links({ next: req.protocol+'://'+req.hostname+':8080/'}).json({'status': 'ok'});
 		}
 		else{
 			res.redirect('/');

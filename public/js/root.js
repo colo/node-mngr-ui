@@ -1,6 +1,7 @@
 var mainBodyModel = {};
 
 head.js({ mdl: "/public/mdl/material.min.js" }); //no dependencies
+head.js({ resilient: "/public/apps/login/bower/resilient/resilient.min.js" }); //no dependencies
 
 /**
  *  @pager
@@ -15,7 +16,16 @@ head.load([
 		
 		head.load({ pager: "/public/bower/pagerjs/dist/pager.min.js" },function(){
 			head.load({ history: "/public/bower/history.js/scripts/bundled/html4+html5/jquery.history.js"}, function(){
-			
+				
+				var viewModel = function () {
+					var self = this;
+					
+					//self.login = ko.observable(null);
+					//self.dns = ko.observable(null);
+				}
+				
+				mainBodyModel = new viewModel();
+				
 				// use HTML5 history
         pager.useHTML5history = true;
         // use History instead of history
@@ -24,8 +34,13 @@ head.load([
 				// extend your view-model with pager.js specific data
 				pager.extendWithPage(mainBodyModel);
 				// apply the view-model using KnockoutJS as normal
-					
-				ko.applyBindings(mainBodyModel, document.getElementById("main-body"));
+				
+				//ko.options.deferUpdates = true;
+				//ko.tasks.runEarly();
+				
+				
+				
+				//ko.applyBindings(mainBodyModel, document.getElementById("main-body"));
 
 				// start pager.js
 				//pager.start();
@@ -33,8 +48,25 @@ head.load([
 				pager.startHistoryJs();
 
 				//http://stackoverflow.com/questions/15022113/how-to-organize-a-spa-with-knockoutjs-sammyjs-and-pagerjs
+				
+				console.log('main-body binding applied');
 			});
 		});
 		
+		
 });
+
+
+var mdl_init = function(page) {//apply on pagerjs external resources
+	console.log('mdl: ');
+	console.log(page);
+		document.documentElement.classList.add('mdl-js');
+		componentHandler.upgradeAllRegistered();
+		
+		head.js({ page: '/public/apps/'+page.currentId+'/index.js' });
+		head.ready('page',function(){
+			console.log('loaded...'+page.currentId);
+		});
+};
+		
 

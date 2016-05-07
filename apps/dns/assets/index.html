@@ -1,0 +1,61 @@
+	<!-- @removed: mdl-layout--fixed-drawer -->
+	<div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-header"> 
+		
+		{{> page/header}}
+		
+		{{> page/nav_bar}}
+<!--
+		<script>
+			
+				{{#each apps}}
+				var {{this.id}} = function(){};
+				{{/each}}
+			
+		</script>
+-->
+		<main class="mdl-layout__content mdl-color--grey-100">
+			{{#each apps}}
+				{{#if this.role}}
+				<div id="{{this.id}}" class="mdl-grid demo-content" data-bind="page:
+				{
+				with: {{this.id}},
+				id: '{{this.id}}',
+				role: '{{this.role}}'
+				}
+				">
+
+						<div class="mdl-layout-spacer"></div>
+						
+						<div class="mdl-cell mdl-cell--4-col">
+							<table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
+								<thead>
+									<tr>
+										<th class="mdl-data-table__cell--non-numeric">Zone</th>
+									</tr>
+								</thead>
+								<tbody data-bind="foreach: zones">
+									<tr>
+										<td class="mdl-data-table__cell--non-numeric" data-bind="text: zone"></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div class="mdl-layout-spacer"></div>
+				</div>
+				{{else}}
+				<div data-bind="page:
+				{
+				id: '{{this.id}}',
+				sourceLoaded: mdl_init,
+				sourceOnShow: '{{this.href}} #{{this.id}}'
+				
+				}
+				">
+				</div>
+				{{/if}}
+			{{/each}}
+		
+		</main>
+	</div>
+		
+

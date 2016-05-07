@@ -4,14 +4,23 @@
 		{{> page/header}}
 		
 		{{> page/nav_bar}}
-		
+<!--
+		<script>
+			
+				{{#each apps}}
+				var {{this.id}} = {};
+				{{/each}}
+			
+		</script>
+-->
 		<main class="mdl-layout__content mdl-color--grey-100">
 			{{#each apps}}
 				{{#if this.role}}
 				<div id="{{this.id}}" class="mdl-grid demo-content" data-bind="page:
 				{
+				with: {{this.id}},
 				id: '{{this.id}}',
-				role: '{{this.role}}'
+				role: '{{this.role}}',
 				}
 				">
 				
@@ -97,9 +106,11 @@
 				<div data-bind="page:
 				{
 				id: '{{this.id}}',
+				sourceLoaded: mdl_init,
 				sourceOnShow: '{{this.href}} #{{this.id}}'
 				}
 				">
+				
 				</div>
 				{{/if}}
 			{{/each}}

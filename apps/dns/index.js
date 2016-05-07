@@ -15,8 +15,8 @@ module.exports = new Class({
   
   options: {
 	  
-	id: 'dashboard',
-	path: '/dashboard',
+	id: 'dns',
+	path: '/dns',
 	
 	/*authentication: {
 		users : [
@@ -74,7 +74,7 @@ module.exports = new Class({
 		}
 		else{
 			var view = Object.clone(this.express().get('default_view'));
-			view.tile = "Dashboard";
+			view.tile = "DNS";
 			
 			view.apps.each(function(value, index){
 				if(value.id == this.options.id){
@@ -87,20 +87,20 @@ module.exports = new Class({
 				}
 			}.bind(this));
 			
-			view.body_scripts.push('/public/apps/dashboard/index.js');
+			view.body_scripts.push('/public/apps/dns/index.js');
 			
 			res.render(path.join(__dirname, '/assets/index'), view);
 		}
   },
   
   initialize: function(options){
-		this.profile('dashboard_init');//start profiling
+		this.profile('dns_init');//start profiling
 		
 		this.parent(options);//override default options
 		
-		this.profile('dashboard_init');//end profiling
+		this.profile('dns_init');//end profiling
 		
-		this.log('dashboard', 'info', 'dashboard started');
+		this.log('dns', 'info', 'dns started');
   },
 	
 });

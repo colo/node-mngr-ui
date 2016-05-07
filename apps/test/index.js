@@ -119,7 +119,7 @@ module.exports = new Class({
   },
   
   get: function(req, res, next){
-		var view = this.express().get('default_view');
+		var view = Object.clone(this.express().get('default_view'));
 		view.tile = "Test";
 		
 		view.apps.each(function(value, index){
@@ -132,7 +132,8 @@ module.exports = new Class({
 				view.apps[index]['role'] = null;
 			}
 		}.bind(this));
-		//view.base= "/test";
+		
+		view.body_scripts.push('/public/apps/test/index.js');
 		
 			
 		res.render(path.join(__dirname, '/assets/index'), view);

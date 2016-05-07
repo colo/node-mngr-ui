@@ -1,15 +1,17 @@
 	<!-- @removed: mdl-layout--fixed-drawer -->
-	<div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-header"> 
+	<div id="loginBodyModel" class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-header"> 
 		
 		
 		<main class="mdl-layout__content mdl-color--grey-100">
 		<div class="mdl-grid demo-content">
-			
+			<div class="mdl-layout-spacer"></div>
+<!--
 			<div class="mdl-cell mdl-cell--4-col"></div>
+-->
 			
 			<div class="mdl-cell mdl-cell--4-col">
 				<section id="login" data-bind="with: login">	
-				<form method="POST" accept-charset="UTF-8" data-bind="submit: crypt">
+				<form method="POST" accept-charset="UTF-8" data-bind="submit: submit">
 					
 					<input type="hidden" name="password" id="password" data-bind="value: password"/>
 					
@@ -34,6 +36,7 @@
 						</div>
 	-->
 
+<!--
 						<div class="mdl-card__actions mdl-card--border">
 
 							<label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="switch-1">
@@ -42,16 +45,19 @@
 							</label>
 
 						</div>
+-->
 
-						<div class="mdl-card__actions mdl-card--border">
+						<div class="mdl-card__actions mdl-card--border mdl-typography--text-center">
 	<!--
 							<a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
 								View Updates
 							</a>
 	-->
+
 							<button type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
 								Login
 							</button>
+
 						</div>
 
 					</div>
@@ -59,7 +65,10 @@
 				</form>
 				</section>
 			</div>
+			<div class="mdl-layout-spacer"></div>
+<!--
 			<div class="mdl-cell mdl-cell--4-col"></div>
+-->
 		</div>
 		
 		
