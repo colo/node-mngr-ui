@@ -16,13 +16,13 @@
 			{{#if this.role}}
 			<div id="{{this.id}}" class="mdl-grid demo-content" data-bind="page:
 			{
-			with: {{this.id}},
 			id: '{{this.id}}',
 			role: '{{this.role}}'
 			}
 			">
-					
-					test app
+					<section data-bind="with: {{this.id}}">
+					<p data-bind="text: key"></p>
+					</section>
 					
 			</div>
 			{{else}}

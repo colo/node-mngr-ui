@@ -191,11 +191,16 @@ head.ready('history'
 		};
   };
   
-  
+  if(mainBodyModel.login() == null){
+		mainBodyModel.login(new LoginModel());
+	}
+	
+  /*
 	mainBodyModel.login = new LoginModel();
 	
 	ko.cleanNode(document.getElementById("main-body"));
 	ko.applyBindings(mainBodyModel, document.getElementById("main-body"));
+	*/
 	
   //mainBodyModel = {
 		//login: new LoginModel()

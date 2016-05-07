@@ -1,15 +1,17 @@
 
 head.ready('history'
 , function() {
-		 
 	
-  mainBodyModel.dashboard = ko.observable({
-	});
-  
-  
-	ko.cleanNode(document.getElementById("main-body"));
-	ko.applyBindings(mainBodyModel, document.getElementById("main-body"));
+	var DashBoardModel = function(){
+		var self = this;
+		self.key = "value";
+	};
+			 
+	if(mainBodyModel.dashboard() == null){
+		
+		mainBodyModel.dashboard(new DashBoardModel());
+		
+		console.log('dashboard binding applied');
+	}
 	
-	console.log('dashboard binding applied');
-  	
 });

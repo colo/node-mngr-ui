@@ -20,8 +20,11 @@ head.load([
 				var viewModel = function () {
 					var self = this;
 					
-					//self.login = ko.observable(null);
-					//self.dns = ko.observable(null);
+					self.login = ko.observable(null);
+					
+					self.dns = ko.observable(null);
+					
+					self.test = ko.observable(null);
 				}
 				
 				mainBodyModel = new viewModel();
@@ -40,7 +43,7 @@ head.load([
 				
 				
 				
-				//ko.applyBindings(mainBodyModel, document.getElementById("main-body"));
+				ko.applyBindings(mainBodyModel, document.getElementById("main-body"));
 
 				// start pager.js
 				//pager.start();
@@ -60,12 +63,12 @@ head.load([
 var mdl_init = function(page) {//apply on pagerjs external resources
 	console.log('mdl: ');
 	console.log(page);
-		document.documentElement.classList.add('mdl-js');
-		componentHandler.upgradeAllRegistered();
 		
 		head.js({ page: '/public/apps/'+page.currentId+'/index.js' });
 		head.ready('page',function(){
 			console.log('loaded...'+page.currentId);
+			document.documentElement.classList.add('mdl-js');
+			componentHandler.upgradeAllRegistered();
 		});
 };
 		

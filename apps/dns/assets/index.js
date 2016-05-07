@@ -15,7 +15,8 @@ head.ready('history'
 			{zone: "aamepsi.com.ar"},
 			{zone: "academiadederecho.com.ar"}
 		]);
-
+		
+		self.zones.extend({ rateLimit: 0 });
   };
   
   //DNSBodyModel = {
@@ -30,13 +31,34 @@ head.ready('history'
 			//{zone: "academiadederecho.com.ar"}
 		//]
 	//});
-  mainBodyModel.dns = new DNSModel();
-  //console.log('body');
-  //console.log(mainBodyModel);
-  ////ko.tasks.runEarly();
 	
-	ko.cleanNode(document.getElementById("main-body"));
-	ko.applyBindings(mainBodyModel, document.getElementById("main-body"));
+	//var DNSModel = {
+		
+		//zones: ko.observableArray([
+			//{zone: "aamepsi.com.ar"},
+			//{zone: "academiadederecho.com.ar"}
+		//])
+
+  //};
+  
+	console.log(mainBodyModel.dns());
+	
+	if(mainBodyModel.dns() == null){
+		//mainBodyModel.dns(DNSModel);
+		mainBodyModel.dns(new DNSModel());
+		//console.log('body');
+		//console.log(mainBodyModel);
+		////ko.tasks.runEarly();
+		
+		//ko.cleanNode(document.getElementById("main-body"));
+		//ko.applyBindings(mainBodyModel, document.getElementById("main-body"));
+		console.log('DNS binding applied');
+		//mainBodyModel.dns().zones([
+			//{zone: "aamepsi.com.ar"},
+			//{zone: "academiadederecho.com.ar"}
+		//]);
+		//mainBodyModel.dns().zones.push({zone: "aamepsi.com.ar"});
+	}
 	
 	//dns = new DNSModel();
 	//ko.applyBindings(); 
@@ -49,7 +71,7 @@ head.ready('history'
 				//]
     //});
 	//ko.applyBindings(mainBodyModel, document.getElementById("main-body"));
-  console.log('DNS binding applied');
+  
   //ko.applyBindings(DNSBodyModel, document.getElementById("DNSBodyModel"));
 		
 });

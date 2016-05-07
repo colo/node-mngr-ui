@@ -1,15 +1,16 @@
 
 head.ready('history'
 , function() {
-		 
+ 
+	var TestModel = function(){
+		var self = this;
+		self.key = "value";
+	};
 	
-  mainBodyModel.test = ko.observable({
-	});
-  
-  
-	ko.cleanNode(document.getElementById("main-body"));
-	ko.applyBindings(mainBodyModel, document.getElementById("main-body"));
-	
-	console.log('test binding applied');
-  	
+	if(mainBodyModel.test() == null){
+		
+		mainBodyModel.test(new TestModel());
+		
+		console.log('test binding applied');
+	}
 });
