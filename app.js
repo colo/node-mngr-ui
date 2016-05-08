@@ -26,65 +26,72 @@ var MyApp = new Class({
   authentication: null,
   
   //apps: [],
+  
   options: {
 	  
-	id: 'root',
-	path: '/',
-	
-	logs: { 
-		path: './logs' 
-	},
-	
-	authentication: {
-		users : [
-			  { id: 1, username: 'lbueno' , role: 'admin', password: '40bd001563085fc35165329ea1ff5c5ecbdbbeef'}, //sha-1 hash
-			  //{ id: 1, username: 'lbueno' , role: 'admin', password: '123'}, //sha-1 hash
-			  { id: 2, username: 'test' , role: 'user', password: '123'}
-		],
-	},
-	
-	authorization: {
-		config: path.join(__dirname,'./config/rbac.json'),
-	},
-	
-	routes: {
+		id: 'root',
+		path: '/',
 		
-		post: [
-		  {
-			path: '',
-			callbacks: ['check_authentication', 'post']
-		  },
-		],
-		all: [
-		  {
-			path: '',
-			callbacks: ['get']
-		  },
-		]
-	},
-	
-	api: {
+		logs: { 
+			path: './logs' 
+		},
 		
-		version: '1.0.0',
+		authentication: {
+			users : [
+					{ id: 1, username: 'lbueno' , role: 'admin', password: '40bd001563085fc35165329ea1ff5c5ecbdbbeef'}, //sha-1 hash
+					//{ id: 1, username: 'lbueno' , role: 'admin', password: '123'}, //sha-1 hash
+					{ id: 2, username: 'test' , role: 'user', password: '123'}
+			],
+		},
+		
+		authorization: {
+			config: path.join(__dirname,'./config/rbac.json'),
+		},
 		
 		routes: {
+			
 			post: [
-			  {
+				{
 				path: '',
-				callbacks: ['check_authentication', 'post'],
-			  },
+				callbacks: ['check_authentication', 'post']
+				},
 			],
 			all: [
-			  {
+				{
 				path: '',
-				callbacks: ['get'],
-				version: '',
-			  },
+				callbacks: ['get']
+				},
 			]
 		},
 		
-	},
+		api: {
+			
+			version: '1.0.0',
+			
+			path: '/api',
+			
+			routes: {
+				all: [
+					{
+						path: 'apps',
+						callbacks: ['apps'],
+						version: '',
+					},
+				]
+			},
+			
+		},
   },
+  apps: function(req, res, next){
+		
+		if(req.isAuthenticated()){
+			res.jsonp(this.express().get('apps'));
+		}
+		else{
+			res.jsonp([{ id: 'login' }]);
+		}
+		
+	},
   set_default_view: function(){
 		
 		this.express().set('default_view',{
@@ -123,7 +130,12 @@ var MyApp = new Class({
       ],
       body_scripts: [
 				//"/public/mdl/material.min.js"
+				"/api/apps/?callback=update_view",
 				"/public/js/root.js",
+      ],
+      body_script: [
+				"var apps = [];"+
+				"var update_view = function(params){ apps = params; };"
       ],
       css: [
             //"/public/mdl/material.min.css",
@@ -143,7 +155,7 @@ var MyApp = new Class({
 				"z-index: 900;\n" +
 			"}",
 			
-			apps: [],
+			apps: this.express().get('apps'),
 			
 		});
 		
@@ -219,13 +231,16 @@ var MyApp = new Class({
 			//this.express().set('nav_bar', nav_bar);
 			
 			if(!app.hidden){
-				this.express().get('default_view').apps.push(app_info);
+				//this.express().get('default_view').apps.push(app_info);
+				this.express().get('apps').push(app_info);
 			}
 			
 			//console.log(this.apps);
 		});
 		
 		this.parent(options);//override default options
+		
+		this.express().set('apps', []);
 		
 		this.profile('root_init');//start profiling
 		

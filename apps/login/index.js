@@ -162,6 +162,9 @@ module.exports = new Class({
 					"/public/js/root.js",
 					"/public/apps/login/index.js",
 				],
+				body_script: [
+					"var apps = "+JSON.stringify([{ id: 'login'}])+";",
+				],
 				css: [
 							"https://code.getmdl.io/1.1.3/material.cyan-light_blue.min.css",
 							"/public/mdl-dashboard/styles.css",

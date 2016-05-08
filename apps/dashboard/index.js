@@ -76,6 +76,9 @@ module.exports = new Class({
 			var view = Object.clone(this.express().get('default_view'));
 			view.tile = "Dashboard";
 			
+			console.log('dashboard apps');
+			console.log(view.body_script);
+			
 			view.apps.each(function(value, index){
 				if(value.id == this.options.id){
 					

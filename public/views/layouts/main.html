@@ -7,6 +7,10 @@
   <body id="main-body">
 	{{{body}}}
 	
+	<script>
+	{{{body_script}}}
+	</script>
+	
 	{{#each body_scripts}}
 	<script src="{{{this}}}"></script>
 	{{/each}}
@@ -15,9 +19,6 @@
   <link href="{{{this}}}" rel="stylesheet">
 	{{/each}}
 
-	<script>
-	{{{body_script}}}
-	</script>
 	
 	<style>
 	{{{body_style}}}

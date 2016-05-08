@@ -15,6 +15,7 @@
   "dependencies": {
     "pagerjs": "^1.0.1",
     "headjs": "^1.0.3",
-    "history.js": "^1.8.0"
+    "history.js": "^1.8.0",
+    "mootools": "^1.6.0"
   }
 }

@@ -191,8 +191,12 @@ head.ready('history'
 		};
   };
   
+  //mainBodyModel.apps.push('login');
+  
   if(mainBodyModel.login() == null){
+		
 		mainBodyModel.login(new LoginModel());
+		
 	}
 	
   /*

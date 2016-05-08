@@ -2,6 +2,8 @@ var mainBodyModel = {};
 
 head.js({ mdl: "/public/mdl/material.min.js" }); //no dependencies
 head.js({ resilient: "/public/apps/login/bower/resilient/resilient.min.js" }); //no dependencies
+head.js({ mootools: "/public/bower/mootools/dist/mootools-core.min.js" }); //no dependencies
+ 
 
 /**
  *  @pager
@@ -20,19 +22,72 @@ head.load([
 				var viewModel = function () {
 					var self = this;
 					
-					self.login = ko.observable(null);
+					console.log(apps);
 					
-					self.dns = ko.observable(null);
+					apps.each(function(app){
+						self[app.id] = ko.observable(null);
+					});
+					 
+					//self.apps = ko.observableArray([]);
+					 
+					//self.apps.subscribe(function(app) {
+						//console.log("Suscribe: " + app);
+						//self[app] = ko.observable(null);
+					//});
+					 
+					//self.login = ko.observable(null);
 					
-					self.test = ko.observable(null);
+					//self.dns = ko.observable(null);
+					
+					//self.test = ko.observable(null);
 				}
 				
+				//var update_view_model = function(apps){//JSONP callback
+					//console.log('updating view model...');
+					
+					//apps.each(function(app){
+						//viewModel[app] = ko.observable(null);
+					//});
+				//}
+				
+				//var servers = [
+					//window.location.protocol+'//'+window.location.host
+				//];
+				//var client = resilient({
+					 //service: { 
+						 //basePath: '/',
+						 //headers : { "Content-Type": "application/json" },
+						 ////data: { "username": form.username.value, "password": form.password.value }
+					 //}
+				 //});
+				 
+				//client.setServers(servers);
+				
+
+				//client.get('api/apps/?callback=update_view_model', function(err, res){
+					//if(err){
+						//console.log('Error:', err);
+						//console.log('Response:', err.data);
+					//}
+					//else{
+						//console.log('Ok:', res);
+						//console.log('Body:', res.data);
+						////res.data();
+						////window.location.assign(res.headers.Link.split(';')[0]);
+						////window.location.replace(res.headers.Link.split(';')[0].replace(/<|>/g, ''));
+						
+						
+					//}
+				//});
+			
 				mainBodyModel = new viewModel();
 				
+				console.log('viewModel');
+				console.log(mainBodyModel);
 				// use HTML5 history
-        pager.useHTML5history = true;
-        // use History instead of history
-        pager.Href5.history = History;
+				pager.useHTML5history = true;
+				// use History instead of history
+				pager.Href5.history = History;
 
 				// extend your view-model with pager.js specific data
 				pager.extendWithPage(mainBodyModel);
@@ -53,6 +108,7 @@ head.load([
 				//http://stackoverflow.com/questions/15022113/how-to-organize-a-spa-with-knockoutjs-sammyjs-and-pagerjs
 				
 				console.log('main-body binding applied');
+						
 			});
 		});
 		
