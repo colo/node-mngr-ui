@@ -64,8 +64,8 @@ module.exports = new Class({
   login: function(req, res, next){
 		
 		
-		console.log('Login Request');
-		console.log(req.headers.authorization);
+		//console.log('Login Request');
+		//console.log(req.headers.authorization);
 		
 		this.authenticate(req, res, next,  function(err, user, info) {
 			
@@ -78,8 +78,8 @@ module.exports = new Class({
 				//return next(err)
 			}
 			if (!user) {
-				console.log('info: ');
-				console.log(info);
+				//console.log('info: ');
+				//console.log(info);
 				
 				this.log('login', 'warn', 'login authenticate ' + info);
 				
@@ -116,8 +116,8 @@ module.exports = new Class({
 			// 		});
 					res.cookie('bad', false, { maxAge: 0, httpOnly: false });
 					
-					console.log(req.protocol);
-					console.log(req.hostname);
+					//console.log(req.protocol);
+					//console.log(req.hostname);
 					res.status(201).links({ next: req.protocol+'://'+req.hostname+':8080/'}).json({'status': 'ok'});
 					
 				}.bind(this));

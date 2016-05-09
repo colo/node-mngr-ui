@@ -53,10 +53,10 @@ module.exports = new Class({
 		},
   },
   logout: function(req, res, next){
-		console.log('logout');
+		//console.log('logout');
 		
 		if (req.isAuthenticated()) {
-			console.log('logout-authenticated');
+			//console.log('logout-authenticated');
 			
 			this.profile('logout');//start profiling
 			this.log('logout', 'info', 'logout' + util.inspect( req.user ));

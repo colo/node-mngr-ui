@@ -50,12 +50,12 @@ var MyApp = new Class({
 		
 		routes: {
 			
-			post: [
-				{
-				path: '',
-				callbacks: ['check_authentication', 'post']
-				},
-			],
+			//post: [
+				//{
+				//path: '',
+				//callbacks: ['check_authentication', 'post']
+				//},
+			//],
 			all: [
 				{
 				path: '',
@@ -169,50 +169,25 @@ var MyApp = new Class({
 			res.status(403).redirect('/login');
 		}
 		
-		//var view = this.express().get('default_view');
-		//view.tile = "Panel",
-		//view.base= "/";
-		
-		//res.render(path.join(__dirname, '/public/views/root'), view);
-		
-		////console.log('root get');
-		////console.log('req.isAuthenticated');
-		////console.log(req.isAuthenticated());
-		
-		////console.log('isAuthorized');
-		////console.log(this.isAuthorized({ op: 'view', res: 'abm'}));
-		////console.log(this.getSession().getRole().getID());
-
-		
-		////if(Object.getLength(req.params) == 0){
-			////res.json({ title: 'Root app', content_type: req.get('content-type') });
-		////}
-		////else if(req.params.service_action){
-			////res.json({ title: 'Root app', param: req.params, content_type: req.get('content-type') });
-		////}
-		////else{
-			//////console.log({ title: 'Admin app', param: req.params });
-			////next();
-		////}
 		
   },
   
-  post: function(req, res, next){
+  //post: function(req, res, next){
 	  
-		console.log('root post');
-		//console.log(req.headers);
-		res.json({ title: 'Root POST' });
+		////console.log('root post');
+		//////console.log(req.headers);
+		//res.json({ title: 'Root POST' });
 		
-  },
+  //},
   
   initialize: function(options){
 		
 		this.addEvent(this.ON_USE, function(mount, app){
 			var app_info = {};
 			
-			console.log('loading app...');
-			console.log(mount);
-			console.log(path.join(__dirname, 'apps', mount, '/assets'));
+			//console.log('loading app...');
+			//console.log(mount);
+			//console.log(path.join(__dirname, 'apps', mount, '/assets'));
 			
 			this.express().use('/public/apps' + mount, serveIndex(path.join(__dirname, 'apps', mount, '/assets'), {icons: true}));
 			this.express().use('/public/apps' + mount, serveStatic(path.join(__dirname, 'apps', mount, '/assets')));
@@ -235,7 +210,7 @@ var MyApp = new Class({
 				this.express().get('apps').push(app_info);
 			}
 			
-			//console.log(this.apps);
+			////console.log(this.apps);
 		});
 		
 		this.parent(options);//override default options
@@ -251,8 +226,8 @@ var MyApp = new Class({
 			// 	authentication.addEvent(authentication.ON_AUTH, this.logAuthentication.bind(this));
 			this.authorization.addEvent(this.authorization.NEW_SESSION, function(obj){
 	  
-			//   console.log('event');
-			//   console.log(obj);
+			//   //console.log('event');
+			//   //console.log(obj);
 			  
 			  if(!obj.error){
 				
@@ -314,7 +289,7 @@ var MyApp = new Class({
 		
 		this.set_default_view();
 		
-		//console.log('DEFAULT_VIEW');
+		////console.log('DEFAULT_VIEW');
 		//this.express().get('default_view').apps.push({name: 'Home', href: "'/'", icon: 'home'});
 		
 		//this.express().set('nav_bar', [{name: 'Home', href: "'/'", icon: 'home'}]);

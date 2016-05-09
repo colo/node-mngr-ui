@@ -140,13 +140,13 @@ module.exports = new Class({
 		
   },
   //get: function(req, res, next){
-		//console.log('test get');
-		//console.log('req.isAuthenticated');
-		//console.log(req.isAuthenticated());
+		////console.log('test get');
+		////console.log('req.isAuthenticated');
+		////console.log(req.isAuthenticated());
 		
-		//console.log('isAuthorized');
-		//console.log(this.isAuthorized({ op: 'view', res: 'abm'}));
-		//console.log(this.getSession().getRole().getID());
+		////console.log('isAuthorized');
+		////console.log(this.isAuthorized({ op: 'view', res: 'abm'}));
+		////console.log(this.getSession().getRole().getID());
 
 		
 		//if(Object.getLength(req.params) == 0){
@@ -156,7 +156,7 @@ module.exports = new Class({
 			//res.json({ title: 'test app', param: req.params, content_type: req.get('content-type') });
 		//}
 		//else{
-			////console.log({ title: 'test app', param: req.params });
+			//////console.log({ title: 'test app', param: req.params });
 			//next();
 		//}
 		
@@ -164,8 +164,8 @@ module.exports = new Class({
   
   post: function(req, res, next){
 	  
-		console.log('test post');
-		//console.log(req.headers);
+		//console.log('test post');
+		////console.log(req.headers);
 		res.json({ title: 'test app POST' });
 		
   },
@@ -184,8 +184,8 @@ module.exports = new Class({
 			// 	authentication.addEvent(authentication.ON_AUTH, this.logAuthentication.bind(this));
 			this.authorization.addEvent(this.authorization.NEW_SESSION, function(obj){
 	  
-			//   console.log('event');
-			//   console.log(obj);
+			//   //console.log('event');
+			//   //console.log(obj);
 			  
 			  if(!obj.error){
 				

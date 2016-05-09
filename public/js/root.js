@@ -22,7 +22,7 @@ head.load([
 				var viewModel = function () {
 					var self = this;
 					
-					console.log(apps);
+					//console.log(apps);
 					
 					apps.each(function(app){
 						self[app.id] = ko.observable(null);
@@ -31,7 +31,7 @@ head.load([
 					//self.apps = ko.observableArray([]);
 					 
 					//self.apps.subscribe(function(app) {
-						//console.log("Suscribe: " + app);
+						////console.log("Suscribe: " + app);
 						//self[app] = ko.observable(null);
 					//});
 					 
@@ -43,7 +43,7 @@ head.load([
 				}
 				
 				//var update_view_model = function(apps){//JSONP callback
-					//console.log('updating view model...');
+					////console.log('updating view model...');
 					
 					//apps.each(function(app){
 						//viewModel[app] = ko.observable(null);
@@ -66,12 +66,12 @@ head.load([
 
 				//client.get('api/apps/?callback=update_view_model', function(err, res){
 					//if(err){
-						//console.log('Error:', err);
-						//console.log('Response:', err.data);
+						////console.log('Error:', err);
+						////console.log('Response:', err.data);
 					//}
 					//else{
-						//console.log('Ok:', res);
-						//console.log('Body:', res.data);
+						////console.log('Ok:', res);
+						////console.log('Body:', res.data);
 						////res.data();
 						////window.location.assign(res.headers.Link.split(';')[0]);
 						////window.location.replace(res.headers.Link.split(';')[0].replace(/<|>/g, ''));
@@ -82,8 +82,8 @@ head.load([
 			
 				mainBodyModel = new viewModel();
 				
-				console.log('viewModel');
-				console.log(mainBodyModel);
+				//console.log('viewModel');
+				//console.log(mainBodyModel);
 				// use HTML5 history
 				pager.useHTML5history = true;
 				// use History instead of history
@@ -107,7 +107,7 @@ head.load([
 
 				//http://stackoverflow.com/questions/15022113/how-to-organize-a-spa-with-knockoutjs-sammyjs-and-pagerjs
 				
-				console.log('main-body binding applied');
+				//console.log('main-body binding applied');
 						
 			});
 		});
@@ -117,12 +117,12 @@ head.load([
 
 
 var mdl_init = function(page) {//apply on pagerjs external resources
-	console.log('mdl: ');
-	console.log(page);
+	//console.log('mdl: ');
+	//console.log(page);
 		
 		head.js({ page: '/public/apps/'+page.currentId+'/index.js' });
 		head.ready('page',function(){
-			console.log('loaded...'+page.currentId);
+			//console.log('loaded...'+page.currentId);
 			document.documentElement.classList.add('mdl-js');
 			componentHandler.upgradeAllRegistered();
 		});
