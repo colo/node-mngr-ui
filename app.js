@@ -134,8 +134,8 @@ var MyApp = new Class({
 				"/public/js/root.js",
       ],
       body_script: [
-				"var apps = [];"+
-				"var update_view = function(params){ apps = params; };"
+				"var apps = [];\n"+
+				"var update_view = function(params){ apps = params; };\n"
       ],
       css: [
             //"/public/mdl/material.min.css",

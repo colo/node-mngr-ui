@@ -48,15 +48,17 @@ module.exports = new Class({
 		
 		version: '1.0.0',
 		
+		path: '/api',
+		
 		routes: {
 			
-			//all: [
-			  //{
-					//path: '',
-					//callbacks: ['get_no_version_available'],
-					//version: '',
-			  //},
-			//]
+			all: [
+			  {
+					path: 'server',
+					callbacks: ['server'],
+					version: '',
+			  },
+			]
 		},
 		
 	},
@@ -67,7 +69,9 @@ module.exports = new Class({
 		//res.status(404).json({ message: 'No API version available' });
 		
   //},
-  
+  server: function(req, res, next){
+		res.jsonp("http://"+req.hostname+":8081");
+	},
   render: function(req, res, next){
 		if(!req.isAuthenticated()){
 			res.status(403).redirect('/');
@@ -87,7 +91,10 @@ module.exports = new Class({
 				}
 			}.bind(this));
 			
+			//view.body_scripts.push('"/dns/api/server/?callback=update_view",');
 			view.body_scripts.push('/public/apps/dns/index.js');
+			
+			//view.body_script.push("var dns_server = 'http://"+req.hostname+":8081';\n");
 			
 			res.render(path.join(__dirname, '/assets/index'), view);
 		}
