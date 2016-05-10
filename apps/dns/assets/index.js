@@ -38,7 +38,7 @@ head.ready('jsonp', function(){
 			client.setServers(servers);
 			
 
-			client.get('/zones/', function(err, res){
+			client.get('/zones/?start=0&end=9', function(err, res){
 				if(err){
 					console.log('Error:', err);
 					console.log('Response:', err.data);

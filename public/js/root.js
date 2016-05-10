@@ -119,6 +119,12 @@ head.load([
 var mdl_init = function(page) {//apply on pagerjs external resources
 	//console.log('mdl: ');
 	//console.log(page);
+		//head.ready(function() {
+    //// push a function to the end of the page for later execution
+    //// runs as soon as the document is ready
+    //document.documentElement.classList.add('mdl-js');
+		//componentHandler.upgradeAllRegistered();
+		//});
 		
 		head.js({ page: '/public/apps/'+page.currentId+'/index.js' });
 		head.ready('page',function(){

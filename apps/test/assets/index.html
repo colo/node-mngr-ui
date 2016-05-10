@@ -14,16 +14,19 @@
 		
 		{{#each apps}}
 			{{#if this.role}}
-			<div id="{{this.id}}" class="mdl-grid demo-content" data-bind="page:
+			<div data-bind="page:
 			{
 			id: '{{this.id}}',
 			role: '{{this.role}}'
 			}
 			">
-					<section data-bind="with: {{this.id}}">
-					<p data-bind="text: key"></p>
-					</section>
-					
+				<div id="{{this.id}}" class="mdl-grid demo-content" data-bind="with: {{this.id}}">
+					<div class="mdl-layout-spacer"></div>
+					<div class="mdl-cell mdl-cell--4-col">
+						<p data-bind="text: key"></p>
+					</div>
+					<div class="mdl-layout-spacer"></div>
+				</div>
 			</div>
 			{{else}}
 			<div data-bind="page:

@@ -16,30 +16,32 @@
 		<main class="mdl-layout__content mdl-color--grey-100">
 			{{#each apps}}
 				{{#if this.role}}
-				<div id="{{this.id}}" class="mdl-grid demo-content" data-bind="page:
+				<div data-bind="page:
 				{
 				id: '{{this.id}}',
 				role: '{{this.role}}'
 				}
 				">
-
-						<div class="mdl-layout-spacer"></div>
-						
-						<div class="mdl-cell mdl-cell--4-col" data-bind="with: {{this.id}}">
-							<table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp">
-								<thead>
-									<tr>
-										<th class="mdl-data-table__cell--non-numeric">Zone</th>
-									</tr>
-								</thead>
-								<tbody data-bind="foreach: zones">
-									<tr>
-										<td class="mdl-data-table__cell--non-numeric" data-bind="text: $data"></td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
-						<div class="mdl-layout-spacer"></div>
+					<div id="{{this.id}}" class="mdl-grid demo-content" data-bind="with: {{this.id}}">
+							<div class="mdl-layout-spacer"></div>
+							
+							<div class="mdl-cell mdl-cell--4-col">
+								<!-- @removed mdl-data-table--selectable  -->
+								<table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+									<thead>
+										<tr>
+											<th class="mdl-data-table__cell--non-numeric">Zone</th>
+										</tr>
+									</thead>
+									<tbody data-bind="foreach: zones">
+										<tr>
+											<td class="mdl-data-table__cell--non-numeric" data-bind="text: $data"></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="mdl-layout-spacer"></div>
+					</div>
 				</div>
 				{{else}}
 				<div data-bind="page:
