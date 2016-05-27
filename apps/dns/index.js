@@ -73,6 +73,9 @@ module.exports = new Class({
 		res.jsonp("http://"+req.hostname+":8081");
 	},
   render: function(req, res, next){
+		
+		//console.log('DNS render');
+		
 		if(!req.isAuthenticated()){
 			res.status(403).redirect('/');
 		}

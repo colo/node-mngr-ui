@@ -1,6 +1,7 @@
 var loginBodyModel = {};
 head.js({ crypto: "/public/apps/login/bower/cryptojslib/rollups/sha1.js" }); //no dependencies
 
+head.load({ li: "/public/bower/li/lib/index.js" });//parse Link header
 
 /* head.load([
 	{ ko: "/public/bower/knockoutjs/dist/knockout.js" },//no dependencies
@@ -182,8 +183,12 @@ head.ready('history'
 				else{
 					console.log('Ok:', res);
 					console.log('Body:', res.data);
+					console.log(li.parse(res.headers.Link));
+					
+					window.location.replace(li.parse(res.headers.Link).next);
+					
 					//window.location.assign(res.headers.Link.split(';')[0]);
-					window.location.replace(res.headers.Link.split(';')[0].replace(/<|>/g, ''));
+					//window.location.replace(res.headers.Link.split(';')[0].replace(/<|>/g, ''));
 				}
 			});
 	
