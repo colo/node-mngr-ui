@@ -16,6 +16,7 @@
     "pagerjs": "^1.0.1",
     "headjs": "^1.0.3",
     "history.js": "^1.8.0",
-    "mootools": "^1.6.0"
+    "mootools": "^1.6.0",
+    "li": "^1.0.1"
   }
 }
