@@ -39,6 +39,7 @@
 												</label>
 											</th>
 											<th class="mdl-data-table__cell--non-numeric">Zones</th>
+											<th class="mdl-data-table__cell--non-numeric"></th>
 										</tr>
 									</thead>
 									<tfoot>
@@ -47,27 +48,35 @@
 											</td>
 											<td class="mdl-data-table__cell--non-numeric">
 												
-												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" disabled>
+												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" disabled data-bind="click: first_page">
 													<i class="material-icons">skip_previous</i>
 												</button>
 												
-												<button class="mdl-button mdl-js-button mdl-button--primary">
-													1
+												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" disabled data-bind="click: prev_page">
+													<i class="material-icons">fast_rewind</i>
 												</button>
+												
+												<!-- ko foreach: pages -->
 <!--
-												<button class="mdl-button mdl-js-button mdl-button--primary">
-													2
-												</button>
-												<button class="mdl-button mdl-js-button mdl-button--primary">
-													3
+												<button class="mdl-button mdl-js-button mdl-button--primary" data-bind="text: $data">
+
 												</button>
 -->
-												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored">
+												<!-- /ko -->
+												
+												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click: next_page">
+													<i class="material-icons">fast_forward</i>
+												</button>
+												
+												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click: load_page.bind(URI, links.last)">
 													<i class="material-icons md-18">skip_next</i>
 												</button>
-												</div>
-												</div>
+												
 											</td>
+											
+											<td class="mdl-data-table__cell--non-numeric">
+											</td>
+
 										</tr>
 									</tfoot>
 									<tbody data-bind="foreach: zones">
@@ -80,6 +89,8 @@
 												
 											</td>
 											<td class="mdl-data-table__cell--non-numeric" data-bind="text: $data"></td>
+											<td class="mdl-data-table__cell--non-numeric">
+											</td>
 										</tr>
 									</tbody>
 								</table>

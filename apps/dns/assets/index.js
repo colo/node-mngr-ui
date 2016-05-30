@@ -31,21 +31,55 @@ head.ready('jsonp', function(){
 			self.zones = ko.observableArray([
 			]);
 			
+			self.pages = ko.observableArray([1,2,3]);
+			
+			self.links = ko.observable({
+				last: '',
+			});
+			
+			//self.pager_buttons = ko.observable({
+				//first: {},
+				//last: {},
+				//next: {},
+				//prev: {},
+			//});
+			
+			first_page = function(){
+				console.log('button');
+			};
+			
+			prev_page = function(){
+				console.log('button');
+			};
+			
+			next_page = function(){
+				console.log('button');
+			};
+			
+			last_page = function(button){
+				console.log('button');
+				console.log(button);
+			};
+			
 			console.log('dns server');
 			console.log(dns_server);
 			
 			var servers = [
 					dns_server
 			];
+			
 			var client = resilient({
 				 service: { 
 					 basePath: '/bind',
 					 headers : { "Content-Type": "application/json" }
 				 }
-			 });
+			});
+			
 			client.setServers(servers);
 			
-			var param = '?first=10';
+			var ITEMS_PER_PAGE = 10;
+			
+			var param = '?first='+ITEMS_PER_PAGE;
 			
 			if(getURLParameter('start') && getURLParameter('start') >= 0){
 				param = '?start='+getURLParameter('start');
@@ -69,36 +103,49 @@ head.ready('jsonp', function(){
 			
 			//pager.navigate('http://localhost:8080/dns/?start='+start+'&end='+end);
 			//console.log('pager.Page.getFullRoute()');
-			var URI = window.location.protocol+'//'+window.location.host+window.location.pathname;
 			
-			pager.navigate(URI+'/'+param);//change window URI
+			URI = window.location.protocol+'//'+window.location.host+window.location.pathname;
 			
-			client.get('/zones/'+param, function(err, res){
-				if(err){
-					console.log('Error:', err);
-					console.log('Response:', err.data);
-				}
-				else{
-					console.log('Ok:', res);
-					console.log('Body:', res.data);
-					console.log('headers');
-					console.log(res.headers);
-					
-					self.zones(res.data);
-					
-					//console.log(li.parse(res.headers.Link).next);
-					//console.log(getURLParameter('start', li.parse(res.headers.Link).next));
-					//console.log(getURLParameter('end', li.parse(res.headers.Link).next));
-					
-					//change URL only...nice!!!
-					/*var start = getURLParameter('start', li.parse(res.headers.Link).next);
-					var end = getURLParameter('end', li.parse(res.headers.Link).next);
-					pager.navigate('http://localhost:8080/dns/?start='+start+'&end='+end);*/
-					
-					//window.location.replace(res.headers.Link.split(';')[0].replace(/<|>/g, ''));
-				}
-			});
+			//pager.navigate(URI+'/'+param);//change window URI
+			
+			load_page = function(URI, param){
+				console.log('loading...');
+				console.log('URI: '+URI);
+				console.log('param: '+param);
 				
+				client.get('/zones/'+param, function(err, res){
+					if(err){
+						console.log('Error:', err);
+						console.log('Response:', err.data);
+					}
+					else{
+						console.log('Ok:', res);
+						console.log('Body:', res.data);
+						console.log('headers');
+						console.log(res.headers);
+						
+						self.zones(res.data);
+						
+						console.log(res.headers['Content-Range'].split('/')[1]/ITEMS_PER_PAGE);
+						console.log(getURLParameter('start', li.parse(res.headers.Link).next));
+						console.log(getURLParameter('end', li.parse(res.headers.Link).next));
+						
+						console.log('li.parse(res.headers.Link).last');
+						console.log(li.parse(res.headers.Link).last);
+						
+						self.links({last : li.parse(res.headers.Link).last});
+						
+						//change URL only...nice!!!
+						/*var start = getURLParameter('start', li.parse(res.headers.Link).next);
+						var end = getURLParameter('end', li.parse(res.headers.Link).next);
+						pager.navigate('http://localhost:8080/dns/?start='+start+'&end='+end);*/
+						
+						//window.location.replace(res.headers.Link.split(';')[0].replace(/<|>/g, ''));
+					}
+				});
+			};
+			
+			load_page(URI, param);
 
 		};
 		
