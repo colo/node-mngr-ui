@@ -34,10 +34,17 @@ head.ready('jsonp', function(){
 			self.pagination = {
 				ITEMS_PER_PAGE: 10,
 				
-				current_page: 0,
+				current_page: 1,
 				
 				total_count: 0,
-				total_pages: 0,
+				total_pages: 1,
+				
+				disabled: {
+					first: ko.observable(true),
+					prev: ko.observable(true),
+					next: ko.observable(false),
+					last: ko.observable(false)
+				},
 				
 				links: ko.observable({
 					first: null,
@@ -133,20 +140,49 @@ head.ready('jsonp', function(){
 						
 						self.pagination.total_count = res.headers['Content-Range'].split('/')[1];
 						
-						if(new RegExp(/\?first\=/).test(param)){
-							console.log('first page');
-							self.pagination.current_page = 0;
-						}
-						else{
-							self.pagination.total_pages = Math.ceil(self.pagination.total_count / self.pagination.ITEMS_PER_PAGE);
-
-							if(new RegExp(/\?last\=/).test(param)){
-								console.log('last page');
-								self.pagination.current_page = self.pagination.total_pages;
-							}
+						self.pagination.total_pages = Math.ceil(self.pagination.total_count / self.pagination.ITEMS_PER_PAGE);
+						
+						if(self.pagination.total_pages > 1){
 							
-							console.log('pages :#'+self.pagination.total_pages);
+							if(new RegExp(/first\=/).test(param) ||
+								new RegExp(/start\=0/).test(param)){//first page of pages > 1
+									
+								console.log('first page');
+								self.pagination.disabled.first(true);
+								self.pagination.disabled.prev(true);
+								self.pagination.disabled.next(false);
+								self.pagination.disabled.last(false);
+								
+								self.pagination.current_page = 1;
+							}
+							else if(new RegExp(/\?last\=/).test(param) ||
+								new RegExp('end\='+new Number(self.pagination.total_count - 1)).test(param)){//last page of pages > 1
+									
+								console.log('last page');
+								self.pagination.disabled.first(false);
+								self.pagination.disabled.prev(false);
+								self.pagination.disabled.next(true);
+								self.pagination.disabled.last(true);
+							
+								self.pagination.current_page = self.pagination.total_pages;
+								
+							}
+							else{
+								self.pagination.disabled.first(false);
+								self.pagination.disabled.prev(false);
+								self.pagination.disabled.next(false);
+								self.pagination.disabled.last(false);
+							}
 						}
+						else{//no more than 1 page, disable all
+							self.pagination.disabled.first(true);
+							self.pagination.disabled.prev(true);
+							self.pagination.disabled.next(true);
+							self.pagination.disabled.last(true);
+							
+							self.pagination.current_page = 1;
+						}
+						
 						
 						var first = li.parse(res.headers.Link).first.replace(dns_server+'/bind/zones', '')+'='+self.pagination.ITEMS_PER_PAGE;
 						var prev = li.parse(res.headers.Link).prev.replace(dns_server+'/bind/zones', '');

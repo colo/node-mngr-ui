@@ -48,11 +48,11 @@
 											</td>
 											<td class="mdl-data-table__cell--non-numeric">
 												
-												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click:  function(data, event) { load_page(URI, pagination.links().first) }, disable: pagination.check_disabled('first')">
+												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click:  function(data, event) { load_page(URI, pagination.links().first) }, disable: pagination.disabled.first">
 													<i class="material-icons">skip_previous</i>
 												</button>
 												
-												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click:  function(data, event) { load_page(URI, pagination.links().prev) }, disable: pagination.check_disabled('prev') ">
+												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click:  function(data, event) { load_page(URI, pagination.links().prev) }, disable: pagination.disabled.prev ">
 													<i class="material-icons">fast_rewind</i>
 												</button>
 												
@@ -63,11 +63,11 @@
 												</button>
 -->
 												
-												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click:  function(data, event) { load_page(URI, pagination.links().next) }, disable: pagination.check_disabled('next') ">
+												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click:  function(data, event) { load_page(URI, pagination.links().next) }, disable: pagination.disabled.next ">
 													<i class="material-icons">fast_forward</i>
 												</button>
 												
-												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click:  function(data, event) { load_page(URI, pagination.links().last) }, disable: pagination.check_disabled('last')">
+												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click:  function(data, event) { load_page(URI, pagination.links().last) }, disable: pagination.disabled.last">
 													<i class="material-icons md-18">skip_next</i>
 												</button>
 												
