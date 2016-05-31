@@ -31,35 +31,37 @@ head.ready('jsonp', function(){
 			self.zones = ko.observableArray([
 			]);
 			
-			self.pages = ko.observableArray([1,2,3]);
+			self.pagination = {
+				ITEMS_PER_PAGE: 10,
+				
+				current_page: 0,
+				
+				total_count: 0,
+				total_pages: 0,
+				
+				links: ko.observable({
+					first: null,
+					prev: null,
+					next: null,
+					last: null,
+				}),
 			
-			self.links = ko.observable({
-				last: '',
-			});
-			
-			//self.pager_buttons = ko.observable({
-				//first: {},
-				//last: {},
-				//next: {},
-				//prev: {},
-			//});
-			
-			first_page = function(){
-				console.log('button');
+				check_disabled: function(button){
+					console.log('check_disabled');
+					console.log(button);
+					console.log('check_disabled->current_page');
+					console.log(self.pagination.current_page);
+					
+					var result = false;
+					
+					switch(button){
+						case 'first': if(self.pagination.current_page == 0) result = true; break;
+					}
+					
+					return result;
+				},
 			};
 			
-			prev_page = function(){
-				console.log('button');
-			};
-			
-			next_page = function(){
-				console.log('button');
-			};
-			
-			last_page = function(button){
-				console.log('button');
-				console.log(button);
-			};
 			
 			console.log('dns server');
 			console.log(dns_server);
@@ -77,11 +79,12 @@ head.ready('jsonp', function(){
 			
 			client.setServers(servers);
 			
-			var ITEMS_PER_PAGE = 10;
+			var param = '?first='+self.pagination.ITEMS_PER_PAGE;
 			
-			var param = '?first='+ITEMS_PER_PAGE;
-			
-			if(getURLParameter('start') && getURLParameter('start') >= 0){
+			if(getURLParameter('last') && getURLParameter('last') >= 0){
+				param = '?last='+getURLParameter('last');
+			}
+			else if(getURLParameter('start') && getURLParameter('start') >= 0){
 				param = '?start='+getURLParameter('start');
 				
 				if(getURLParameter('end') && getURLParameter('end') >= 0){
@@ -93,25 +96,27 @@ head.ready('jsonp', function(){
 				}
 			}
 			
-			console.log('start');
-			console.log(getURLParameter('start'));
-			console.log('end');
-			console.log(getURLParameter('end'));
+			//console.log('start');
+			//console.log(getURLParameter('start'));
+			//console.log('end');
+			//console.log(getURLParameter('end'));
 			
-			console.log('param');
-			console.log(param);
+			//console.log('param');
+			//console.log(param);
 			
 			//pager.navigate('http://localhost:8080/dns/?start='+start+'&end='+end);
 			//console.log('pager.Page.getFullRoute()');
 			
-			URI = window.location.protocol+'//'+window.location.host+window.location.pathname;
+			self.URI = window.location.protocol+'//'+window.location.host+window.location.pathname;
 			
 			//pager.navigate(URI+'/'+param);//change window URI
 			
 			load_page = function(URI, param){
 				console.log('loading...');
 				console.log('URI: '+URI);
-				console.log('param: '+param);
+				console.log('param: ');
+				console.log(param);
+				
 				
 				client.get('/zones/'+param, function(err, res){
 					if(err){
@@ -126,26 +131,46 @@ head.ready('jsonp', function(){
 						
 						self.zones(res.data);
 						
-						console.log(res.headers['Content-Range'].split('/')[1]/ITEMS_PER_PAGE);
-						console.log(getURLParameter('start', li.parse(res.headers.Link).next));
-						console.log(getURLParameter('end', li.parse(res.headers.Link).next));
+						self.pagination.total_count = res.headers['Content-Range'].split('/')[1];
 						
-						console.log('li.parse(res.headers.Link).last');
-						console.log(li.parse(res.headers.Link).last);
+						if(new RegExp(/\?first\=/).test(param)){
+							console.log('first page');
+							self.pagination.current_page = 0;
+						}
+						else{
+							self.pagination.total_pages = Math.ceil(self.pagination.total_count / self.pagination.ITEMS_PER_PAGE);
+
+							if(new RegExp(/\?last\=/).test(param)){
+								console.log('last page');
+								self.pagination.current_page = self.pagination.total_pages;
+							}
+							
+							console.log('pages :#'+self.pagination.total_pages);
+						}
 						
-						self.links({last : li.parse(res.headers.Link).last});
+						var first = li.parse(res.headers.Link).first.replace(dns_server+'/bind/zones', '')+'='+self.pagination.ITEMS_PER_PAGE;
+						var prev = li.parse(res.headers.Link).prev.replace(dns_server+'/bind/zones', '');
+						var next = li.parse(res.headers.Link).next.replace(dns_server+'/bind/zones', '');
+						var last = li.parse(res.headers.Link).last.replace(dns_server+'/bind/zones', '')+'='+self.pagination.ITEMS_PER_PAGE;
 						
-						//change URL only...nice!!!
-						/*var start = getURLParameter('start', li.parse(res.headers.Link).next);
-						var end = getURLParameter('end', li.parse(res.headers.Link).next);
-						pager.navigate('http://localhost:8080/dns/?start='+start+'&end='+end);*/
+						self.pagination.links({
+							//links should have more properties to check enable/disable??
+							first: first,
+							prev: prev,
+							next: next,
+							last : last
+						});
+						
+							
+						
+						pager.navigate(URI+param);
 						
 						//window.location.replace(res.headers.Link.split(';')[0].replace(/<|>/g, ''));
 					}
 				});
 			};
 			
-			load_page(URI, param);
+			load_page(self.URI, param);
 
 		};
 		

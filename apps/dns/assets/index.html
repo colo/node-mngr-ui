@@ -48,27 +48,26 @@
 											</td>
 											<td class="mdl-data-table__cell--non-numeric">
 												
-												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" disabled data-bind="click: first_page">
+												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click:  function(data, event) { load_page(URI, pagination.links().first) }, disable: pagination.check_disabled('first')">
 													<i class="material-icons">skip_previous</i>
 												</button>
 												
-												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" disabled data-bind="click: prev_page">
+												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click:  function(data, event) { load_page(URI, pagination.links().prev) }, disable: pagination.check_disabled('prev') ">
 													<i class="material-icons">fast_rewind</i>
 												</button>
 												
-												<!-- ko foreach: pages -->
+
 <!--
 												<button class="mdl-button mdl-js-button mdl-button--primary" data-bind="text: $data">
 
 												</button>
 -->
-												<!-- /ko -->
 												
-												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click: next_page">
+												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click:  function(data, event) { load_page(URI, pagination.links().next) }, disable: pagination.check_disabled('next') ">
 													<i class="material-icons">fast_forward</i>
 												</button>
 												
-												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click: load_page.bind(URI, links.last)">
+												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click:  function(data, event) { load_page(URI, pagination.links().last) }, disable: pagination.check_disabled('last')">
 													<i class="material-icons md-18">skip_next</i>
 												</button>
 												
