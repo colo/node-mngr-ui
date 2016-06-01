@@ -184,10 +184,15 @@ head.ready('jsonp', function(){
 						}
 						
 						
-						var first = li.parse(res.headers.Link).first.replace(dns_server+'/bind/zones', '')+'='+self.pagination.ITEMS_PER_PAGE;
-						var prev = li.parse(res.headers.Link).prev.replace(dns_server+'/bind/zones', '');
-						var next = li.parse(res.headers.Link).next.replace(dns_server+'/bind/zones', '');
-						var last = li.parse(res.headers.Link).last.replace(dns_server+'/bind/zones', '')+'='+self.pagination.ITEMS_PER_PAGE;
+						var first = new String(li.parse(res.headers.Link).first.replace(dns_server+'/bind/zones', '')+'='+self.pagination.ITEMS_PER_PAGE).replace('/', '');
+						var prev = new String(li.parse(res.headers.Link).prev.replace(dns_server+'/bind/zones', '')).replace('/', '');
+						var next = new String(li.parse(res.headers.Link).next.replace(dns_server+'/bind/zones', '')).replace('/', '');
+						
+						//var last = new String(li.parse(res.headers.Link).last.replace(dns_server+'/bind/zones', '')+'='+self.pagination.ITEMS_PER_PAGE).replace('/', '');
+						
+						var last_start = (self.pagination.total_pages - 1) * self.pagination.ITEMS_PER_PAGE;
+						var last_end = self.pagination.total_count - 1;
+						var last = '?start='+last_start+'&end='+last_end;
 						
 						self.pagination.links({
 							//links should have more properties to check enable/disable??
@@ -198,6 +203,9 @@ head.ready('jsonp', function(){
 						});
 						
 							
+						console.log('navigate');
+						console.log(URI);
+						console.log(param);
 						
 						pager.navigate(URI+param);
 						
