@@ -34,7 +34,7 @@ head.ready('jsonp', function(){
 			self.pagination = {
 				ITEMS_PER_PAGE: 10,
 				
-				current_page: 1,
+				//current_page: 1,
 				
 				total_count: 0,
 				total_pages: 1,
@@ -53,25 +53,12 @@ head.ready('jsonp', function(){
 					last: null,
 				}),
 			
-				check_disabled: function(button){
-					console.log('check_disabled');
-					console.log(button);
-					console.log('check_disabled->current_page');
-					console.log(self.pagination.current_page);
-					
-					var result = false;
-					
-					switch(button){
-						case 'first': if(self.pagination.current_page == 0) result = true; break;
-					}
-					
-					return result;
-				},
+				
 			};
 			
 			
-			console.log('dns server');
-			console.log(dns_server);
+			//console.log('dns server');
+			//console.log(dns_server);
 			
 			var servers = [
 					dns_server
@@ -95,34 +82,29 @@ head.ready('jsonp', function(){
 				param = '?start='+getURLParameter('start');
 				
 				if(getURLParameter('end') && getURLParameter('end') >= 0){
-					param += '&end='+getURLParameter('end');
+					
+					//don't allow to set more "items per page" than configured
+					if((getURLParameter('end') - getURLParameter('start')) > (self.pagination.ITEMS_PER_PAGE - 1)){
+						var end = new Number(getURLParameter('start')) + (self.pagination.ITEMS_PER_PAGE - 1);
+						param += '&end='+end;
+					}
+					else{
+						param += '&end='+getURLParameter('end');
+					}
 				}
 				else{
-					var end = new Number(getURLParameter('start')) + 9;
+					var end = new Number(getURLParameter('start')) + (self.pagination.ITEMS_PER_PAGE - 1);
 					param += '&end='+end;
 				}
 			}
 			
-			//console.log('start');
-			//console.log(getURLParameter('start'));
-			//console.log('end');
-			//console.log(getURLParameter('end'));
-			
-			//console.log('param');
-			//console.log(param);
-			
-			//pager.navigate('http://localhost:8080/dns/?start='+start+'&end='+end);
-			//console.log('pager.Page.getFullRoute()');
-			
 			self.URI = window.location.protocol+'//'+window.location.host+window.location.pathname;
 			
-			//pager.navigate(URI+'/'+param);//change window URI
-			
 			load_page = function(URI, param){
-				console.log('loading...');
-				console.log('URI: '+URI);
-				console.log('param: ');
-				console.log(param);
+				//console.log('loading...');
+				//console.log('URI: '+URI);
+				//console.log('param: ');
+				//console.log(param);
 				
 				
 				client.get('/zones/'+param, function(err, res){
@@ -138,9 +120,14 @@ head.ready('jsonp', function(){
 						
 						self.zones(res.data);
 						
-						self.pagination.total_count = res.headers['Content-Range'].split('/')[1];
-						
-						self.pagination.total_pages = Math.ceil(self.pagination.total_count / self.pagination.ITEMS_PER_PAGE);
+						if(res.status == 206){
+							self.pagination.total_count = res.headers['Content-Range'].split('/')[1];
+							self.pagination.total_pages = Math.ceil(self.pagination.total_count / self.pagination.ITEMS_PER_PAGE);
+						}
+						else{
+							self.pagination.total_pages = 1;
+							self.pagination.total_count = res.data.length;
+						}
 						
 						if(self.pagination.total_pages > 1){
 							
@@ -153,7 +140,7 @@ head.ready('jsonp', function(){
 								self.pagination.disabled.next(false);
 								self.pagination.disabled.last(false);
 								
-								self.pagination.current_page = 1;
+								//self.pagination.current_page = 1;
 							}
 							else if(new RegExp(/\?last\=/).test(param) ||
 								new RegExp('end\='+new Number(self.pagination.total_count - 1)).test(param)){//last page of pages > 1
@@ -164,7 +151,7 @@ head.ready('jsonp', function(){
 								self.pagination.disabled.next(true);
 								self.pagination.disabled.last(true);
 							
-								self.pagination.current_page = self.pagination.total_pages;
+								//self.pagination.current_page = self.pagination.total_pages;
 								
 							}
 							else{
@@ -180,22 +167,27 @@ head.ready('jsonp', function(){
 							self.pagination.disabled.next(true);
 							self.pagination.disabled.last(true);
 							
-							self.pagination.current_page = 1;
+							//self.pagination.current_page = 1;
 						}
 						
 						
 						var first = new String(li.parse(res.headers.Link).first.replace(dns_server+'/bind/zones', '')+'='+self.pagination.ITEMS_PER_PAGE).replace('/', '');
+						
 						var prev = new String(li.parse(res.headers.Link).prev.replace(dns_server+'/bind/zones', '')).replace('/', '');
+						
 						var next = new String(li.parse(res.headers.Link).next.replace(dns_server+'/bind/zones', '')).replace('/', '');
 						
-						//var last = new String(li.parse(res.headers.Link).last.replace(dns_server+'/bind/zones', '')+'='+self.pagination.ITEMS_PER_PAGE).replace('/', '');
-						
+						/**
+						 * use 'start&end', 'last=N' "modifies" the number of "items per page" (not the variable)
+						 * 
+						 * var last_items = last_end - last_start;
+						 * var last = new String(li.parse(res.headers.Link).last.replace(dns_server+'/bind/zones', '')+'='+last_items).replace('/', '');
+						 * */
 						var last_start = (self.pagination.total_pages - 1) * self.pagination.ITEMS_PER_PAGE;
 						var last_end = self.pagination.total_count - 1;
 						var last = '?start='+last_start+'&end='+last_end;
 						
 						self.pagination.links({
-							//links should have more properties to check enable/disable??
 							first: first,
 							prev: prev,
 							next: next,
