@@ -52,7 +52,15 @@ head.ready('jsonp', function(){
 					next: null,
 					last: null,
 				}),
-			
+				
+				all_toggled: ko.observable(false),
+				
+				toggle_all: function(){
+						self.pagination.all_toggled( (self.pagination.all_toggled() == false) ? true : false );
+						console.log('all_toggled');
+						console.log(self.pagination.all_toggled());
+						return true;//ko needs this for allow the click take DOM action
+				}
 				
 			};
 			
@@ -218,8 +226,13 @@ head.ready('jsonp', function(){
 			mainBodyModel.dns(new DNSModel());
 
 			console.log('DNS binding applied');
-
+			//window.dispatchEvent('onload');
+			window.dispatchEvent(re_init_mdl);
+			//document.documentElement.classList.add('mdl-js');
+			//componentHandler.upgradeAllRegistered();
 		}
 			
 	});
 });
+
+//http://stackoverflow.com/questions/31413042/toggle-material-design-lite-checkbox

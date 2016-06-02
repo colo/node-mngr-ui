@@ -31,28 +31,30 @@
 									<thead>
 										<tr>
 											<th class="mdl-data-table__cell--non-numeric">
-												<label for="chkbox1" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
-													<input type="checkbox" id="chkbox1" class="mdl-checkbox__input" data-bind="click: function(){ console.log( $parent.id)}">
 <!--
-													<span class="mdl-checkbox__label"></span>
+												<label for="chkbox1" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
 -->
+													<input type="checkbox" id="chkbox1" class="mdl-checkbox__input" data-bind="click: pagination.toggle_all, clickBubble: false, checked: self.pagination.all_toggled">
+
+<!--
 												</label>
+-->
 											</th>
-											<th class="mdl-data-table__cell--non-numeric">Zones</th>
-											<th class="mdl-data-table__cell--non-numeric"></th>
+											<th class="mdl-data-table__cell--non-numeric" >Zones</th>
+											<th></th>
 										</tr>
 									</thead>
 									<tfoot>
 										<tr>
-											<td class="mdl-data-table__cell--non-numeric">
+											<td>
 											</td>
-											<td class="mdl-data-table__cell--non-numeric">
+											<td class="mdl-data-table__cell--non-numeric" >
 												
 												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click:  function(data, event) { load_page(URI, pagination.links().first) }, disable: pagination.disabled.first">
 													<i class="material-icons">skip_previous</i>
 												</button>
 												
-												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click:  function(data, event) { load_page(URI, pagination.links().prev) }, disable: pagination.disabled.prev ">
+												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click:  function(data, event) { load_page(URI, pagination.links().prev); pagination.all_toggled(false) }, disable: pagination.disabled.prev ">
 													<i class="material-icons">fast_rewind</i>
 												</button>
 												
@@ -73,7 +75,7 @@
 												
 											</td>
 											
-											<td class="mdl-data-table__cell--non-numeric">
+											<td>
 											</td>
 
 										</tr>
@@ -82,13 +84,17 @@
 										<tr>
 											<td class="mdl-data-table__cell--non-numeric">
 												
-												<label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" data-bind="with: {'for': 'data_chkbox'+$index()} ">
-													<input type="checkbox" class="mdl-checkbox__input" data-bind="with: {'id': 'data_chkbox'+$index()}, click: function(){ console.log( id)} ">
+<!--
+												<label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" data-bind="attr: {'for': 'data_chkbox_'+$index()} ">
+-->
+													<input id="" type="checkbox" class="mdl-checkbox__input" data-bind="checked: self.pagination.all_toggled, attr: {'id': 'data_chkbox'+$index(), value: $data}, click: function(){ console.log($element.id+'-'+$element.value)} ">
+<!--
 												</label>
+-->
 												
 											</td>
 											<td class="mdl-data-table__cell--non-numeric" data-bind="text: $data"></td>
-											<td class="mdl-data-table__cell--non-numeric">
+											<td>
 											</td>
 										</tr>
 									</tbody>

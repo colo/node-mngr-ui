@@ -127,11 +127,17 @@ var mdl_init = function(page) {//apply on pagerjs external resources
 		//});
 		
 		head.js({ page: '/public/apps/'+page.currentId+'/index.js' });
-		head.ready('page',function(){
+		//head.ready('page',function(){
 			//console.log('loaded...'+page.currentId);
-			document.documentElement.classList.add('mdl-js');
-			componentHandler.upgradeAllRegistered();
-		});
+			//document.documentElement.classList.add('mdl-js');
+			//componentHandler.upgradeAllRegistered();
+		//});
 };
-		
 
+var re_init_mdl = new Event('re_init_mdl');
+		
+window.addEventListener('re_init_mdl', function(event){
+	console.log('re_init_mdl ');
+	document.documentElement.classList.add('mdl-js');
+	componentHandler.upgradeAllRegistered();
+});
