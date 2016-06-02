@@ -227,7 +227,11 @@ head.ready('jsonp', function(){
 
 			console.log('DNS binding applied');
 			//window.dispatchEvent('onload');
-			window.dispatchEvent(re_init_mdl);
+			//window.dispatchEvent(re_init_mdl);
+			
+			//http://stackoverflow.com/questions/32363511/how-can-i-update-refresh-google-mdl-elements-that-i-add-to-my-page-dynamically
+			// Expand all new MDL elements
+      componentHandler.upgradeDom();
 			//document.documentElement.classList.add('mdl-js');
 			//componentHandler.upgradeAllRegistered();
 		}

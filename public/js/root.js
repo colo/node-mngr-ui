@@ -134,10 +134,10 @@ var mdl_init = function(page) {//apply on pagerjs external resources
 		//});
 };
 
-var re_init_mdl = new Event('re_init_mdl');
+//var re_init_mdl = new Event('re_init_mdl');
 		
-window.addEventListener('re_init_mdl', function(event){
-	console.log('re_init_mdl ');
-	document.documentElement.classList.add('mdl-js');
-	componentHandler.upgradeAllRegistered();
-});
+//window.addEventListener('re_init_mdl', function(event){
+	//console.log('re_init_mdl ');
+	//document.documentElement.classList.add('mdl-js');
+	//componentHandler.upgradeAllRegistered();
+//});
