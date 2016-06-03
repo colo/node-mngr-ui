@@ -99,6 +99,19 @@ head.load([
 				
 				
 				ko.applyBindings(mainBodyModel, document.getElementById("main-body"));
+				
+				//ko.bindingHandlers.upgradeElement = {
+						//init: function(element, valueAccessor) {
+							//console.log('element');
+							//console.log($(element));
+							//componentHandler.upgradeElement($(element));   // Make the element invisible
+						//},
+						//update: function(element, valueAccessor) {
+							//console.log('element');
+							//console.log($(element));
+							//componentHandler.upgradeElement($(element));   // Make the element invisible
+						//}
+				//};
 
 				// start pager.js
 				//pager.start();
