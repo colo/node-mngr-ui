@@ -31,11 +31,11 @@
 									<thead>
 										<tr>
 											<th class="mdl-data-table__cell--non-numeric">
-												<label for="chkbox1" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
+												<label id="lbl_data_chkbox" for="data_chkbox" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" data-bind="click: function(){console.log($element); self.pagination.toggle_all($element);}">
 <!--
 													<input type="checkbox" id="chkbox1" class="mdl-checkbox__input" data-bind="click: pagination.toggle_all, clickBubble: false, checked: self.pagination.all_toggled">
 -->
-													<input type="checkbox" id="chkbox1" class="mdl-checkbox__input">
+													<input type="checkbox" id="data_chkbox" class="mdl-checkbox__input">
 												</label>
 											</th>
 											<th class="mdl-data-table__cell--non-numeric" >Zones</th>
@@ -79,14 +79,17 @@
 										</tr>
 									</tfoot>
 									<tbody data-bind="foreach: zones">
+										<!-- ko if: $data -->
 										<tr>
 											<td class="mdl-data-table__cell--non-numeric">
-												
-												<label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" data-bind="click: function(){console.log('lbl_data_chkbox'+$index()); document.querySelector('#'+'lbl_data_chkbox'+$index()).MaterialCheckbox.check();}, attr: {'id': 'lbl_data_chkbox'+$index(), 'for': 'data_chkbox_'+$index()} ">
+<!--
+												document.querySelector('#'+'lbl_data_chkbox'+$index())
+-->
+												<label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" data-bind="click: function(){self.pagination.toggle($element); console.log('lbl_data_chkbox'+$index());  var input = $element.getChildren()[0]; console.log(input.id+'-'+input.value)}, attr: {name: 'data_chkbox', 'id': 'lbl_data_chkbox'+$index(), 'for': 'data_chkbox_'+$index()} ">
 <!--
 													<input type="checkbox" class="mdl-checkbox__input" data-bind="checked: self.pagination.all_toggled, attr: {'id': 'data_chkbox'+$index(), value: $data}, click: function(){ console.log($element.id+'-'+$element.value)} ">
 -->
-													<input type="checkbox" class="mdl-checkbox__input" data-bind="attr: {'id': 'data_chkbox'+$index(), value: $data} ">
+													<input type="checkbox" class="mdl-checkbox__input" data-bind="attr: {'id': 'data_chkbox'+$index(), value: $data}">
 												</label>
 												
 											</td>
@@ -94,6 +97,7 @@
 											<td>
 											</td>
 										</tr>
+										<!-- /ko -->
 									</tbody>
 								</table>
 							</div>

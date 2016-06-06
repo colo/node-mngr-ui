@@ -53,15 +53,61 @@ head.ready('jsonp', function(){
 					last: null,
 				}),
 				
-				all_toggled: ko.observable(false),
+				//all_toggled: ko.observable(false),
 				
-				toggle_all: function(){
-						self.pagination.all_toggled( (self.pagination.all_toggled() == false) ? true : false );
-						console.log('all_toggled');
-						console.log(self.pagination.all_toggled());
-						return true;//ko needs this for allow the click take DOM action
+				toggle_all: function(el){
+
+						var els = document.getElementsByName('data_chkbox');//get all by "name"
+						
+						//console.log(els);
+						
+						//if(self.pagination.toggle(el)){//check all
+						if(!el.MaterialCheckbox.inputElement_.checked){
+							el.MaterialCheckbox.check();
+							
+							Array.each(els, function(el){
+								//console.log('el');
+								//console.log(el);
+								el.MaterialCheckbox.check();
+							});
+						}
+						else{//uncheck all
+							el.MaterialCheckbox.uncheck();
+							
+							Array.each(els, function(el){
+								el.MaterialCheckbox.uncheck();
+							});
+						}
+				},
+				
+				toggle: function(el){
+					var main_chkbox = document.getElementById('lbl_data_chkbox');//get "all" checkbox
+					
+					if(!el.MaterialCheckbox.inputElement_.checked){//doens't have a public property o method to check state :(
+						el.MaterialCheckbox.check();
+						
+						var els = document.getElementsByName('data_chkbox');//get all by "name"
+
+						try{
+							Array.each(els, function(el){//if all checked, check main one
+								if(!el.MaterialCheckbox.inputElement_.checked){
+									throw new Error();
+								}
+							});
+							
+							main_chkbox.MaterialCheckbox.check();
+						}
+						catch(e){
+							main_chkbox.MaterialCheckbox.uncheck();
+						}
+					}
+					else{
+						el.MaterialCheckbox.uncheck();
+						main_chkbox.MaterialCheckbox.uncheck();
+					}
+					
+					return el.MaterialCheckbox.inputElement_.checked;
 				}
-				
 			};
 			
 			
@@ -126,6 +172,7 @@ head.ready('jsonp', function(){
 						console.log('headers');
 						console.log(res.headers);
 						
+						//self.zones.removeAll();
 						self.zones(res.data);
 						
 						if(res.status == 206){
@@ -210,7 +257,7 @@ head.ready('jsonp', function(){
 						pager.navigate(URI+param);
 						
 						componentHandler.upgradeDom();
-						//window.location.replace(res.headers.Link.split(';')[0].replace(/<|>/g, ''));
+						
 					}
 				});
 			};

@@ -12,5 +12,6 @@ head.ready('history'
 		mainBodyModel.test(new TestModel());
 		
 		console.log('test binding applied');
+		componentHandler.upgradeDom();
 	}
 });
