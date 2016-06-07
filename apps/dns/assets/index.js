@@ -57,76 +57,108 @@ head.ready('jsonp', function(){
 				
 				checked: new Array(),//array of checkbox.value checked
 				
+				/**
+				 * don't use it to check the "toogle all" checkbox
+				 * */
 				check: function(el){
 					var checkbox = el.getChildren()[0];//input checkbox
-					
-					console.log('checkbox data');
-					console.log(checkbox.value);
-					
-					//if(!self.pagination.checked.contains(checkbox.data))
-						//self.pagination.checked.push(checkbox.value);
 					
 					self.pagination.checked.include(checkbox.value);//pushes the passed element into the array if it's not already present (case and type sensitive).
 					
 					el.MaterialCheckbox.check();
 					
-					console.log('checked array');
-					console.log(self.pagination.checked);
+					//console.log('checked array');
+					//console.log(self.pagination.checked);
 				},
 				
+				/**
+				 * don't use it to uncheck the "toogle all" checkbox
+				 * */
 				uncheck: function(el){
 					var checkbox = el.getChildren()[0];//input checkbox
 					
 					if(self.pagination.checked.contains(checkbox.value)){
-						console.log('checkbox data');
-						console.log(checkbox.value);
+						//console.log('checkbox data');
+						//console.log(checkbox.value);
 						self.pagination.checked = self.pagination.checked.erase(checkbox.value);
 					}
 					
 					el.MaterialCheckbox.uncheck();
 					
-					console.log('checked array');
-					console.log(self.pagination.checked);
+					//console.log('checked array');
+					//console.log(self.pagination.checked);
 				},
 				
-				toggle_all: function(el){
+				toggle_all: function(el){//receives the "toogle all" element
 
-						var els = document.getElementsByName('lbl_data_chkbox');//get all by "name"
+						var els = document.getElementsByName('lbl_data_chkbox');//get all labels by "name"
 						
-						//console.log(els);
-						
-						//if(self.pagination.toggle(el)){//check all
 						if(!el.MaterialCheckbox.inputElement_.checked){
 							el.MaterialCheckbox.check();
-							//self.pagination.check(el);
 							
 							Array.each(els, function(el){
-								//console.log('el');
-								//console.log(el);
-								//el.MaterialCheckbox.check();
 								self.pagination.check(el);
 							});
 						}
 						else{//uncheck all
 							el.MaterialCheckbox.uncheck();
-							//self.pagination.uncheck(el);
 							
 							Array.each(els, function(el){
-								//el.MaterialCheckbox.uncheck();
 								self.pagination.uncheck(el);
 							});
 						}
 				},
 				
+				/**
+				 * don't use it to toogle the "toogle all" checkbox
+				 * */
 				toggle: function(el){
-					var main_chkbox = document.getElementById('lbl_data_chkbox');//get "all" checkbox
+					var main_chkbox = document.getElementById('lbl_data_chkbox');//get "toggle all" element
 					
 					if(!el.MaterialCheckbox.inputElement_.checked){//doens't have a public property o method to check state :(
-						//el.MaterialCheckbox.check();
 						self.pagination.check(el);
 						
-						var els = document.getElementsByName('lbl_data_chkbox');//get all by "name"
-
+						var els = document.getElementsByName('lbl_data_chkbox');//get all labels->checkbox by "name"
+						self.pagination._toogle_main_checkbox(els);
+					}
+					else{
+						self.pagination.uncheck(el);
+						main_chkbox.MaterialCheckbox.uncheck();
+					}
+					
+					return el.MaterialCheckbox.inputElement_.checked;
+				},
+				
+				/**
+				 * check the checkboxs that were previously checked (made selection persistant on page change/back and forth)
+				 * 
+				 * */
+				check_checked: function(){
+					//console.log('check_checked');
+					
+					var els = document.getElementsByName('lbl_data_chkbox');
+					
+					Array.each(els, function(el){
+						var checkbox = el.getChildren()[0];//input checkbox
+						
+						if(self.pagination.checked.contains(checkbox.value)){
+							el.MaterialCheckbox.check();
+						}
+					});
+					
+					self.pagination._toogle_main_checkbox(els);
+				},
+				
+				/**
+				 * @private: toggle check/uncheck the "toggle all" check box if all elements are check or not
+				 * 
+				 * */
+				_toogle_main_checkbox: function(els){
+					var main_chkbox = document.getElementById('lbl_data_chkbox');//get "toggle all" checkbox
+					if(main_chkbox){//may not be present on views with no checkbox
+						
+						//var els = document.getElementsByName('lbl_data_chkbox');//get all labels->checkbox by "name"
+						
 						try{
 							Array.each(els, function(el){//if all checked, check main one
 								if(!el.MaterialCheckbox.inputElement_.checked){
@@ -135,54 +167,10 @@ head.ready('jsonp', function(){
 							});
 							
 							main_chkbox.MaterialCheckbox.check();
-							//self.pagination.check(main_chkbox);
 						}
 						catch(e){
 							main_chkbox.MaterialCheckbox.uncheck();
-							//self.pagination.uncheck(main_chkbox);
 						}
-					}
-					else{
-						//el.MaterialCheckbox.uncheck();
-						self.pagination.uncheck(el);
-						main_chkbox.MaterialCheckbox.uncheck();
-						//self.pagination.uncheck(main_chkbox);
-					}
-					
-					return el.MaterialCheckbox.inputElement_.checked;
-				},
-				
-				check_checked: function(){
-					console.log('check_checked');
-					
-					var els = document.getElementsByName('lbl_data_chkbox');
-					
-					//console.log(els);
-					
-					Array.each(els, function(el){
-						var checkbox = el.getChildren()[0];//input checkbox
-						
-						if(self.pagination.checked.contains(checkbox.value)){
-							//var lbl = document.getElementById('lbl_'+el.id);
-							//lbl.MaterialCheckbox.check();
-							el.MaterialCheckbox.check();
-						}
-					});
-					
-					var main_chkbox = document.getElementById('lbl_data_chkbox');//get "all" checkbox
-					try{
-						Array.each(els, function(el){//if all checked, check main one
-							if(!el.MaterialCheckbox.inputElement_.checked){
-								throw new Error();
-							}
-						});
-						
-						main_chkbox.MaterialCheckbox.check();
-						//self.pagination.check(main_chkbox);
-					}
-					catch(e){
-						main_chkbox.MaterialCheckbox.uncheck();
-						//self.pagination.uncheck(main_chkbox);
 					}
 				}
 			};
@@ -255,10 +243,13 @@ head.ready('jsonp', function(){
 						 * @pagination
 						 * 
 						 * */
+						 //on page load uncheck "toogle all" checkbox (may be checked later)
 						var main_chkbox = document.getElementById('lbl_data_chkbox');//get "all" checkbox
-						main_chkbox.MaterialCheckbox.uncheck();
 						
-						if(res.status == 206){
+						if(main_chkbox)//may not be present on views with no checkbox
+							main_chkbox.MaterialCheckbox.uncheck();
+						
+						if(res.status == 206){//partial content
 							self.pagination.total_count = res.headers['Content-Range'].split('/')[1];
 							self.pagination.total_pages = Math.ceil(self.pagination.total_count / self.pagination.ITEMS_PER_PAGE);
 						}
@@ -333,9 +324,9 @@ head.ready('jsonp', function(){
 						});
 						
 							
-						console.log('navigate');
-						console.log(URI);
-						console.log(param);
+						//console.log('navigate');
+						//console.log(URI);
+						//console.log(param);
 						
 						componentHandler.upgradeDom();
 						self.pagination.check_checked();
@@ -344,7 +335,7 @@ head.ready('jsonp', function(){
 						 * 
 						 * */
 						 
-						 pager.navigate(URI+param);
+						 pager.navigate(URI+param);//modify browser URL to match current request 
 					}
 				});
 			};
@@ -354,7 +345,7 @@ head.ready('jsonp', function(){
 		};
 		
 		
-		console.log(mainBodyModel.dns());
+		//console.log(mainBodyModel.dns());
 		
 		if(mainBodyModel.dns() == null){
 
