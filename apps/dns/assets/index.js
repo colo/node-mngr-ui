@@ -55,27 +55,65 @@ head.ready('jsonp', function(){
 				
 				//all_toggled: ko.observable(false),
 				
+				checked: new Array(),//array of checkbox.value checked
+				
+				check: function(el){
+					var checkbox = el.getChildren()[0];//input checkbox
+					
+					console.log('checkbox data');
+					console.log(checkbox.value);
+					
+					//if(!self.pagination.checked.contains(checkbox.data))
+						//self.pagination.checked.push(checkbox.value);
+					
+					self.pagination.checked.include(checkbox.value);//pushes the passed element into the array if it's not already present (case and type sensitive).
+					
+					el.MaterialCheckbox.check();
+					
+					console.log('checked array');
+					console.log(self.pagination.checked);
+				},
+				
+				uncheck: function(el){
+					var checkbox = el.getChildren()[0];//input checkbox
+					
+					if(self.pagination.checked.contains(checkbox.value)){
+						console.log('checkbox data');
+						console.log(checkbox.value);
+						self.pagination.checked = self.pagination.checked.erase(checkbox.value);
+					}
+					
+					el.MaterialCheckbox.uncheck();
+					
+					console.log('checked array');
+					console.log(self.pagination.checked);
+				},
+				
 				toggle_all: function(el){
 
-						var els = document.getElementsByName('data_chkbox');//get all by "name"
+						var els = document.getElementsByName('lbl_data_chkbox');//get all by "name"
 						
 						//console.log(els);
 						
 						//if(self.pagination.toggle(el)){//check all
 						if(!el.MaterialCheckbox.inputElement_.checked){
 							el.MaterialCheckbox.check();
+							//self.pagination.check(el);
 							
 							Array.each(els, function(el){
 								//console.log('el');
 								//console.log(el);
-								el.MaterialCheckbox.check();
+								//el.MaterialCheckbox.check();
+								self.pagination.check(el);
 							});
 						}
 						else{//uncheck all
 							el.MaterialCheckbox.uncheck();
+							//self.pagination.uncheck(el);
 							
 							Array.each(els, function(el){
-								el.MaterialCheckbox.uncheck();
+								//el.MaterialCheckbox.uncheck();
+								self.pagination.uncheck(el);
 							});
 						}
 				},
@@ -84,9 +122,10 @@ head.ready('jsonp', function(){
 					var main_chkbox = document.getElementById('lbl_data_chkbox');//get "all" checkbox
 					
 					if(!el.MaterialCheckbox.inputElement_.checked){//doens't have a public property o method to check state :(
-						el.MaterialCheckbox.check();
+						//el.MaterialCheckbox.check();
+						self.pagination.check(el);
 						
-						var els = document.getElementsByName('data_chkbox');//get all by "name"
+						var els = document.getElementsByName('lbl_data_chkbox');//get all by "name"
 
 						try{
 							Array.each(els, function(el){//if all checked, check main one
@@ -96,17 +135,55 @@ head.ready('jsonp', function(){
 							});
 							
 							main_chkbox.MaterialCheckbox.check();
+							//self.pagination.check(main_chkbox);
 						}
 						catch(e){
 							main_chkbox.MaterialCheckbox.uncheck();
+							//self.pagination.uncheck(main_chkbox);
 						}
 					}
 					else{
-						el.MaterialCheckbox.uncheck();
+						//el.MaterialCheckbox.uncheck();
+						self.pagination.uncheck(el);
 						main_chkbox.MaterialCheckbox.uncheck();
+						//self.pagination.uncheck(main_chkbox);
 					}
 					
 					return el.MaterialCheckbox.inputElement_.checked;
+				},
+				
+				check_checked: function(){
+					console.log('check_checked');
+					
+					var els = document.getElementsByName('lbl_data_chkbox');
+					
+					//console.log(els);
+					
+					Array.each(els, function(el){
+						var checkbox = el.getChildren()[0];//input checkbox
+						
+						if(self.pagination.checked.contains(checkbox.value)){
+							//var lbl = document.getElementById('lbl_'+el.id);
+							//lbl.MaterialCheckbox.check();
+							el.MaterialCheckbox.check();
+						}
+					});
+					
+					var main_chkbox = document.getElementById('lbl_data_chkbox');//get "all" checkbox
+					try{
+						Array.each(els, function(el){//if all checked, check main one
+							if(!el.MaterialCheckbox.inputElement_.checked){
+								throw new Error();
+							}
+						});
+						
+						main_chkbox.MaterialCheckbox.check();
+						//self.pagination.check(main_chkbox);
+					}
+					catch(e){
+						main_chkbox.MaterialCheckbox.uncheck();
+						//self.pagination.uncheck(main_chkbox);
+					}
 				}
 			};
 			
@@ -172,8 +249,14 @@ head.ready('jsonp', function(){
 						console.log('headers');
 						console.log(res.headers);
 						
-						//self.zones.removeAll();
 						self.zones(res.data);
+						
+						/**
+						 * @pagination
+						 * 
+						 * */
+						var main_chkbox = document.getElementById('lbl_data_chkbox');//get "all" checkbox
+						main_chkbox.MaterialCheckbox.uncheck();
 						
 						if(res.status == 206){
 							self.pagination.total_count = res.headers['Content-Range'].split('/')[1];
@@ -254,10 +337,14 @@ head.ready('jsonp', function(){
 						console.log(URI);
 						console.log(param);
 						
-						pager.navigate(URI+param);
-						
 						componentHandler.upgradeDom();
-						
+						self.pagination.check_checked();
+						/**
+						 * @end pagination
+						 * 
+						 * */
+						 
+						 pager.navigate(URI+param);
 					}
 				});
 			};

@@ -82,13 +82,7 @@
 										<!-- ko if: $data -->
 										<tr>
 											<td class="mdl-data-table__cell--non-numeric">
-<!--
-												document.querySelector('#'+'lbl_data_chkbox'+$index())
--->
-												<label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" data-bind="click: function(){self.pagination.toggle($element); console.log('lbl_data_chkbox'+$index());  var input = $element.getChildren()[0]; console.log(input.id+'-'+input.value)}, attr: {name: 'data_chkbox', 'id': 'lbl_data_chkbox'+$index(), 'for': 'data_chkbox_'+$index()} ">
-<!--
-													<input type="checkbox" class="mdl-checkbox__input" data-bind="checked: self.pagination.all_toggled, attr: {'id': 'data_chkbox'+$index(), value: $data}, click: function(){ console.log($element.id+'-'+$element.value)} ">
--->
+												<label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" data-bind="click: function(){self.pagination.toggle($element)}, attr: {name: 'lbl_data_chkbox', 'id': 'lbl_data_chkbox'+$index(), 'for': 'data_chkbox_'+$index()} ">
 													<input type="checkbox" class="mdl-checkbox__input" data-bind="attr: {'id': 'data_chkbox'+$index(), value: $data}">
 												</label>
 												
