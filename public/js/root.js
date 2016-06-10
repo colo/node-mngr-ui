@@ -140,6 +140,7 @@ var mdl_init = function(page) {//apply on pagerjs external resources
 		//});
 		
 		head.js({ page: '/public/apps/'+page.currentId+'/index.js' });
+		head.load({ page: '/public/apps/'+page.currentId+'/index.css' });
 		//head.ready('page',function(){
 			//console.log('loaded...'+page.currentId);
 			//document.documentElement.classList.add('mdl-js');
