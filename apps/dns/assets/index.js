@@ -1,3 +1,6 @@
+
+head.load({ page: '/public/apps/dns/index.css' });
+
 //var DNSBodyModel = {};
 
 //head.load([
