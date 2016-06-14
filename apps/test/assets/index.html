@@ -1,46 +1,5 @@
-	<!-- @removed: mdl-layout--fixed-drawer -->
-	<div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-header"> 
-		
-		{{> page/header}}
-		
-		{{> page/nav_bar}}
-		
-		<main class="mdl-layout__content mdl-color--grey-100">
-<!--
-		<div class="mdl-grid demo-content" data-bind="page:{id: 'test', role: 'start'}">
-			
-		</div>
--->
-		
-		{{#each apps}}
-			{{#if this.role}}
-			<div data-bind="page:
-			{
-			id: '{{this.id}}',
-			role: '{{this.role}}'
-			}
-			">
-				<div id="{{this.id}}" class="mdl-grid demo-content" data-bind="with: {{this.id}}">
-					<div class="mdl-layout-spacer"></div>
-					<div class="mdl-cell mdl-cell--4-col">
-						<p data-bind="text: key"></p>
-					</div>
-					<div class="mdl-layout-spacer"></div>
-				</div>
-			</div>
-			{{else}}
-			<div data-bind="page:
-			{
-			id: '{{this.id}}',
-			sourceLoaded: mdl_init,
-			sourceOnShow: '{{this.href}} #{{this.id}}'
-			}
-			">
-			</div>
-			{{/if}}
-		{{/each}}
-		
-		</main>
+	<div class="mdl-layout-spacer"></div>
+	<div class="mdl-cell mdl-cell--4-col">
+		<p data-bind="text: key"></p>
 	</div>
-		
-
+	<div class="mdl-layout-spacer"></div>

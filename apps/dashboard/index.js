@@ -75,7 +75,7 @@ module.exports = new Class({
 		else{
 			var view = Object.clone(this.express().get('default_view'));
 			view.tile = "Dashboard";
-			
+			//view.layout = 'dashboard';
 			//console.log('dashboard apps');
 			//console.log(view.body_script);
 			

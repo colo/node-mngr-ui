@@ -1,109 +1,74 @@
-	<!-- @removed: mdl-layout--fixed-drawer -->
-	<div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-header"> 
-		
-		{{> page/header}}
-		
-		{{> page/nav_bar}}
-		
-		<main class="mdl-layout__content mdl-color--grey-100">
-			{{#each apps}}
-				{{#if this.role}}
-				<div data-bind="page:
-				{
-				id: '{{this.id}}',
-				role: '{{this.role}}'
-				}
-				">
-					<div id="{{this.id}}" class="mdl-grid demo-content" data-bind="with: {{this.id}}">
-							<div class="mdl-layout-spacer"></div>
-							
-							<div class="mdl-cell mdl-cell--4-col something-else">
-								<!-- @removed mdl-data-table--selectable  -->
-								<table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
-									<thead>
-										<tr>
-											<th class="mdl-data-table__cell--non-numeric">
-												<label id="lbl_data_chkbox" for="data_chkbox" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" data-bind="click: function(){console.log($element); self.pagination.toggle_all($element);}">
-													<input type="checkbox" id="data_chkbox" class="mdl-checkbox__input">
-												</label>
-											</th>
-											<th class="mdl-data-table__cell--non-numeric" >Zones</th>
-											<th></th>
-										</tr>
-									</thead>
-									<tfoot>
-										<tr>
-											<td>
-											</td>
-											<td class="mdl-data-table__cell--non-numeric" >
-												
-												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click:  function(data, event) { load_page(URI, pagination.links().first) }, disable: pagination.disabled.first">
-													<i class="material-icons">skip_previous</i>
-												</button>
-												
-												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click:  function(data, event) { load_page(URI, pagination.links().prev) }, disable: pagination.disabled.prev ">
-													<i class="material-icons">fast_rewind</i>
-												</button>
-												
+	<div class="mdl-layout-spacer"></div>
+	
+	<div class="mdl-cell mdl-cell--4-col something-else">
+		<!-- @removed mdl-data-table--selectable  -->
+		<table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+			<thead>
+				<tr>
+					<th class="mdl-data-table__cell--non-numeric">
+						<label id="lbl_data_chkbox" for="data_chkbox" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" data-bind="click: function(){console.log($element); self.pagination.toggle_all($element);}">
+							<input type="checkbox" id="data_chkbox" class="mdl-checkbox__input">
+						</label>
+					</th>
+					<th class="mdl-data-table__cell--non-numeric" >Zones</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tfoot>
+				<tr>
+					<td>
+					</td>
+					<td class="mdl-data-table__cell--non-numeric" >
+						
+						<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click:  function(data, event) { load_page(URI, pagination.links().first) }, disable: pagination.disabled.first">
+							<i class="material-icons">skip_previous</i>
+						</button>
+						
+						<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click:  function(data, event) { load_page(URI, pagination.links().prev) }, disable: pagination.disabled.prev ">
+							<i class="material-icons">fast_rewind</i>
+						</button>
+						
 
 <!--
-												<button class="mdl-button mdl-js-button mdl-button--primary" data-bind="text: $data">
+						<button class="mdl-button mdl-js-button mdl-button--primary" data-bind="text: $data">
 
-												</button>
+						</button>
 -->
-												
-												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click:  function(data, event) { load_page(URI, pagination.links().next) }, disable: pagination.disabled.next ">
-													<i class="material-icons">fast_forward</i>
-												</button>
-												
-												<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click:  function(data, event) { load_page(URI, pagination.links().last) }, disable: pagination.disabled.last">
-													<i class="material-icons md-18">skip_next</i>
-												</button>
-												
-											</td>
-											
-											<td>
-											</td>
+						
+						<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click:  function(data, event) { load_page(URI, pagination.links().next) }, disable: pagination.disabled.next ">
+							<i class="material-icons">fast_forward</i>
+						</button>
+						
+						<button class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored" data-bind="click:  function(data, event) { load_page(URI, pagination.links().last) }, disable: pagination.disabled.last">
+							<i class="material-icons md-18">skip_next</i>
+						</button>
+						
+					</td>
+					
+					<td>
+					</td>
 
-										</tr>
-									</tfoot>
-									<tbody data-bind="foreach: zones">
-										<!-- ko if: $data -->
-										<tr>
-											<td class="mdl-data-table__cell--non-numeric">
-												<label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" data-bind="click: function(){self.pagination.toggle($element)}, attr: {name: 'lbl_data_chkbox', 'id': 'lbl_data_chkbox'+$index(), 'for': 'data_chkbox_'+$index()} ">
-													<input type="checkbox" class="mdl-checkbox__input" data-bind="attr: {'id': 'data_chkbox'+$index(), value: $data}">
-												</label>
-												
-											</td>
-											<td class="mdl-data-table__cell--non-numeric" data-bind="text: $data"></td>
-											<td>
-											</td>
-										</tr>
-										<!-- /ko -->
-									</tbody>
-								</table>
-								<button class="mdl-button mdl-js-ripple-effect mdl-js-button mdl-button--fab mdl-color--accent">
-									<i class="material-icons mdl-color-text--white" role="presentation">add</i>
-									<span class="visuallyhidden">add</span>
-								</button>
-							</div>
-							<div class="mdl-layout-spacer"></div>
-					</div>
-				</div>
-				{{else}}
-				<div data-bind="page:
-				{
-				id: '{{this.id}}',
-				sourceLoaded: mdl_init,
-				sourceOnShow: '{{this.href}} #{{this.id}}'
-				}
-				">
-				</div>
-				{{/if}}
-			{{/each}}
-		
-		</main>
+				</tr>
+			</tfoot>
+			<tbody data-bind="foreach: zones">
+				<!-- ko if: $data -->
+				<tr>
+					<td class="mdl-data-table__cell--non-numeric">
+						<label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" data-bind="click: function(){self.pagination.toggle($element)}, attr: {name: 'lbl_data_chkbox', 'id': 'lbl_data_chkbox'+$index(), 'for': 'data_chkbox_'+$index()} ">
+							<input type="checkbox" class="mdl-checkbox__input" data-bind="attr: {'id': 'data_chkbox'+$index(), value: $data}">
+						</label>
+						
+					</td>
+					<td class="mdl-data-table__cell--non-numeric" data-bind="text: $data"></td>
+					<td>
+					</td>
+				</tr>
+				<!-- /ko -->
+			</tbody>
+		</table>
+		<button class="mdl-button mdl-js-ripple-effect mdl-js-button mdl-button--fab mdl-color--accent">
+			<i class="material-icons mdl-color-text--white" role="presentation">add</i>
+			<span class="visuallyhidden">add</span>
+		</button>
 	</div>
-		
-
+	<div class="mdl-layout-spacer"></div>

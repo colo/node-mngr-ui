@@ -269,7 +269,7 @@ var MyApp = new Class({
 		
 		
 		var hbs = exphbs.create({
-						defaultLayout: 'main',
+						defaultLayout: 'dashboard',
 						layoutsDir: 'public/views/layouts/',
 						//helpers      : helpers,
 						

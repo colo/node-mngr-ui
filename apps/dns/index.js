@@ -98,7 +98,7 @@ module.exports = new Class({
 			view.body_scripts.push('/public/apps/dns/index.js');
 			
 			//view.body_script.push("var dns_server = 'http://"+req.hostname+":8081';\n");
-			view.css.push('/public/apps/dns/index.css');
+			//view.css.push('/public/apps/dns/index.css');
 			
 			res.render(path.join(__dirname, '/assets/index'), view);
 		}

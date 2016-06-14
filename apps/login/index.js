@@ -133,6 +133,8 @@ module.exports = new Class({
 		}
 		else{
 			
+			//this.express().locals.layout = 'main';
+			
 			var view = {
 				title: "Login",
 				base: "/login",
@@ -179,6 +181,7 @@ module.exports = new Class({
 				
 				apps: [],
 				
+				layout: 'main'//no header|navbar|app loading
 			};
 			
 			res.render(path.join(__dirname, '/assets/index'), view);
