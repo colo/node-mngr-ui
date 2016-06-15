@@ -12,6 +12,9 @@
 			{{> page/nav_bar}}
 			
 			<main class="mdl-layout__content mdl-color--grey-100">
+				<div class="mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
+					<mat-breadcrumb params="items: breadcrumbs"></mat-breadcrumb>
+				</div>
 				{{#each apps}}
 					{{#if this.role}}
 					<div data-bind="page:

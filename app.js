@@ -123,10 +123,13 @@ var MyApp = new Class({
       links: [
 				'rel="icon" sizes="192x192" href="/public/mdl-dashboard/images/android-desktop.png"',
 				'rel="apple-touch-icon-precomposed" href="images/ios-desktop.png"',
-				'rel="shortcut icon" href="images/favicon.png"'
+				'rel="shortcut icon" href="images/favicon.png"',
+				'rel="import" href="/public/bower/mat-breadcrumb/mat-breadcrumb.html"'
       ],
       scripts: [
-				"/public/bower/headjs/dist/1.0.0/head.min.js",
+				"/public/bower/webcomponentsjs/webcomponents.min.js",
+				//"/public/bower/requirejs/require.js",//for KO template loading (for polymers)
+				"/public/bower/headjs/dist/1.0.0/head.min.js"
       ],
       body_scripts: [
 				//"/public/mdl/material.min.js"

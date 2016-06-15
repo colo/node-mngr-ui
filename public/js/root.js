@@ -3,7 +3,7 @@ var mainBodyModel = {};
 head.js({ mdl: "/public/mdl/material.min.js" }); //no dependencies
 head.js({ resilient: "/public/apps/login/bower/resilient/resilient.min.js" }); //no dependencies
 head.js({ mootools: "/public/bower/mootools/dist/mootools-core.min.js" }); //no dependencies
- 
+//head.js({ polymer: "/public/bower/webcomponentsjs/webcomponents.min.js" }); //no dependencies 
 
 /**
  *  @pager
@@ -27,7 +27,12 @@ head.load([
 					apps.each(function(app){
 						self[app.id] = ko.observable(null);
 					});
-					 
+					
+					self.breadcrumbs = ko.observableArray([
+						{label: 'dashboard', href: '/dashboard'},
+						{label: 'second', href: '/dashboard/more'}
+					]); 
+					
 					//self.apps = ko.observableArray([]);
 					 
 					//self.apps.subscribe(function(app) {
@@ -79,7 +84,33 @@ head.load([
 						
 					//}
 				//});
-			
+
+				//http://knockoutjs.com/documentation/component-custom-elements.html
+				//document.createElement('mat-breadcrumb-step');
+				document.createElement('mat-breadcrumb');
+				
+				ko.components.register('mat-breadcrumb', {
+						viewModel: function(params) {
+							self = this;
+							self.breadcrumbs = params.items;
+							//console.log(params.items()[0]);
+							//this.text = ko.observable(params && params.initialText || '');
+							//self.elements = '';
+							//Array.each(this.breadcrumbs(), function(bc){
+								//console.log(bc);
+								//self.elements += '<mat-breadcrumb-step label="'+bc.label+'" href="'+bc.href+'"></mat-breadcrumb-step>';
+							//});
+						},
+						template: 
+						'<div class="wrapper style-scope mat-breadcrumb">'+
+						'<!-- ko foreach: $root.breadcrumbs -->'+
+						'<mat-breadcrumb-step data-bind="attr: { label: label, href: href }"></mat-breadcrumb-step>'+
+						'<!-- /ko -->'+
+						'</div>'
+				});
+				
+				
+	
 				mainBodyModel = new viewModel();
 				
 				//console.log('viewModel');
