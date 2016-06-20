@@ -15,8 +15,8 @@ module.exports = new Class({
   
   options: {
 	  
-		id: 'dns',
-		path: '/dns',
+		id: 'os',
+		path: '/os',
 		
 		/*authentication: {
 			users : [
@@ -31,11 +31,11 @@ module.exports = new Class({
 		},
 		
 		params: {
-			//service_action: /start|stop/,
+			service_action: /start|stop/,
 		},
 		
 		routes: {
-			
+		
 			all: [
 				{
 					path: '',
@@ -63,25 +63,16 @@ module.exports = new Class({
 			
 		},
   },
-  
-  //get_no_version_available: function(req, res, next){
-		
-		//res.status(404).json({ message: 'No API version available' });
-		
-  //},
   server: function(req, res, next){
 		res.jsonp("http://"+req.hostname+":8081");
 	},
   render: function(req, res, next){
-		
-		//console.log('DNS render');
-		
 		if(!req.isAuthenticated()){
 			res.status(403).redirect('/');
 		}
 		else{
 			var view = Object.clone(this.express().get('default_view'));
-			view.tile = "DNS";
+			view.tile = "Test";
 			
 			view.apps.each(function(value, index){
 				if(value.id == this.options.id){
@@ -94,24 +85,63 @@ module.exports = new Class({
 				}
 			}.bind(this));
 			
-			//view.body_scripts.push('"/dns/api/server/?callback=update_view",');
-			view.body_scripts.push('/public/apps/dns/index.js');
+			view.body_scripts.push('/public/apps/os/index.js');
 			
-			//view.body_script.push("var dns_server = 'http://"+req.hostname+":8081';\n");
-			//view.css.push('/public/apps/dns/index.css');
-			
+				
 			res.render(path.join(__dirname, '/assets/index'), view);
 		}
   },
   
+  
   initialize: function(options){
-		this.profile('dns_init');//start profiling
+		this.profile('os_init');//start profiling
+		
+		
 		
 		this.parent(options);//override default options
 		
-		this.profile('dns_init');//end profiling
+		/*------------------------------------------*/
+		if(this.authorization){
+			// 	authorization.addEvent(authorization.SET_SESSION, this.logAuthorizationSession.bind(this));
+			// 	authorization.addEvent(authorization.IS_AUTHORIZED, this.logAuthorization.bind(this));
+			// 	authentication.addEvent(authentication.ON_AUTH, this.logAuthentication.bind(this));
+			this.authorization.addEvent(this.authorization.NEW_SESSION, function(obj){
+	  
+			//   //console.log('event');
+			//   //console.log(obj);
+			  
+			  if(!obj.error){
+				
+			// 	web.authorization.processRules({
+			// 	  "subjects":[
+			// 		{
+			// 		  "id": "lbueno",
+			// 		  "roles":["admin"]
+			// 		},
+			// 		{
+			// 		  "id": "os",
+			// 		  "roles":["user"]
+			// 		},
+			// 	  ],
+			// 	});
+
+				this.authorization.processRules({
+				  "subjects": function(){
+					  if(obj.getID() == "test")
+						return [{ "id": "test", "roles":["user"]}];
+					  
+					  if(obj.getID() == "lbueno")
+						return [{ "id": "lbueno", "roles":["admin"]}];
+				  },
+				});
+			  }
+			  
+			}.bind(this));
+		}
 		
-		this.log('dns', 'info', 'dns started');
+		this.profile('os_init');//end profiling
+		
+		this.log('os', 'info', 'os started');
   },
 	
 });

@@ -12,8 +12,24 @@
 			{{> page/nav_bar}}
 			
 			<main class="mdl-layout__content mdl-color--grey-100">
-				<div class="mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-					<mat-breadcrumb params="items: breadcrumbs"></mat-breadcrumb>
+					<div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
+
+				<!-- Primary-colored flat button -->
+						<button class="mdl-button mdl-js-button mdl-button--primary">
+							Button
+						</button>
+						<!-- Icon button -->
+<!--
+						<button class="mdl-button mdl-js-button mdl-button--icon" disabled>
+-->
+							<i class="material-icons">keyboard_arrow_right</i>
+<!--
+						</button>
+-->
+						<!-- Accent-colored flat button -->
+						<button class="mdl-button mdl-js-button mdl-button--accent">
+							Button
+						</button>
 				</div>
 				{{#each apps}}
 					{{#if this.role}}

@@ -87,27 +87,30 @@ head.load([
 
 				//http://knockoutjs.com/documentation/component-custom-elements.html
 				//document.createElement('mat-breadcrumb-step');
-				document.createElement('mat-breadcrumb');
+				//document.createElement('mat-breadcrumb');
+				//document.getElementsByClassName('mat-breadcrumb').append('/dashboard/more', 'second');
+				//$(document.getElementsByClassName('mat-breadcrumb')).append('/dashboard/more', 'second');
+				//document.getElementById('myBreadcrum').append({path: '', value: ''});
 				
-				ko.components.register('mat-breadcrumb', {
-						viewModel: function(params) {
-							self = this;
-							self.breadcrumbs = params.items;
-							//console.log(params.items()[0]);
-							//this.text = ko.observable(params && params.initialText || '');
-							//self.elements = '';
-							//Array.each(this.breadcrumbs(), function(bc){
-								//console.log(bc);
-								//self.elements += '<mat-breadcrumb-step label="'+bc.label+'" href="'+bc.href+'"></mat-breadcrumb-step>';
-							//});
-						},
-						template: 
-						'<div class="wrapper style-scope mat-breadcrumb">'+
-						'<!-- ko foreach: $root.breadcrumbs -->'+
-						'<mat-breadcrumb-step data-bind="attr: { label: label, href: href }"></mat-breadcrumb-step>'+
-						'<!-- /ko -->'+
-						'</div>'
-				});
+				//ko.components.register('mat-breadcrumb', {
+						//viewModel: function(params) {
+							//self = this;
+							//self.breadcrumbs = params.items;
+							////console.log(params.items()[0]);
+							////this.text = ko.observable(params && params.initialText || '');
+							////self.elements = '';
+							////Array.each(this.breadcrumbs(), function(bc){
+								////console.log(bc);
+								////self.elements += '<mat-breadcrumb-step label="'+bc.label+'" href="'+bc.href+'"></mat-breadcrumb-step>';
+							////});
+						//},
+						//template: 
+						//'<div class="wrapper style-scope mat-breadcrumb">'+
+						//'<!-- ko foreach: $root.breadcrumbs -->'+
+						//'<mat-breadcrumb-step data-bind="attr: { label: label, href: href }"></mat-breadcrumb-step>'+
+						//'<!-- /ko -->'+
+						//'</div>'
+				//});
 				
 				
 	
