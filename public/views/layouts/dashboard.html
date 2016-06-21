@@ -4,61 +4,70 @@
   {{> page/head}}
   </head>
 
-  <body id="main-body">
-		<div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-header mdl-layout--fixed-drawer"> 
-			
-			{{> page/header}}
-			
-			{{> page/nav_bar}}
-			
-			<main class="mdl-layout__content mdl-color--grey-100">
-					<div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
+	{{#if body_class}}
+  <body id="main-body" class="{{{body_class}}}">
+	{{else}}
+	<body id="main-body">
+	{{/if}}
 
-				<!-- Primary-colored flat button -->
-						<button class="mdl-button mdl-js-button mdl-button--primary">
-							Button
-						</button>
-						<!-- Icon button -->
+		<div class="container body">
+			<div class="main_container">
 <!--
-						<button class="mdl-button mdl-js-button mdl-button--icon" disabled>
+				<div class="col-md-3 left_col">
 -->
-							<i class="material-icons">keyboard_arrow_right</i>
+				{{> page/header}}
+				
+				{{> page/nav_bar}}
+				
 <!--
-						</button>
--->
-						<!-- Accent-colored flat button -->
-						<button class="mdl-button mdl-js-button mdl-button--accent">
-							Button
-						</button>
 				</div>
-				{{#each apps}}
-					{{#if this.role}}
-					<div data-bind="page:
-					{
-					id: '{{this.id}}',
-					role: '{{this.role}}',
-					}
-					">
-						<div id="{{this.id}}" class="mdl-grid demo-content" data-bind="with: {{this.id}}">
-							{{{../body}}}
+-->
+				
+				<!-- page content -->
+				<div class="right_col" role="main">
+						<!--<div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
+
+							<button class="mdl-button mdl-js-button mdl-button--primary">
+								Button
+							</button>
+								<i class="material-icons">keyboard_arrow_right</i>
+							<button class="mdl-button mdl-js-button mdl-button--accent">
+								Button
+							</button>
+					</div>
+					-->
+					{{#each apps}}
+						{{#if this.role}}
+						<div data-bind="page:
+						{
+						id: '{{this.id}}',
+						role: '{{this.role}}',
+						}
+						">
+							<div id="{{this.id}}" class="" data-bind="with: {{this.id}}">
+								{{{../body}}}
+							</div>
 						</div>
-					</div>
-					{{else}}
-					<div data-bind="page:
-					{
-					id: '{{this.id}}',
-					sourceLoaded: mdl_init,
-					sourceOnShow: '{{this.href}} #{{this.id}}'
-					}
-					">
-					
-					</div>
-					{{/if}}
-				{{/each}}
-		
-			</main>
+						{{else}}
+						<div data-bind="page:
+						{
+						id: '{{this.id}}',
+						sourceLoaded: load_app_resources,
+						sourceOnShow: '{{this.href}} #{{this.id}}'
+						}
+						">
+						
+						</div>
+						{{/if}}
+					{{/each}}
 			
-		</div>
+				</div>
+				<!-- /page content -->
+			
+				{{> page/footer}}
+				
+			</div><!-- main_container -->
+		</div><!-- container body -->
 		
 	
 	<script>

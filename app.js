@@ -94,44 +94,28 @@ var MyApp = new Class({
 	},
   set_default_view: function(){
 		
+		//https://github.com/puikinsh/gentelella
 		this.express().set('default_view',{
 			title: "",
 			base: "/",
-			/**
-			 * @hosted
-      scripts: [
-            "https://code.getmdl.io/1.1.3/material.min.js"
-      ],
-      css: [
-            "https://fonts.googleapis.com/icon?family=Material+Icons",
-            "https://code.getmdl.io/1.1.3/material.indigo-pink.min.css"
-      ],
-      * */
       meta: [
 				'charset="utf-8"',
 				'http-equiv="X-UA-Compatible" content="IE=edge"',
 				'name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0"',
-				'name="mobile-web-app-capable" content="yes"',
-				'name="apple-mobile-web-app-capable" content="yes"',
-				'name="apple-mobile-web-app-status-bar-style" content="black"',
-				'name="apple-mobile-web-app-title" content="Material Design Lite"',
-				//'name="msapplication-TileImage" content="/public/mdl-dashboard/images/touch/ms-touch-icon-144x144-precomposed.png"'
-				//'name="msapplication-TileColor" content="#3372DF"'
-
-
+				'http-equiv="Content-Type" content="text/html; charset=UTF-8"'
       ],
       links: [
-				'rel="icon" sizes="192x192" href="/public/mdl-dashboard/images/android-desktop.png"',
-				'rel="apple-touch-icon-precomposed" href="images/ios-desktop.png"',
-				'rel="shortcut icon" href="images/favicon.png"',
-				//'rel="import" href="/public/bower/mat-breadcrumb/mat-breadcrumb.html"'
+				//'rel="icon" sizes="192x192" href="/public/mdl-dashboard/images/android-desktop.png"',
+				//'rel="apple-touch-icon-precomposed" href="images/ios-desktop.png"',
+				//'rel="shortcut icon" href="images/favicon.png"',
       ],
       scripts: [
-				//"/public/bower/webcomponentsjs/webcomponents.min.js",
 				"/public/bower/headjs/dist/1.0.0/head.min.js"
       ],
+      
+      body_class: 'nav-md',
+      
       body_scripts: [
-				//"/public/mdl/material.min.js"
 				"/api/apps/?callback=update_view",
 				"/public/js/root.js",
       ],
@@ -140,22 +124,20 @@ var MyApp = new Class({
 				"var update_view = function(params){ apps = params; };\n"
       ],
       css: [
-            //"/public/mdl/material.min.css",
-            "https://code.getmdl.io/1.1.3/material.cyan-light_blue.min.css",
-            "/public/mdl-dashboard/styles.css",
-            'https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en',
-            "https://fonts.googleapis.com/icon?family=Material+Icons"
-            
+      /** Bootstrap */
+			"/public/bower/gentelella/vendors/bootstrap/dist/css/bootstrap.min.css",
+			/** Font Awesome */
+			"/public/bower/gentelella/vendors/font-awesome/css/font-awesome.min.css",
+			/** iCheck */
+			//"/public/bower/gentelella/vendors/iCheck/skins/flat/green.css",
+			/** bootstrap-progressbar */
+			//"/public/bower/gentelella/vendors/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css",
+			/** jVectorMap */
+			//"/public/bower/gentelella/production/css/maps/jquery-jvectormap-2.0.3.css",
+			/* Custom Theme Style */
+			"/public/bower/gentelella/build/css/custom.min.css"
       ],
-      style: "#view-source {\n" +
-				"position: fixed;\n" +
-				"display: block;\n" +
-				"right: 0;\n" +
-				"bottom: 0;\n" +
-				"margin-right: 40px;\n" +
-				"margin-bottom: 40px;\n" +
-				"z-index: 900;\n" +
-			"}",
+      style: "",
 			
 			apps: this.express().get('apps'),
 			
@@ -165,7 +147,7 @@ var MyApp = new Class({
   get: function(req, res, next){
 		
 		if(req.isAuthenticated()){
-			res.redirect('/dashboard');
+			res.redirect('/test');
 		}
 		else{
 			res.status(403).redirect('/login');
@@ -200,7 +182,7 @@ var MyApp = new Class({
 			app_info['name'] = (app.name) ? app.name : mount.substr(1); //remove mount '/'
 			app_info['id'] = mount.substr(1); //remove mount '/'
 			app_info['href'] = mount+"/";
-			app_info['icon'] = (app.icon) ? app.icon: 'build';
+			app_info['icon'] = (app.icon) ? app.icon: 'fa-cog';
 			
 			//var nav_bar = this.express().get('nav_bar');
 			////this.apps.push(app_info);

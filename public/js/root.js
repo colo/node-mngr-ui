@@ -1,6 +1,6 @@
 var mainBodyModel = {};
 
-head.js({ mdl: "/public/mdl/material.min.js" }); //no dependencies
+//head.js({ mdl: "/public/mdl/material.min.js" }); //no dependencies
 head.js({ resilient: "/public/apps/login/bower/resilient/resilient.min.js" }); //no dependencies
 head.js({ mootools: "/public/bower/mootools/dist/mootools-core.min.js" }); //no dependencies
 //head.js({ polymer: "/public/bower/webcomponentsjs/webcomponents.min.js" }); //no dependencies 
@@ -15,6 +15,11 @@ head.load([
 	{ ko: "/public/bower/knockoutjs/dist/knockout.js" },//no dependencies
 	{ jQuery: "/public/bower/jquery/dist/jquery.min.js" }//no dependencies
 ], function(){
+		
+		head.js({ bootstrap: "/public/bower/gentelella/vendors/bootstrap/dist/js/bootstrap.min.js" });
+		head.js({ fastclick: "/public/bower/gentelella/vendors/fastclick/lib/fastclick.js" });
+		head.js({ nprogress: "/public/bower/gentelella/vendors/nprogress/nprogress.js" });
+		head.js({ gentelella: "/public/bower/gentelella/build/js/custom.min.js" });
 		
 		head.load({ pager: "/public/bower/pagerjs/dist/pager.min.js" },function(){
 			head.load({ history: "/public/bower/history.js/scripts/bundled/html4+html5/jquery.history.js"}, function(){
@@ -163,7 +168,7 @@ head.load([
 });
 
 
-var mdl_init = function(page) {//apply on pagerjs external resources
+var load_app_resources = function(page) {//apply on pagerjs external resources
 	//console.log('mdl: ');
 	//console.log(page);
 		//head.ready(function() {

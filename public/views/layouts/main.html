@@ -3,8 +3,13 @@
   <head>
   {{> page/head}}
   </head>
-
-  <body id="main-body">
+	
+	{{#if body_class}}
+  <body id="main-body" class="{{{body_class}}}">
+	{{else}}
+	<body id="main-body">
+	{{/if}}
+	
 	{{{body}}}
 	
 	<script>

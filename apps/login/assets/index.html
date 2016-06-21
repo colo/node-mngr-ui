@@ -1,79 +1,85 @@
-	<!-- @removed: mdl-layout--fixed-drawer -->
-	<div id="loginBodyModel" class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-header"> 
-		
-		
-		<main class="mdl-layout__content mdl-color--grey-100">
-		<div class="mdl-grid demo-content">
-			<div class="mdl-layout-spacer"></div>
+    <div id="loginBodyModel">
+      <a class="hiddenanchor" id="signup"></a>
+      <a class="hiddenanchor" id="signin"></a>
+
+      <div class="login_wrapper">
+        <div class="animate form login_form">
+          <section class="login_content" id="login" data-bind="with: login">
+					<form method="POST" accept-charset="UTF-8" data-bind="submit: submit">
+						<input type="hidden" name="password" id="password" data-bind="value: password"/>
+              <h1>Login Form</h1>
+              <div>
+                <input type="text" class="form-control" placeholder="Username" required="" id="username"/>
+              </div>
+              <div>
+                <input type="password" class="form-control" placeholder="Password" required="" name="clearpassword" id="clearpassword"/>
+              </div>
+              <div>
+								<button type="submit" class="btn btn-primary">Log in</button>
 <!--
-			<div class="mdl-cell mdl-cell--4-col"></div>
+                <a class="btn btn-default submit">Log in</a>
 -->
-			
-			<div class="mdl-cell mdl-cell--4-col">
-				<section id="login" data-bind="with: login">	
-				<form method="POST" accept-charset="UTF-8" data-bind="submit: submit">
-					
-					<input type="hidden" name="password" id="password" data-bind="value: password"/>
-					
-					<div class="demo-card-square mdl-card mdl-shadow--2dp">
-						<div class="mdl-card__title mdl-card--expand">
-							<h2 class="mdl-card__title-text">Welcome</h2>
-						</div>
-						<div class="mdl-card__actions mdl-card--border">
-							<div class="mdl-textfield mdl-js-textfield">
-								<input class="mdl-textfield__input" type="text" id="username">
-								<label class="mdl-textfield__label" for="username">Username</label>
-							</div>
-							<div class="mdl-textfield mdl-js-textfield">
-								<input class="mdl-textfield__input" type="password" name="clearpassword" id="clearpassword">
-								<label class="mdl-textfield__label" for="clearpassword">Password</label>
-							</div>
-						</div>
-	<!--
-						<div class="mdl-card__supporting-text">
-							Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-							Aenan convallis.
-						</div>
-	-->
-
 <!--
-						<div class="mdl-card__actions mdl-card--border">
-
-							<label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="switch-1">
-								<input type="checkbox" id="switch-1" class="mdl-switch__input" checked>
-								<span class="mdl-switch__label">Remember me</span>
-							</label>
-
-						</div>
+                <a class="reset_pass" href="#">Lost your password?</a>
 -->
+              </div>
+							<!--
+              <div class="clearfix"></div>
 
-						<div class="mdl-card__actions mdl-card--border mdl-typography--text-center">
-	<!--
-							<a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
-								View Updates
-							</a>
-	-->
+              <div class="separator">
+                <p class="change_link">New to site?
+                  <a href="#signup" class="to_register"> Create Account </a>
+                </p>
 
-							<button type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
-								Login
-							</button>
+                <div class="clearfix"></div>
+                <br />
 
-						</div>
-
-					</div>
-			
-				</form>
-				</section>
-			</div>
-			<div class="mdl-layout-spacer"></div>
+                <div>
+                  <h1><i class="fa fa-paw"></i> Gentelella Alela!</h1>
+                  <p>©2016 All Rights Reserved. Gentelella Alela! is a Bootstrap 3 template. Privacy and Terms</p>
+                </div>
+              </div>-->
+            </form>
+          </section>
+        </div>
 <!--
-			<div class="mdl-cell mdl-cell--4-col"></div>
--->
-		</div>
-		
-		
-		</main>
-		
-	</div>
-		
+        <div id="register" class="animate form registration_form">
+          <section class="login_content">
+            <form>
+              <h1>Create Account</h1>
+              <div>
+                <input type="text" class="form-control" placeholder="Username" required="" />
+              </div>
+              <div>
+                <input type="email" class="form-control" placeholder="Email" required="" />
+              </div>
+              <div>
+                <input type="password" class="form-control" placeholder="Password" required="" />
+              </div>
+              <div>
+                <a class="btn btn-default submit" href="index.html">Submit</a>
+              </div>
 
+              <div class="clearfix"></div>
+
+              <div class="separator">
+                <p class="change_link">Already a member ?
+                  <a href="#signin" class="to_register"> Log in </a>
+                </p>
+
+                <div class="clearfix"></div>
+                <br />
+
+                <div>
+                  <h1><i class="fa fa-paw"></i> Gentelella Alela!</h1>
+                  <p>©2016 All Rights Reserved. Gentelella Alela! is a Bootstrap 3 template. Privacy and Terms</p>
+                </div>
+              </div>
+            </form>
+          </section>
+        </div>
+      </div>
+    </div>
+    
+-->
+		

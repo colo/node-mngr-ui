@@ -119,25 +119,29 @@ module.exports = new Class({
   },
   
   get: function(req, res, next){
-		var view = Object.clone(this.express().get('default_view'));
-		view.tile = "Test";
-		
-		view.apps.each(function(value, index){
-			if(value.id == this.options.id){
-				
-				//value.role = 'start';
-				view.apps[index]['role'] = 'start';
-			}
-			else{
-				view.apps[index]['role'] = null;
-			}
-		}.bind(this));
-		
-		view.body_scripts.push('/public/apps/test/index.js');
-		
+		if(!req.isAuthenticated()){
+			res.status(403).redirect('/');
+		}
+		else{
+			var view = Object.clone(this.express().get('default_view'));
+			view.tile = "Test";
 			
-		res.render(path.join(__dirname, '/assets/index'), view);
-		
+			view.apps.each(function(value, index){
+				if(value.id == this.options.id){
+					
+					//value.role = 'start';
+					view.apps[index]['role'] = 'start';
+				}
+				else{
+					view.apps[index]['role'] = null;
+				}
+			}.bind(this));
+			
+			view.body_scripts.push('/public/apps/test/index.js');
+			
+				
+			res.render(path.join(__dirname, '/assets/index'), view);
+		}
   },
   //get: function(req, res, next){
 		////console.log('test get');
