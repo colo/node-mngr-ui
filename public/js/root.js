@@ -16,11 +16,6 @@ head.load([
 	{ jQuery: "/public/bower/jquery/dist/jquery.min.js" }//no dependencies
 ], function(){
 		
-		head.js({ bootstrap: "/public/bower/gentelella/vendors/bootstrap/dist/js/bootstrap.min.js" });
-		//head.js({ fastclick: "/public/bower/gentelella/vendors/fastclick/lib/fastclick.js" });
-		//head.js({ nprogress: "/public/bower/gentelella/vendors/nprogress/nprogress.js" });
-		head.js({ gentelella: "/public/bower/gentelella/build/js/custom.min.js" });
-		
 		head.load({ pager: "/public/bower/pagerjs/dist/pager.min.js" },function(){
 			head.load({ history: "/public/bower/history.js/scripts/bundled/html4+html5/jquery.history.js"}, function(){
 				
@@ -167,6 +162,12 @@ head.load([
 		
 });
 
+head.ready(document, function() {
+	head.js({ bootstrap: "/public/bower/gentelella/vendors/bootstrap/dist/js/bootstrap.min.js" });
+	//head.js({ fastclick: "/public/bower/gentelella/vendors/fastclick/lib/fastclick.js" });
+	//head.js({ nprogress: "/public/bower/gentelella/vendors/nprogress/nprogress.js" });
+	head.js({ gentelella: "/public/bower/gentelella/build/js/custom.min.js" });
+});
 
 var load_app_resources = function(page) {//apply on pagerjs external resources
 	//console.log('mdl: ');

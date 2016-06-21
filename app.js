@@ -117,25 +117,25 @@ var MyApp = new Class({
       
       body_scripts: [
 				"/api/apps/?callback=update_view",
-				"/public/js/root.js",
+				"/public/js/root.js"
       ],
       body_script: [
 				"var apps = [];\n"+
 				"var update_view = function(params){ apps = params; };\n"
       ],
       css: [
-      /** Bootstrap */
-			"/public/bower/gentelella/vendors/bootstrap/dist/css/bootstrap.min.css",
-			/** Font Awesome */
-			"/public/bower/gentelella/vendors/font-awesome/css/font-awesome.min.css",
-			/** iCheck */
-			//"/public/bower/gentelella/vendors/iCheck/skins/flat/green.css",
-			/** bootstrap-progressbar */
-			//"/public/bower/gentelella/vendors/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css",
-			/** jVectorMap */
-			//"/public/bower/gentelella/production/css/maps/jquery-jvectormap-2.0.3.css",
-			/* Custom Theme Style */
-			"/public/bower/gentelella/build/css/custom.min.css"
+				/** Bootstrap */
+				"/public/bower/gentelella/vendors/bootstrap/dist/css/bootstrap.min.css",
+				/** Font Awesome */
+				"/public/bower/gentelella/vendors/font-awesome/css/font-awesome.min.css",
+				/** iCheck */
+				//"/public/bower/gentelella/vendors/iCheck/skins/flat/green.css",
+				/** bootstrap-progressbar */
+				//"/public/bower/gentelella/vendors/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css",
+				/** jVectorMap */
+				//"/public/bower/gentelella/production/css/maps/jquery-jvectormap-2.0.3.css",
+				/* Custom Theme Style */
+				"/public/bower/gentelella/build/css/custom.min.css"
       ],
       style: "",
 			
