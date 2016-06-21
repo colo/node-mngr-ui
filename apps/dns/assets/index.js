@@ -2,29 +2,29 @@
 head.load({ page: '/public/apps/dns/index.css' });
 head.load('/public/bower/gentelella/vendors/iCheck/skins/flat/green.css');
 /** Datatables CSS */
-head.load('/public/bower/gentelella/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css');
-head.load('/public/bower/gentelella/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css');
-head.load('/public/bower/gentelella/vendors/datatables.net-buttons-bs/css/buttons.bootstrap.min.css');
-head.load('/public/bower/gentelella/vendors/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css');
-head.load('/public/bower/gentelella/vendors/datatables.net-responsive-bs/css/responsive.bootstrap.min.css');
-head.load('/public/bower/gentelella/vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css');
+//head.load('/public/bower/gentelella/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css');
+//head.load('/public/bower/gentelella/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css');
+//head.load('/public/bower/gentelella/vendors/datatables.net-buttons-bs/css/buttons.bootstrap.min.css');
+//head.load('/public/bower/gentelella/vendors/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css');
+//head.load('/public/bower/gentelella/vendors/datatables.net-responsive-bs/css/responsive.bootstrap.min.css');
+//head.load('/public/bower/gentelella/vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css');
 
 /** Datatables JS */
-head.load('/public/bower/gentelella/vendors/datatables.net/js/jquery.dataTables.min.js');
-head.load('/public/bower/gentelella/vendors/datatables.net-bs/js/dataTables.bootstrap.min.js');
-head.load('/public/bower/gentelella/vendors/datatables.net-buttons/js/dataTables.buttons.min.js');
-head.load('/public/bower/gentelella/vendors/datatables.net-buttons-bs/js/buttons.bootstrap.min.js');
-head.load('/public/bower/gentelella/vendors/datatables.net-buttons/js/buttons.flash.min.js');
-head.load('/public/bower/gentelella/vendors/datatables.net-buttons/js/buttons.html5.min.js');
-head.load('/public/bower/gentelella/vendors/datatables.net-buttons/js/buttons.print.min.js');
-head.load('/public/bower/gentelella/vendors/datatables.net-fixedheader/js/dataTables.fixedHeader.min.js');
-head.load('/public/bower/gentelella/vendors/datatables.net-keytable/js/dataTables.keyTable.min.js');
-head.load('/public/bower/gentelella/vendors/datatables.net-responsive/js/dataTables.responsive.min.js');
-head.load('/public/bower/gentelella/vendors/datatables.net-responsive-bs/js/responsive.bootstrap.js');
-head.load('/public/bower/gentelella/vendors/datatables.net-scroller/js/dataTables.scroller.min.js');
-head.load('/public/bower/gentelella/vendors/jszip/dist/jszip.min.js');
-head.load('/public/bower/gentelella/vendors/pdfmake/build/pdfmake.min.js');
-head.load('/public/bower/gentelella/vendors/pdfmake/build/vfs_fonts.js');
+//head.load('/public/bower/gentelella/vendors/datatables.net/js/jquery.dataTables.min.js');
+//head.load('/public/bower/gentelella/vendors/datatables.net-bs/js/dataTables.bootstrap.min.js');
+//head.load('/public/bower/gentelella/vendors/datatables.net-buttons/js/dataTables.buttons.min.js');
+//head.load('/public/bower/gentelella/vendors/datatables.net-buttons-bs/js/buttons.bootstrap.min.js');
+//head.load('/public/bower/gentelella/vendors/datatables.net-buttons/js/buttons.flash.min.js');
+//head.load('/public/bower/gentelella/vendors/datatables.net-buttons/js/buttons.html5.min.js');
+//head.load('/public/bower/gentelella/vendors/datatables.net-buttons/js/buttons.print.min.js');
+//head.load('/public/bower/gentelella/vendors/datatables.net-fixedheader/js/dataTables.fixedHeader.min.js');
+//head.load('/public/bower/gentelella/vendors/datatables.net-keytable/js/dataTables.keyTable.min.js');
+//head.load('/public/bower/gentelella/vendors/datatables.net-responsive/js/dataTables.responsive.min.js');
+//head.load('/public/bower/gentelella/vendors/datatables.net-responsive-bs/js/responsive.bootstrap.js');
+//head.load('/public/bower/gentelella/vendors/datatables.net-scroller/js/dataTables.scroller.min.js');
+//head.load('/public/bower/gentelella/vendors/jszip/dist/jszip.min.js');
+//head.load('/public/bower/gentelella/vendors/pdfmake/build/pdfmake.min.js');
+//head.load('/public/bower/gentelella/vendors/pdfmake/build/vfs_fonts.js');
 
 //var DNSBodyModel = {};
 
@@ -89,21 +89,22 @@ head.ready('jsonp', function(){
 				 * don't use it to check the "toogle all" checkbox
 				 * */
 				check: function(el){
-					var checkbox = el.getChildren()[0];//input checkbox
+					var checkbox = el;//input checkbox
 					
 					self.pagination.checked.include(checkbox.value);//pushes the passed element into the array if it's not already present (case and type sensitive).
 					
-					el.MaterialCheckbox.check();
+					el.checked = true;
 					
 					//console.log('checked array');
 					//console.log(self.pagination.checked);
+					return true;
 				},
 				
 				/**
 				 * don't use it to uncheck the "toogle all" checkbox
 				 * */
 				uncheck: function(el){
-					var checkbox = el.getChildren()[0];//input checkbox
+					var checkbox = el;//input checkbox
 					
 					if(self.pagination.checked.contains(checkbox.value)){
 						//console.log('checkbox data');
@@ -111,50 +112,55 @@ head.ready('jsonp', function(){
 						self.pagination.checked = self.pagination.checked.erase(checkbox.value);
 					}
 					
-					el.MaterialCheckbox.uncheck();
+					el.checked = false;
 					
 					//console.log('checked array');
 					//console.log(self.pagination.checked);
+					return true;
 				},
 				
 				toggle_all: function(el){//receives the "toogle all" element
 
-						var els = document.getElementsByName('lbl_data_chkbox');//get all labels by "name"
+						var els = document.getElementsByName('data_chkbox');//get all labels by "name"
 						
-						if(!el.MaterialCheckbox.inputElement_.checked){
-							el.MaterialCheckbox.check();
+						if(el.checked){
+							el.checked = true;
 							
 							Array.each(els, function(el){
 								self.pagination.check(el);
 							});
 						}
 						else{//uncheck all
-							el.MaterialCheckbox.uncheck();
+							el.checked = false;
 							
 							Array.each(els, function(el){
 								self.pagination.uncheck(el);
 							});
 						}
+						return true;
 				},
 				
 				/**
 				 * don't use it to toogle the "toogle all" checkbox
 				 * */
 				toggle: function(el){
-					var main_chkbox = document.getElementById('lbl_data_chkbox');//get "toggle all" element
+					var main_chkbox = document.getElementById('data_chkbox');//get "toggle all" element
 					
-					if(!el.MaterialCheckbox.inputElement_.checked){//doens't have a public property o method to check state :(
+					//console.log(el.checked);
+					
+					if(el.checked){//doens't have a public property o method to check state :(
 						self.pagination.check(el);
 						
-						var els = document.getElementsByName('lbl_data_chkbox');//get all labels->checkbox by "name"
+						var els = document.getElementsByName('data_chkbox');//get all labels->checkbox by "name"
 						self.pagination._toogle_main_checkbox(els);
 					}
 					else{
 						self.pagination.uncheck(el);
-						main_chkbox.MaterialCheckbox.uncheck();
+						main_chkbox.checked = false;
 					}
 					
-					return el.MaterialCheckbox.inputElement_.checked;
+					//return el.checked;
+					return true;
 				},
 				
 				/**
@@ -164,13 +170,13 @@ head.ready('jsonp', function(){
 				check_checked: function(){
 					//console.log('check_checked');
 					
-					var els = document.getElementsByName('lbl_data_chkbox');
+					var els = document.getElementsByName('data_chkbox');
 					
 					Array.each(els, function(el){
-						var checkbox = el.getChildren()[0];//input checkbox
+						var checkbox = el;//input checkbox
 						
 						if(self.pagination.checked.contains(checkbox.value)){
-							el.MaterialCheckbox.check();
+							el.checked = true;
 						}
 					});
 					
@@ -182,24 +188,26 @@ head.ready('jsonp', function(){
 				 * 
 				 * */
 				_toogle_main_checkbox: function(els){
-					var main_chkbox = document.getElementById('lbl_data_chkbox');//get "toggle all" checkbox
+					var main_chkbox = document.getElementById('data_chkbox');//get "toggle all" checkbox
 					if(main_chkbox){//may not be present on views with no checkbox
 						
 						//var els = document.getElementsByName('lbl_data_chkbox');//get all labels->checkbox by "name"
 						
 						try{
 							Array.each(els, function(el){//if all checked, check main one
-								if(!el.MaterialCheckbox.inputElement_.checked){
+								if(!el.checked){
 									throw new Error();
 								}
 							});
 							
-							main_chkbox.MaterialCheckbox.check();
+							main_chkbox.checked = true;
 						}
 						catch(e){
-							main_chkbox.MaterialCheckbox.uncheck();
+							main_chkbox.checked = false;
 						}
 					}
+					
+					return true;
 				}
 			};
 			
@@ -272,10 +280,10 @@ head.ready('jsonp', function(){
 						 * 
 						 * */
 						 //on page load uncheck "toogle all" checkbox (may be checked later)
-						var main_chkbox = document.getElementById('lbl_data_chkbox');//get "all" checkbox
+						var main_chkbox = document.getElementById('data_chkbox');//get "all" checkbox
 						
 						if(main_chkbox)//may not be present on views with no checkbox
-							main_chkbox.MaterialCheckbox.uncheck();
+							main_chkbox.checked = false;
 						
 						if(res.status == 206){//partial content
 							self.pagination.total_count = res.headers['Content-Range'].split('/')[1];
@@ -356,7 +364,7 @@ head.ready('jsonp', function(){
 						//console.log(URI);
 						//console.log(param);
 						
-						componentHandler.upgradeDom();
+						//componentHandler.upgradeDom();
 						self.pagination.check_checked();
 						/**
 						 * @end pagination
@@ -381,7 +389,7 @@ head.ready('jsonp', function(){
 
 			console.log('DNS binding applied');
 			
-			$('#datatable-responsive').DataTable();
+			//$('#datatable-responsive').DataTable();
 			
 			//componentHandler.upgradeDom();
 			//window.dispatchEvent('onload');
