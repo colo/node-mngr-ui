@@ -17,8 +17,8 @@ head.load([
 ], function(){
 		
 		head.js({ bootstrap: "/public/bower/gentelella/vendors/bootstrap/dist/js/bootstrap.min.js" });
-		head.js({ fastclick: "/public/bower/gentelella/vendors/fastclick/lib/fastclick.js" });
-		head.js({ nprogress: "/public/bower/gentelella/vendors/nprogress/nprogress.js" });
+		//head.js({ fastclick: "/public/bower/gentelella/vendors/fastclick/lib/fastclick.js" });
+		//head.js({ nprogress: "/public/bower/gentelella/vendors/nprogress/nprogress.js" });
 		head.js({ gentelella: "/public/bower/gentelella/build/js/custom.min.js" });
 		
 		head.load({ pager: "/public/bower/pagerjs/dist/pager.min.js" },function(){

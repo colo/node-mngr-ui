@@ -1,5 +1,30 @@
 
 head.load({ page: '/public/apps/dns/index.css' });
+head.load('/public/bower/gentelella/vendors/iCheck/skins/flat/green.css');
+/** Datatables CSS */
+head.load('/public/bower/gentelella/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css');
+head.load('/public/bower/gentelella/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css');
+head.load('/public/bower/gentelella/vendors/datatables.net-buttons-bs/css/buttons.bootstrap.min.css');
+head.load('/public/bower/gentelella/vendors/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css');
+head.load('/public/bower/gentelella/vendors/datatables.net-responsive-bs/css/responsive.bootstrap.min.css');
+head.load('/public/bower/gentelella/vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css');
+
+/** Datatables JS */
+head.load('/public/bower/gentelella/vendors/datatables.net/js/jquery.dataTables.min.js');
+head.load('/public/bower/gentelella/vendors/datatables.net-bs/js/dataTables.bootstrap.min.js');
+head.load('/public/bower/gentelella/vendors/datatables.net-buttons/js/dataTables.buttons.min.js');
+head.load('/public/bower/gentelella/vendors/datatables.net-buttons-bs/js/buttons.bootstrap.min.js');
+head.load('/public/bower/gentelella/vendors/datatables.net-buttons/js/buttons.flash.min.js');
+head.load('/public/bower/gentelella/vendors/datatables.net-buttons/js/buttons.html5.min.js');
+head.load('/public/bower/gentelella/vendors/datatables.net-buttons/js/buttons.print.min.js');
+head.load('/public/bower/gentelella/vendors/datatables.net-fixedheader/js/dataTables.fixedHeader.min.js');
+head.load('/public/bower/gentelella/vendors/datatables.net-keytable/js/dataTables.keyTable.min.js');
+head.load('/public/bower/gentelella/vendors/datatables.net-responsive/js/dataTables.responsive.min.js');
+head.load('/public/bower/gentelella/vendors/datatables.net-responsive-bs/js/responsive.bootstrap.js');
+head.load('/public/bower/gentelella/vendors/datatables.net-scroller/js/dataTables.scroller.min.js');
+head.load('/public/bower/gentelella/vendors/jszip/dist/jszip.min.js');
+head.load('/public/bower/gentelella/vendors/pdfmake/build/pdfmake.min.js');
+head.load('/public/bower/gentelella/vendors/pdfmake/build/vfs_fonts.js');
 
 //var DNSBodyModel = {};
 
@@ -351,12 +376,14 @@ head.ready('jsonp', function(){
 		//console.log(mainBodyModel.dns());
 		
 		if(mainBodyModel.dns() == null){
-
+			
 			mainBodyModel.dns(new DNSModel());
 
 			console.log('DNS binding applied');
 			
-			componentHandler.upgradeDom();
+			$('#datatable-responsive').DataTable();
+			
+			//componentHandler.upgradeDom();
 			//window.dispatchEvent('onload');
 			//window.dispatchEvent(re_init_mdl);
 			
