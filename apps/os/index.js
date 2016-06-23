@@ -1,7 +1,8 @@
 'use strict'
 
 var App = require('node-express-app'),
-	path = require('path');
+	path = require('path'),
+	fs = require('fs');
 	
 
 
@@ -52,7 +53,12 @@ module.exports = new Class({
 			
 			routes: {
 				
-				all: [
+				get: [
+					{
+						path: 'networkInterfaces/primary',
+						callbacks: ['primary_iface'],
+						version: '',
+					},
 					{
 						path: 'server',
 						callbacks: ['server'],
@@ -63,6 +69,9 @@ module.exports = new Class({
 			
 		},
   },
+  primary_iface: function(req, res, next){
+		res.jsonp(this.options.networkInterfaces.primary);
+	},
   server: function(req, res, next){
 		res.jsonp("http://"+req.hostname+":8081");
 	},
@@ -96,7 +105,8 @@ module.exports = new Class({
   initialize: function(options){
 		this.profile('os_init');//start profiling
 		
-		
+		options = Object.merge(options, JSON.decode(fs.readFileSync(path.join(__dirname, 'config/config.json' ), 'ascii')));
+		//console.log(JSON.decode(fs.readFileSync(path.join(__dirname, 'config/config.json' ), 'ascii')));
 		
 		this.parent(options);//override default options
 		

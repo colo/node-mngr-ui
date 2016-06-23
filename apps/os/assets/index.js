@@ -13,18 +13,41 @@ var update_server = function (data){
 	os_server = data;
 }
 
+var primary_iface = null;
+var update_primary_iface = function (data){
+	primary_iface = data;
+}
+
 head.load({ jsonp: "/os/api/server/?callback=update_server" });
+head.load({ jsonp: "/os/api/networkInterfaces/primary?callback=update_primary_iface" });
 
 head.ready('jsonp', function(){
 	head.ready('history'
 	, function() {
 	 
-		var OSModel = function(){
-			var self = this;
+		var OSModel = new Class({
+			Implements: [Options, Events],
 			
-			//self.info = ko.observableArray([
-			//]);
-		};
+			options : {
+			},
+			
+			initialize: function(options){
+				var self = this;
+				
+				self.primary_iface = primary_iface;
+				
+				self.primary_iface_out = ko.pureComputed(function(){
+					console.log(self.networkInterfaces[primary_iface]());
+					return (self.networkInterfaces[primary_iface]().transmited.bytes / (1024 * 1024 * 1024)).toFixed(2);
+				});
+				
+				self.primary_iface_in = ko.pureComputed(function(){
+					return (self.networkInterfaces[primary_iface]().recived.bytes / (1024 * 1024 * 1024)).toFixed(2);
+				});
+				//self.info = ko.observableArray([
+				//]);
+			}
+		});
 	 
 		var os_model = new OSModel();
 		 
@@ -104,7 +127,7 @@ head.ready('jsonp', function(){
 								}
 								
 								if(key == 'networkInterfaces'){
-									console.log(OSModel.prototype[key]['wlp0s19f2u5']().recived.bytes);
+									console.log(OSModel.prototype[key][primary_iface]().recived.bytes);
 								}
 							}
 						//}
@@ -173,13 +196,13 @@ head.ready('jsonp', function(){
 				}, 1000);
 				
 				var get_pri_iface_interval = window.setInterval(function(){
-					get_param('networkInterfaces/wlp0s19f2u5	', function(err, res){
+					get_param('networkInterfaces/'+primary_iface, function(err, res){
 							if(err){
 								console.log('Error:', err);
 								console.log('Response:', err.data);
 							}
 							else{
-								os_model.networkInterfaces.wlp0s19f2u5(res.data);
+								os_model.networkInterfaces[primary_iface](res.data);
 								//os_model.freemem((res.data / (1024 * 1024 * 1004 )).toFixed(2));
 							}
 					});
