@@ -1,5 +1,5 @@
 {
 	"networkInterfaces": {
-		"primary": {iface}
+		"primary": "brkvm"
 	}
 }
