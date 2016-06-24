@@ -2,11 +2,11 @@ var mainBodyModel = {};
 
 //head.js({ mdl: "/public/mdl/material.min.js" }); //no dependencies
 head.js({ resilient: "/public/apps/login/bower/resilient/resilient.min.js" }); //no dependencies
-head.js({ mootools: "/public/bower/mootools/dist/mootools-core.min.js" }); //no dependencies
+//head.js({ mootools: "/public/bower/mootools/dist/mootools-core.min.js" }); //no dependencies
 
-//head.js({ mootools: "/public/bower/mootools/dist/mootools-core.min.js" }, function(){
-		//head.js({ mootools: "/public/js/MooTools-More-1.6.0-compressed.js" }); //no dependencies
-//}); //no dependencies
+head.js({ mootools: "/public/bower/mootools/dist/mootools-core.min.js" }, function(){
+		head.js({ 'mootools-more': "/public/js/MooTools-More-1.6.0-compressed.js" }); //no dependencies
+}); //no dependencies
 
 
 //head.js({ polymer: "/public/bower/webcomponentsjs/webcomponents.min.js" }); //no dependencies 
