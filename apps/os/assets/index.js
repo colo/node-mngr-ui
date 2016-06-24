@@ -28,7 +28,12 @@ head.ready('jsonp', function(){
 		var OSModel = new Class({
 			Implements: [Options, Events],
 			
+			GB: (1024 * 1024 * 1024),
+			MB: (1024 * 1024 ),
+			KB: 1024,
+			
 			options : {
+				current_base: 'GB',
 			},
 			
 			initialize: function(options){
@@ -36,13 +41,14 @@ head.ready('jsonp', function(){
 				
 				self.primary_iface = primary_iface;
 				
+				
 				self.primary_iface_out = ko.pureComputed(function(){
 					console.log(self.networkInterfaces[primary_iface]());
-					return (self.networkInterfaces[primary_iface]().transmited.bytes / (1024 * 1024 * 1024)).toFixed(2);
+					return (self.networkInterfaces[primary_iface]().transmited.bytes / self[self.options.current_base]).toFixed(2);
 				});
 				
 				self.primary_iface_in = ko.pureComputed(function(){
-					return (self.networkInterfaces[primary_iface]().recived.bytes / (1024 * 1024 * 1024)).toFixed(2);
+					return (self.networkInterfaces[primary_iface]().recived.bytes / self[self.options.current_base]).toFixed(2);
 				});
 				//self.info = ko.observableArray([
 				//]);
@@ -113,7 +119,7 @@ head.ready('jsonp', function(){
 							}
 							else{
 								if(key.indexOf('mem') > 0){
-									value = (value / (1024 * 1024 * 1004 )).toFixed(2);
+									value = (value / os_model[os_model.options.current_base]).toFixed(2);
 								}
 								
 								if(typeof(value) == 'object'){
@@ -174,7 +180,7 @@ head.ready('jsonp', function(){
 								console.log('Response:', err.data);
 							}
 							else{
-								os_model.freemem((res.data / (1024 * 1024 * 1004 )).toFixed(2));
+								os_model.freemem((res.data / os_model[os_model.options.current_base]).toFixed(2));
 							}
 					});
 				}, 1000);
