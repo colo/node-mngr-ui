@@ -1,17 +1,42 @@
 
 head.ready('history'
 , function() {
- 
-	var TestModel = function(){
-		var self = this;
-		self.key = "value";
-	};
 	
-	if(mainBodyModel.test() == null){
+	var TestModel = new Class({
+		Implements: [Options, Events],
 		
-		mainBodyModel.test(new TestModel());
+		options : {
+		},
 		
-		console.log('test binding applied');
-		//componentHandler.upgradeDom();
-	}
+		initialize: function(options){
+			
+			this.setOptions(options);
+			this.key = "value";
+			
+		}
+	});
+	
+	var TestPage = new Class({
+		Extends: Page,
+		
+		initialize: function(options){
+							
+			this.parent(options);
+			this.model = new TestModel();
+			
+			if(mainBodyModel.test() == null){
+		
+				mainBodyModel.test(this.model);
+				
+				console.log('test binding applied');
+				//componentHandler.upgradeDom();
+			}
+			
+		}
+		
+	});
+										
+	var test_page = new TestPage();
+	
+	
 });

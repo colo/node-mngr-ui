@@ -60,6 +60,7 @@ module.exports = new Class({
 						version: '',
 					},
 					{
+						//content_type: '',
 						path: 'server',
 						callbacks: ['server'],
 						version: '',
@@ -70,10 +71,10 @@ module.exports = new Class({
 		},
   },
   primary_iface: function(req, res, next){
-		res.jsonp(this.options.networkInterfaces.primary);
+		res.set('Content-Type', 'application/javascript').jsonp(this.options.networkInterfaces.primary);
 	},
   server: function(req, res, next){
-		res.jsonp("http://"+req.hostname+":8081");
+		res.set('Content-Type', 'application/javascript').jsonp("http://"+req.hostname+":8081");
 	},
   render: function(req, res, next){
 		if(!req.isAuthenticated()){
