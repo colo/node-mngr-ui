@@ -110,14 +110,16 @@ var MyApp = new Class({
 				//'rel="shortcut icon" href="images/favicon.png"',
       ],
       scripts: [
-				"/public/bower/headjs/dist/1.0.0/head.min.js"
+				"/public/bower/headjs/dist/1.0.0/head.min.js",
+				//"/public/bower/mootools/dist/mootools-core.min.js",
+				//"/public/js/MooTools-More-1.6.0-compressed.js"
       ],
       
       body_class: 'nav-md',
       
       body_scripts: [
 				"/api/apps/?callback=update_view",
-				"/public/js/root.js"
+				"/public/js/index.js"
       ],
       body_script: [
 				"var apps = [];\n"+

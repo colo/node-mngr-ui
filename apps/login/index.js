@@ -139,7 +139,7 @@ module.exports = new Class({
 			view.base = "/login";
 			view.body_class = "login";
 			view.body_scripts = [
-				"/public/js/root.js",
+				"/public/js/index.js",
 				"/public/apps/login/index.js",
 			];
 			
