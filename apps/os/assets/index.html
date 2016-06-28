@@ -23,22 +23,22 @@
 	<div class="row tile_count">
 		<div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
 			<span class="count_top"><i class="fa fa-clock-o"></i> Load Average</span>
-			<div class="count" data-bind="text: loadavg()[0]">0</div>
-			<span class="count_bottom" data-bind="text: loadavg()[1]+' | '+loadavg()[2]">0|0</span>
+			<div class="count" data-bind="text: user_friendly_loadavg()[0]">0</div>
+			<span class="count_bottom" data-bind="text: user_friendly_loadavg()[1]+' | '+user_friendly_loadavg()[2]">0|0</span>
 <!--
 			<span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>3% </i> From last Week</span>
 -->
 		</div>
 		<div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
 			<span class="count_top"><i class="fa fa-cog"></i> Free Memory (GB)</span>
-			<div class="count" data-bind="text: freemem">0</div>
-			<span class="count_bottom" data-bind="text: 'Total: '+totalmem()"></span>
+			<div class="count" data-bind="text: user_friendly_freemem()">0</div>
+			<span class="count_bottom" data-bind="text: 'Total: '+user_friendly_totalmem()"></span>
 <!--
 			<span class="count_bottom"><i class="green">4% </i> From last Week</span>
 -->
 		</div>
 		<div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
-			<span class="count_top" data-bind="text: 'Primary IFace: ('+primary_iface+')'"><i class="fa fa-cog"></i> IFace ()</span>
+			<span class="count_top" data-bind="text: 'Primary IFace: ('+primary_iface()+')'"><i class="fa fa-cog"></i> IFace ()</span>
 			<div class="count" data-bind="text: primary_iface_out">0</div>
 			<span class="count_bottom" data-bind="text: primary_iface_in">0</span>
 <!--

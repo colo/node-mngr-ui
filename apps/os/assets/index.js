@@ -34,6 +34,13 @@ function getURLParameter(name, URI) {
 		MB: (1024 * 1024 ),
 		KB: 1024,
 		
+		//primary_iface: ko.observable('lo'),
+		//hostname: ko.observable(null),
+		//loadavg: ko.observableArray([]),
+		//freemem: ko.observable(null),
+		//totalmem: ko.observable(null),
+		//networkInterfaces: {},
+			
 		options : {
 			current_base: 'GB',
 		},
@@ -42,16 +49,37 @@ function getURLParameter(name, URI) {
 			
 			this.setOptions(options);
 			
-			this.primary_iface = primary_iface;
-			
+			//console.log('this.networkInterfaces');
+			//console.log(this.primary_iface());
 			
 			this.primary_iface_out = ko.pureComputed(function(){
-				console.log(this.networkInterfaces[primary_iface]());
-				return (this.networkInterfaces[primary_iface]().transmited.bytes / this[this.options.current_base]).toFixed(2);
+				console.log(this.networkInterfaces[this.primary_iface()]());
+				return (this.networkInterfaces[this.primary_iface()]().transmited.bytes / this[this.options.current_base]).toFixed(2);
 			}.bind(this));
 			
 			this.primary_iface_in = ko.pureComputed(function(){
-				return (this.networkInterfaces[primary_iface]().recived.bytes / this[this.options.current_base]).toFixed(2);
+				return (this.networkInterfaces[this.primary_iface()]().recived.bytes / this[this.options.current_base]).toFixed(2);
+			}.bind(this));
+			
+			this.user_friendly_totalmem = ko.pureComputed(function(){
+				return (this.totalmem() / this[this.options.current_base]).toFixed(2);
+			}.bind(this));
+			
+			this.user_friendly_freemem = ko.pureComputed(function(){
+				return (this.freemem() / this[this.options.current_base]).toFixed(2);
+			}.bind(this));
+			
+			this.user_friendly_loadavg = ko.pureComputed(function(){
+				var arr = [];
+				console.log('user_friendly_loadavg');
+				console.log(this.loadavg());
+				Array.each(this.loadavg(), function(item, index){
+					arr[index] = item.toFixed(2);
+				}.bind(this));
+				
+				//console.log(arr);
+				return arr;
+				
 			}.bind(this));
 			
 		}
@@ -81,12 +109,98 @@ function getURLParameter(name, URI) {
 				//console.log(data);
 			//});
 			
-			this.addEvent(this.JSONP_LOADED, function(data){
+			this.addEvent(this.JSONP_LOADED+'_update_server', function(data){
+				console.log('this.JSONP_LOADED_update_server');
+				console.log(data);
+				
+				var jsonRequest = new Request.JSON({
+					url: data+'/os',
+					onSuccess: function(server_data){
+						console.log('server_data');
+						console.log(server_data);
+						
+						Object.each(server_data, function(value, key){
+							console.log('server_data: '+key);
+							console.log(typeof(value));
+							
+							//if(key == 'loadavg'){
+								//var arr = [];
+								//Object.each(value, function(item, index){
+									//arr[index] = item.toFixed(2);
+								//});
+								
+								////OSModel[key] = ko.observableArray(arr);
+								//var obj = {};
+								//obj[key] = ko.observableArray(arr);
+								//OSModel.implement(obj);
+
+							//}
+							//else{
+								//if(key.indexOf('mem') > 0){
+									//value = (value / OSModel[OSModel['options']['current_base']]).toFixed(2);
+								//}
+								
+								
+								if(typeof(value) == 'object'){
+									var obj = {};
+									
+									if(value[0]){//is array, not object
+										obj[key] = ko.observableArray();
+										Object.each(value, function(item, index){
+											obj[key].push(item);
+										});
+									}
+									else{
+										obj[key] = {};
+										Object.each(value, function(item, internal_key){
+											obj[key][internal_key] = ko.observable(item);
+										});
+									}
+									
+									OSModel.implement(obj);
+									
+								}
+								else{
+									var obj = {};
+									obj[key] = ko.observable(value);
+									OSModel.implement(obj);
+								}
+								
+								//if(key == 'networkInterfaces'){
+									//console.log('networkInterfaces.lo.recived.bytes');
+									//console.log(OSModel['networkInterfaces']);
+								//}
+							//}
+							
+						});
+						
+						this.fireEvent(this.STARTED);
+						
+					}.bind(this)
+				}).send();
+				
+			}.bind(this));
+			
+			this.addEvent(this.JSONP_LOADED+'_update_primary_iface', function(data){
 				console.log('this.JSONP_LOADED');
 				console.log(data);
+				OSModel.implement({'primary_iface': ko.observable(data)});
+				//OSModel['primary_iface'](data);
 			});
 			
+			//this.addEvent(this.JSONP_LOADED, function(data){
+				//console.log('this.JSONP_LOADED');
+				//console.log(data);
+			//});
+			
+			//this.model = new OSModel();
+			
+			//if(mainBodyModel.os() == null){
+				//mainBodyModel.os(this.model);
+			//}
+			
 			this.parent(options);
+			
 			
 			//var servers = [
 					//os_server
@@ -239,13 +353,31 @@ function getURLParameter(name, URI) {
 				//}
 			//});
 			
-			var os_model = new OSModel();
-			
 		},
 	});	
 		
 	var os_page = new OSPage();
+	//if(mainBodyModel.os() == null){
+			
+		////console.log(OSModel['hostname']());
 		
+		//mainBodyModel.os(new OSModel());
+	//}
+		
+	os_page.addEvent(os_page.STARTED, function(){
+		console.log('page started');
+		os_page.model = new OSModel();
+		
+		if(mainBodyModel.os() == null){
+			
+			//console.log(os_page.model['networkInterfaces']);
+			
+			console.log('os binding applied');
+			
+			mainBodyModel.os(os_page.model);
+			
+		}
+	});	
 		
 	});
 //});

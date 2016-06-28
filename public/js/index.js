@@ -103,7 +103,7 @@ head.ready('mootools-more', function(){
 						onRequest: function (url) {
 								// a script tag is created with a 
 								// src attribute equal to url
-								console.log('requesting.... '+url); // answer object with data
+								console.log('requesting.... '+url);
 						},
 						onComplete: function (data) {
 							self.fireEvent(self.JSONP_LOADED+'_'+id, data);
