@@ -34,6 +34,9 @@ function getURLParameter(name, URI) {
 		MB: (1024 * 1024 ),
 		KB: 1024,
 		
+		D: (60 * 60 * 24),//day
+		W: (60 * 60 * 24 * 7),//week
+		
 		//primary_iface: ko.observable('lo'),
 		//hostname: ko.observable(null),
 		//loadavg: ko.observableArray([]),
@@ -42,7 +45,8 @@ function getURLParameter(name, URI) {
 		//networkInterfaces: {},
 			
 		options : {
-			current_base: 'GB',
+			current_size_base: 'GB',
+			current_time_base: 'D',
 		},
 		
 		initialize: function(options){
@@ -52,27 +56,39 @@ function getURLParameter(name, URI) {
 			//console.log('this.networkInterfaces');
 			//console.log(this.primary_iface());
 			
+			this.header = ko.pureComputed(function(){
+				return this.hostname()+' ['+this.type() +' '+this.release()+' '+this.arch()+']';
+			}.bind(this));
+			
+			this.user_friendly_cpu = ko.pureComputed(function(){
+				return this.cpus()[0].model+' @ '+this.cpus()[0].speed;
+			}.bind(this));
+			
+			this.user_friendly_uptime = ko.pureComputed(function(){
+				return (this.uptime() / this[this.options.current_time_base]).toFixed(0);
+			}.bind(this));
+			
 			this.primary_iface_out = ko.pureComputed(function(){
-				console.log(this.networkInterfaces[this.primary_iface()]());
-				return (this.networkInterfaces[this.primary_iface()]().transmited.bytes / this[this.options.current_base]).toFixed(2);
+				//console.log(this.networkInterfaces[this.primary_iface()]());
+				return (this.networkInterfaces[this.primary_iface()]().transmited.bytes / this[this.options.current_size_base]).toFixed(2);
 			}.bind(this));
 			
 			this.primary_iface_in = ko.pureComputed(function(){
-				return (this.networkInterfaces[this.primary_iface()]().recived.bytes / this[this.options.current_base]).toFixed(2);
+				return (this.networkInterfaces[this.primary_iface()]().recived.bytes / this[this.options.current_size_base]).toFixed(2);
 			}.bind(this));
 			
 			this.user_friendly_totalmem = ko.pureComputed(function(){
-				return (this.totalmem() / this[this.options.current_base]).toFixed(2);
+				return (this.totalmem() / this[this.options.current_size_base]).toFixed(2);
 			}.bind(this));
 			
 			this.user_friendly_freemem = ko.pureComputed(function(){
-				return (this.freemem() / this[this.options.current_base]).toFixed(2);
+				return (this.freemem() / this[this.options.current_size_base]).toFixed(2);
 			}.bind(this));
 			
 			this.user_friendly_loadavg = ko.pureComputed(function(){
 				var arr = [];
-				console.log('user_friendly_loadavg');
-				console.log(this.loadavg());
+				//console.log('user_friendly_loadavg');
+				//console.log(this.loadavg());
 				Array.each(this.loadavg(), function(item, index){
 					arr[index] = item.toFixed(2);
 				}.bind(this));
@@ -87,6 +103,8 @@ function getURLParameter(name, URI) {
 	
 	var OSPage = new Class({
 		Extends: Page,
+		
+		server: null,
 		
 		options: {
 			assets: {
@@ -113,8 +131,10 @@ function getURLParameter(name, URI) {
 				console.log('this.JSONP_LOADED_update_server');
 				console.log(data);
 				
+				this.server = data;
+				
 				var jsonRequest = new Request.JSON({
-					url: data+'/os',
+					url: this.server+'/os',
 					onSuccess: function(server_data){
 						console.log('server_data');
 						console.log(server_data);
@@ -123,23 +143,6 @@ function getURLParameter(name, URI) {
 							console.log('server_data: '+key);
 							console.log(typeof(value));
 							
-							//if(key == 'loadavg'){
-								//var arr = [];
-								//Object.each(value, function(item, index){
-									//arr[index] = item.toFixed(2);
-								//});
-								
-								////OSModel[key] = ko.observableArray(arr);
-								//var obj = {};
-								//obj[key] = ko.observableArray(arr);
-								//OSModel.implement(obj);
-
-							//}
-							//else{
-								//if(key.indexOf('mem') > 0){
-									//value = (value / OSModel[OSModel['options']['current_base']]).toFixed(2);
-								//}
-								
 								
 								if(typeof(value) == 'object'){
 									var obj = {};
@@ -202,19 +205,6 @@ function getURLParameter(name, URI) {
 			this.parent(options);
 			
 			
-			//var servers = [
-					//os_server
-			//];
-			
-			//var client = resilient({
-				 //service: { 
-					 //basePath: '/os',
-					 //headers : { "Content-Type": "application/json" }
-				 //}
-			//});
-		
-			//client.setServers(servers);
-			
 			var current_uri = new URI(window.location.pathname);
 			console.log(current_uri.toString());
 			//self.URI = window.location.protocol+'//'+window.location.host+window.location.pathname;
@@ -252,7 +242,7 @@ function getURLParameter(name, URI) {
 							//}
 							//else{
 								//if(key.indexOf('mem') > 0){
-									//value = (value / os_model[os_model.options.current_base]).toFixed(2);
+									//value = (value / os_model[os_model.options.current_size_base]).toFixed(2);
 								//}
 								
 								//if(typeof(value) == 'object'){
@@ -289,50 +279,6 @@ function getURLParameter(name, URI) {
 					//mainBodyModel.os(os_model);
 					//window.removeEventListener(page_loaded, this);//run just once
 					
-					////var get_loadavg_interval = window.setInterval(function(){
-						////get_param('loadavg', function(err, res){
-								////if(err){
-									////console.log('Error:', err);
-									////console.log('Response:', err.data);
-								////}
-								////else{
-									////os_model.loadavg.removeAll();
-									////Array.each(res.data, function(item, index){
-										////os_model.loadavg.push(item.toFixed(2));
-									////});
-									
-								////}
-						////});
-					////}, 1000);
-					
-					////var get_freemem_interval = window.setInterval(function(){
-						////get_param('freemem', function(err, res){
-								////if(err){
-									////console.log('Error:', err);
-									////console.log('Response:', err.data);
-								////}
-								////else{
-									////os_model.freemem((res.data / os_model[os_model.options.current_base]).toFixed(2));
-								////}
-						////});
-					////}, 1000);
-					
-					////var get_loadavg_interval = window.setInterval(function(){
-						////get_param('loadavg', function(err, res){
-								////if(err){
-									////console.log('Error:', err);
-									////console.log('Response:', err.data);
-								////}
-								////else{
-									////os_model.loadavg.removeAll();
-									////Array.each(res.data, function(item, index){
-										////os_model.loadavg.push(item.toFixed(2));
-									////});
-									
-								////}
-						////});
-					////}, 1000);
-					
 					////var get_pri_iface_interval = window.setInterval(function(){
 						////get_param('networkInterfaces/'+primary_iface, function(err, res){
 								////if(err){
@@ -365,8 +311,11 @@ function getURLParameter(name, URI) {
 	//}
 		
 	os_page.addEvent(os_page.STARTED, function(){
+		var self = this;
+		
 		console.log('page started');
-		os_page.model = new OSModel();
+		
+		self.model = new OSModel();
 		
 		if(mainBodyModel.os() == null){
 			
@@ -374,9 +323,73 @@ function getURLParameter(name, URI) {
 			
 			console.log('os binding applied');
 			
-			mainBodyModel.os(os_page.model);
+			mainBodyModel.os(self.model);
 			
 		}
+		
+		var myRequests = {
+			loadavg: new Request.JSON({
+				url: this.server+'/os/loadavg',
+				initialDelay: 1000,
+				delay: 2000,
+				limit: 10000,
+				onSuccess: function(loadavg){
+					console.log('myRequests.loadavg: ');
+					console.log(loadavg);
+					self.model.loadavg(loadavg);
+					//os_model.loadavg.removeAll();
+					//Array.each(res.data, function(item, index){
+						//os_model.loadavg.push(item.toFixed(2));
+					//});
+				}
+			}),
+			freemem: new Request.JSON({
+				url: this.server+'/os/freemem',
+				initialDelay: 1000,
+				delay: 2000,
+				limit: 10000,
+				onSuccess: function(freemem){
+					console.log('myRequests.freemem: ');
+					console.log(freemem);
+					self.model.freemem(freemem);
+				}
+			}),
+			primary_iface: new Request.JSON({
+				url: this.server+'/os/networkInterfaces/'+self.model.primary_iface(),
+				initialDelay: 1000,
+				delay: 2000,
+				limit: 10000,
+				onSuccess: function(primary_iface){
+					console.log('myRequests.'+self.model.primary_iface());
+					console.log(primary_iface);
+					self.model.networkInterfaces[self.model.primary_iface()](primary_iface);
+				}
+			}),
+			uptime: new Request.JSON({
+				url: this.server+'/os/uptime',
+				initialDelay: 60000,
+				delay: 120000,
+				limit: 300000,
+				onSuccess: function(uptime){
+					console.log('myRequests.uptime: ');
+					console.log(uptime);
+					self.model.uptime(uptime);
+				}
+			})
+		};
+		
+		var myQueue = new Request.Queue({
+			requests: myRequests,
+			onComplete: function(name, instance, text, xml){
+					//console.log('queue: ' + name + ' response: ', text, xml);
+			}
+		});
+		
+		
+		myRequests.loadavg.startTimer();
+		myRequests.freemem.startTimer();
+		myRequests.primary_iface.startTimer();
+		
 	});	
 		
 	});
