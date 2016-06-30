@@ -1,6 +1,3 @@
-//head.load({ page: '/public/apps/os/index.css' });
-
-//var page_loaded = new Event('page_loaded');
 
 function getURLParameter(name, URI) {
 	URI = URI || location.search;
@@ -8,20 +5,6 @@ function getURLParameter(name, URI) {
   return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(URI)||[,""])[1].replace(/\+/g, '%20'))||null;
 }
 
-//var os_server = null;
-//var update_server = function (data){
-	//console.log('update_server');
-	////os_server = data;
-	//OSPage['os_server'] = data;
-//}
-
-//var primary_iface = null;
-//var update_primary_iface = function (data){
-	//primary_iface = data;
-//}
-
-//head.load({ jsonp: "/os/api/server/?callback=update_server" });
-//head.load({ jsonp: "/os/api/networkInterfaces/primary?callback=update_primary_iface" });
 
 //head.ready('jsonp', function(){
 	head.ready('history'
@@ -105,11 +88,17 @@ function getURLParameter(name, URI) {
 		Extends: Page,
 		
 		server: null,
+		timed_request: {},
 		
 		options: {
 			assets: {
-				js: {
-				},
+				js: [
+					{ gentelella_deps: [
+							{ bootstrap: "/public/bower/gentelella/vendors/bootstrap/dist/js/bootstrap.min.js" },
+							{ Chart: "/public/bower/gentelella/vendors/Chart.js/dist/Chart.min.js" },
+						]
+					}
+				],
 				css: {
 					'index_css': '/public/apps/os/index.css'
 				},
@@ -121,7 +110,19 @@ function getURLParameter(name, URI) {
 		},
 		
 		initialize: function(options){
+			//root_page.addEvent('beforeHide_os', function(page){
+				//console.log('beforeHide_os');
+				//throw new Error();}
+			//);
+		
+			root_page.addEvent('beforeHide_os', this.stop_timed_requests.bind(this));
+			root_page.addEvent('afterShow_os', this.start_timed_requests.bind(this));
 			
+			//this.addEvent(this.JS_LOADED+'_Chart', function(){
+				//console.log('this.JS_LOADED_Chart');
+				
+				//this._load_charts();
+			//}.bind(this));
 			//this.addEvent(this.JSONP_LOADED+'_update_server', function(data){
 				//console.log('this.JSONP_LOADED_update_server');
 				//console.log(data);
@@ -187,6 +188,8 @@ function getURLParameter(name, URI) {
 			this.addEvent(this.JSONP_LOADED+'_update_primary_iface', function(data){
 				console.log('this.JSONP_LOADED');
 				console.log(data);
+				
+				this.primary_iface = data;
 				OSModel.implement({'primary_iface': ko.observable(data)});
 				//OSModel['primary_iface'](data);
 			});
@@ -209,106 +212,120 @@ function getURLParameter(name, URI) {
 			console.log(current_uri.toString());
 			//self.URI = window.location.protocol+'//'+window.location.host+window.location.pathname;
 			
-			//var param = '';
-			
-			//var get_param = function(param, callback){
-				//console.log('get_params: '+param);
-				//client.get('/'+param, callback);
-			//};
-			
-			//load_page = function(URI, param){
-				////console.log('loading...');
-				////console.log('URI: '+URI);
-				////console.log('param: ');
-				////console.log(param);
-				
-				//get_param(param, function(err, res){
-					//if(err){
-						//console.log('Error:', err);
-						//console.log('Response:', err.data);
-					//}
-					//else{
-						
-						//Object.each(res.data, function(value, key){
-							//console.log(typeof(value));
-							//if(key == 'loadavg'){
-								//var arr = [];
-								//Object.each(value, function(item, index){
-									//arr[index] = item.toFixed(2);
-								//});
-								
-								//OSModel.prototype[key] = ko.observableArray(arr);
-
-							//}
-							//else{
-								//if(key.indexOf('mem') > 0){
-									//value = (value / os_model[os_model.options.current_size_base]).toFixed(2);
-								//}
-								
-								//if(typeof(value) == 'object'){
-									//OSModel.prototype[key] = {};
-									//Object.each(value, function(item, internal_key){
-										//OSModel.prototype[key][internal_key] = ko.observable(item);
-									//});
-								//}
-								//else{
-									//OSModel.prototype[key] = ko.observable(value);
-								//}
-								
-								//if(key == 'networkInterfaces'){
-									//console.log(OSModel.prototype[key][primary_iface]().recived.bytes);
-								//}
-							//}
-							
-						//});
-						
-						//pager.navigate(URI+param);//modify browser URL to match current request
-						
-						//window.dispatchEvent(page_loaded);
-					//}
-				//});
-			//};
-			
-			//load_page(current_uri.toString(), param);
-			
-			//window.addEventListener('page_loaded', function(event){
-				//console.log('page_loaded ');
-				
-				//if(mainBodyModel.os() == null){
-						
-					//mainBodyModel.os(os_model);
-					//window.removeEventListener(page_loaded, this);//run just once
-					
-					////var get_pri_iface_interval = window.setInterval(function(){
-						////get_param('networkInterfaces/'+primary_iface, function(err, res){
-								////if(err){
-									////console.log('Error:', err);
-									////console.log('Response:', err.data);
-								////}
-								////else{
-									////os_model.networkInterfaces[primary_iface](res.data);
-									//////os_model.freemem((res.data / (1024 * 1024 * 1004 )).toFixed(2));
-								////}
-						////});
-					////}, 10000);
-					
-					
-					////window.clearInterval(load_page_interval);
-					
-					//console.log('os binding applied');
-				//}
-			//});
 			
 		},
+		_define_timed_requests: function(){
+			var self = this;
+			this.timed_request = {
+				loadavg: new Request.JSON({
+					url: this.server+'/os/loadavg',
+					initialDelay: 1000,
+					delay: 2000,
+					limit: 10000,
+					onSuccess: function(loadavg){
+						console.log('myRequests.loadavg: ');
+						console.log(loadavg);
+						self.model.loadavg(loadavg);
+						//os_model.loadavg.removeAll();
+						//Array.each(res.data, function(item, index){
+							//os_model.loadavg.push(item.toFixed(2));
+						//});
+					}
+				}),
+				freemem: new Request.JSON({
+					url: this.server+'/os/freemem',
+					initialDelay: 1000,
+					delay: 2000,
+					limit: 10000,
+					onSuccess: function(freemem){
+						console.log('myRequests.freemem: ');
+						console.log(freemem);
+						self.model.freemem(freemem);
+					}
+				}),
+				primary_iface: new Request.JSON({
+					url: this.server+'/os/networkInterfaces/'+this.primary_iface,
+					initialDelay: 1000,
+					delay: 2000,
+					limit: 10000,
+					onSuccess: function(primary_iface){
+						console.log('myRequests.'+self.model.primary_iface());
+						console.log(primary_iface);
+						self.model.networkInterfaces[self.model.primary_iface()](primary_iface);
+					}
+				}),
+				uptime: new Request.JSON({
+					url: this.server+'/os/uptime',
+					initialDelay: 60000,
+					delay: 120000,
+					limit: 300000,
+					onSuccess: function(uptime){
+						console.log('myRequests.uptime: ');
+						console.log(uptime);
+						self.model.uptime(uptime);
+					}
+				})
+			};
+
+		}.protect(),
+		_define_queued_requests: function(){
+			var myQueue = new Request.Queue({
+				requests: this.timed_request,
+				onComplete: function(name, instance, text, xml){
+						//console.log('queue: ' + name + ' response: ', text, xml);
+				}
+			});
+		}.protect(),
+		start_timed_requests: function(){
+			Object.each(this.timed_request, function(req){
+				req.startTimer();
+			});
+		},
+		stop_timed_requests: function(){
+			console.log('stop_timed_requests');
+			Object.each(this.timed_request, function(req){
+				req.stopTimer();
+			});
+		},
+		_load_charts: function(){
+			new Chart(document.getElementById("blockdevice"), {
+				type: 'doughnut',
+				tooltipFillColor: "rgba(51, 51, 51, 0.55)",
+				data: {
+					labels: [
+						"Symbian",
+						"Blackberry",
+						"Other",
+						"Android",
+						"IOS"
+					],
+					datasets: [{
+						data: [15, 20, 30, 10, 30],
+						backgroundColor: [
+							"#BDC3C7",
+							"#9B59B6",
+							"#E74C3C",
+							"#26B99A",
+							"#3498DB"
+						],
+						hoverBackgroundColor: [
+							"#CFD4D8",
+							"#B370CF",
+							"#E95E4F",
+							"#36CAAB",
+							"#49A9EA"
+						]
+					}]
+				},
+				options: {
+					legend: false,
+					responsive: false
+				}
+			})
+		}
 	});	
 		
 	var os_page = new OSPage();
-	//if(mainBodyModel.os() == null){
-			
-		////console.log(OSModel['hostname']());
-		
-		//mainBodyModel.os(new OSModel());
-	//}
 		
 	os_page.addEvent(os_page.STARTED, function(){
 		var self = this;
@@ -325,70 +342,22 @@ function getURLParameter(name, URI) {
 			
 			mainBodyModel.os(self.model);
 			
+			this._load_charts();
+			
+			this._define_timed_requests();
+		
+			this._define_queued_requests();
+			
+			this.start_timed_requests();
+			
 		}
 		
-		var myRequests = {
-			loadavg: new Request.JSON({
-				url: this.server+'/os/loadavg',
-				initialDelay: 1000,
-				delay: 2000,
-				limit: 10000,
-				onSuccess: function(loadavg){
-					console.log('myRequests.loadavg: ');
-					console.log(loadavg);
-					self.model.loadavg(loadavg);
-					//os_model.loadavg.removeAll();
-					//Array.each(res.data, function(item, index){
-						//os_model.loadavg.push(item.toFixed(2));
-					//});
-				}
-			}),
-			freemem: new Request.JSON({
-				url: this.server+'/os/freemem',
-				initialDelay: 1000,
-				delay: 2000,
-				limit: 10000,
-				onSuccess: function(freemem){
-					console.log('myRequests.freemem: ');
-					console.log(freemem);
-					self.model.freemem(freemem);
-				}
-			}),
-			primary_iface: new Request.JSON({
-				url: this.server+'/os/networkInterfaces/'+self.model.primary_iface(),
-				initialDelay: 1000,
-				delay: 2000,
-				limit: 10000,
-				onSuccess: function(primary_iface){
-					console.log('myRequests.'+self.model.primary_iface());
-					console.log(primary_iface);
-					self.model.networkInterfaces[self.model.primary_iface()](primary_iface);
-				}
-			}),
-			uptime: new Request.JSON({
-				url: this.server+'/os/uptime',
-				initialDelay: 60000,
-				delay: 120000,
-				limit: 300000,
-				onSuccess: function(uptime){
-					console.log('myRequests.uptime: ');
-					console.log(uptime);
-					self.model.uptime(uptime);
-				}
-			})
-		};
-		
-		var myQueue = new Request.Queue({
-			requests: myRequests,
-			onComplete: function(name, instance, text, xml){
-					//console.log('queue: ' + name + ' response: ', text, xml);
-			}
-		});
 		
 		
-		myRequests.loadavg.startTimer();
-		myRequests.freemem.startTimer();
-		myRequests.primary_iface.startTimer();
+		
+		//timed_request.loadavg.startTimer();
+		//timed_request.freemem.startTimer();
+		//timed_request.primary_iface.startTimer();
 		
 	});	
 		

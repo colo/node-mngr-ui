@@ -1,5 +1,11 @@
 var mainBodyModel = {};
 
+var root_page = {
+	//we need this so pagerjs can bind without errors, it will call the real class method
+	beforeHide: function(){},
+	afterShow: function(){}
+};
+
 var Page = null;
 
 head.js({ resilient: "/public/apps/login/bower/resilient/resilient.min.js" }); //no dependencies
@@ -122,37 +128,89 @@ head.ready('mootools-more', function(){
 		},
 		load_js: function(assets){
 			var self = this;
-			Object.each(assets, function(js, id){
+			if(typeOf(assets) == 'array'){
+				Array.each(assets, function(js){
+					console.log('Array');
+					console.log(js);
+					self.load_js(js);
+				});
+			}
+			else if(typeOf(assets) == 'object'){
+				Object.each(assets, function(js, id){
+					console.log('Object');
+					console.log({js: js, id:id});
+					
+					if(typeOf(js) == 'array'){
+						Array.each(js, function(file){
+							console.log('file Array');
+							console.log(file);
+							self.load_js(file);
+						});
+					}
+					else{
+					
+						var jsFile = Asset.javascript(js, {
+							 id: id,
+							 onLoad: function(){
+								 self.fireEvent(self.JS_LOADED+'_'+id, js);
+								 self.fireEvent(self.JS_LOADED, {id: id, js: js});
+							 },
+						});
+					}
+					
+				});
+			}
+			else{//string
+				console.log('string');
+				console.log(assets);
 				
-				if(typeof(js) == 'array'){
-					Array.each(js, function(file){
-						self.load_js(file);
-					});
-				}
-				else if(typeof(js) == 'object'){
-					Object.each(js, function(file, key){
-						var load = {};
-						if(key == '_js'){
-							load[id] = file;
-							self.load_js(load);
-						}
-						else{
-							load[key] = file;
-							self.load_js(load);
-						}
-					});
-				}
-				else{
-				 var js = Asset.javascript(js, {
-					 id: id,
-					 onLoad: function(){
-						 self.fireEvent(self.JS_LOADED+'_'+id, js);
-						 self.fireEvent(self.JS_LOADED, {id: id, js: js});
-					 },
-				 });
-			 }
-			 
-			});
+				var jsFile = Asset.javascript(assets, {
+				 onLoad: function(){
+					 self.fireEvent(self.JS_LOADED, {id: null, js: assets});
+				 },
+			 });
+			}
+			
+			//Array.each(assets, function(jsObj){
+			//console.log(jsObj);
+			
+				//Object.each(jsObj, function(js, id){
+					
+					////console.log(id);
+					////console.log(js[0]);
+					
+					//if(typeof(js) == 'array' || js[0]){//js[0] typeof Object, but is an array
+						
+						//Array.each(js, function(file){
+							//self.load_js(file);
+						//});
+					//}
+					//else if(typeof(js) == 'object'){
+						
+						//Object.each(js, function(file, key){
+							//var load = {};
+							//if(key == '_js'){
+								//load[id] = file;
+								//self.load_js(load);
+							//}
+							//else{
+								//load[key] = file;
+								//self.load_js(load);
+							//}
+						//});
+					//}
+					//else{
+					 //var js = Asset.javascript(js, {
+						 //id: id,
+						 //onLoad: function(){
+							 //self.fireEvent(self.JS_LOADED+'_'+id, js);
+							 //self.fireEvent(self.JS_LOADED, {id: id, js: js});
+						 //},
+					 //});
+				 //}
+				 
+				//});
+			//});
 		}
 		
 	});
@@ -162,19 +220,38 @@ head.ready('mootools-more', function(){
 		
 		options: {
 			assets: {
-				js: {
-					//ko: "/public/bower/knockoutjs/dist/knockout.js",
-					//jQuery: "/public/bower/jquery/dist/jquery.min.js",
-					////pager: "/public/bower/pagerjs/dist/pager.min.js",
-					////history: "/public/bower/history.js/scripts/bundled/html4+html5/jquery.history.js"
-					bootstrap: {
-						_js: "/public/bower/gentelella/vendors/bootstrap/dist/js/bootstrap.min.js",
-						fastclick: "/public/bower/gentelella/vendors/fastclick/lib/fastclick.js",
-						nprogress: "/public/bower/gentelella/vendors/nprogress/nprogress.js",
-						gentelella: "/public/bower/gentelella/build/js/custom.min.js"
+				js: [
+					////ko: "/public/bower/knockoutjs/dist/knockout.js",
+					////jQuery: "/public/bower/jquery/dist/jquery.min.js",
+					//////pager: "/public/bower/pagerjs/dist/pager.min.js",
+					//////history: "/public/bower/history.js/scripts/bundled/html4+html5/jquery.history.js"
+					{ gentelella_deps: [
+							{ bootstrap: "/public/bower/gentelella/vendors/bootstrap/dist/js/bootstrap.min.js" },
+							//{ fastclick: "/public/bower/gentelella/vendors/fastclick/lib/fastclick.js" },
+							//{ nprogress: "/public/bower/gentelella/vendors/nprogress/nprogress.js" },
+							//{ Chart: "/public/bower/gentelella/vendors/Chart.js/dist/Chart.min.js" },
+							//{ gauge: "/public/bower/gentelella/vendors/bernii/gauge.js/dist/gauge.min.js" },
+							//{ progressbar: "/public/bower/gentelella/vendors/bootstrap-progressbar/bootstrap-progressbar.min.js" },
+							//{ iCheck: "/public/bower/gentelella/vendors/iCheck/icheck.min.js" },
+							//{ skycons: "/public/bower/gentelella/vendors/skycons/skycons.js" },
+							//{ flot: [
+								//"/public/bower/gentelella/vendors/Flot/jquery.flot.js",
+								//{ flot_pie: "/public/bower/gentelella/vendors/Flot/jquery.flot.pie.js" },
+								//{ flot_time: "/public/bower/gentelella/vendors/Flot/jquery.flot.time.js" },
+								//{ flot_stack: "/public/bower/gentelella/vendors/Flot/jquery.flot.stack.js" },
+								//{ flot_resize: "/public/bower/gentelella/vendors/Flot/jquery.flot.resize.js" },
+								//{ flot_orderBars: "/public/bower/gentelella/production/js/flot/jquery.flot.orderBars.js" },
+								//{ flot_date: "/public/bower/gentelella/production/js/flot/date.js" },
+								//{ flot_spline: "/public/bower/gentelella/production/js/flot/jquery.flot.spline.js" },
+								//{ flot_curvedLines: "/public/bower/gentelella/production/js/flot/curvedLines.js" },
+							//]},
+							//{ jvectormap: "/public/bower/gentelella/production/js/maps/jquery-jvectormap-2.0.3.min.js" },
+							//{ moment: "/public/bower/gentelella/production/js/moment/moment.min.js" },
+							//{ daterangepicker: "/public/bower/gentelella/production/js/datepicker/daterangepicker.js" },
+							//{ gentelella: "/public/bower/gentelella/build/js/custom.min.js" }
+						]
 					}
-					
-				},
+				],
 				css: {
 					
 				}
@@ -184,7 +261,13 @@ head.ready('mootools-more', function(){
 		
 		initialize: function(options){
 			
+			
 			this.parent(options);
+			
+			//this.addEvent('beforeHide', function(){
+				//console.log('Event.beforeHide');
+				////throw new Error()
+			//});
 			
 			this.addEvent(this.JS_LOADED, function(data){
 				console.log('self.JS_LOADED');
@@ -211,6 +294,27 @@ head.ready('mootools-more', function(){
 			
 			
 			console.log('main-body binding applied');
+			
+		},
+		beforeHide: function(pager){
+			var self = this;
+			self.fireEvent('beforeHide', pager);
+			self.fireEvent('beforeHide_'+pager.page.currentId, pager);
+			
+			console.log('beforeHide');
+			console.log(pager.page.currentId);
+			//console.log(this);
+			
+		},
+		afterShow: function(pager){
+			var self = this;
+			self.fireEvent('afterShow', pager);
+			self.fireEvent('afterShow_'+pager.page.currentId, pager);
+			
+			console.log('afterShow');
+			console.log(pager.page.currentId);
+			//console.log(this);
+			
 		}
 	});
 
@@ -225,7 +329,7 @@ head.ready('mootools-more', function(){
 			head.load({ pager: "/public/bower/pagerjs/dist/pager.min.js" },function(){
 				head.load({ history: "/public/bower/history.js/scripts/bundled/html4+html5/jquery.history.js"}, function(){
 					
-					var root_page = new RootPage();
+					root_page = new RootPage();
 					
 							
 				});
@@ -235,10 +339,29 @@ head.ready('mootools-more', function(){
 	});
 	
 	//head.ready(document, function() {
-		//head.js({ bootstrap: "/public/bower/gentelella/vendors/bootstrap/dist/js/bootstrap.min.js" });
-		////head.js({ fastclick: "/public/bower/gentelella/vendors/fastclick/lib/fastclick.js" });
-		////head.js({ nprogress: "/public/bower/gentelella/vendors/nprogress/nprogress.js" });
-		//head.js({ gentelella: "/public/bower/gentelella/build/js/custom.min.js" });
+		//head.js({ bootstrap: "/public/bower/gentelella/vendors/bootstrap/dist/js/bootstrap.min.js" }, function(){
+		//head.js({ fastclick: "/public/bower/gentelella/vendors/fastclick/lib/fastclick.js" }, function(){
+		//head.js({ nprogress: "/public/bower/gentelella/vendors/nprogress/nprogress.js" }, function(){
+		//head.js({ Chart: "/public/bower/gentelella/vendors/Chart.js/dist/Chart.min.js" }, function(){
+		//head.js({ gauge: "/public/bower/gentelella/vendors/bernii/gauge.js/dist/gauge.min.js" }, function(){
+		//head.js({ progressbar: "/public/bower/gentelella/vendors/bootstrap-progressbar/bootstrap-progressbar.min.js" }, function(){
+		//head.js({ iCheck: "/public/bower/gentelella/vendors/iCheck/icheck.min.js" }, function(){
+		//head.js({ skycons: "/public/bower/gentelella/vendors/skycons/skycons.js" }, function(){
+		//head.js({ flot: "/public/bower/gentelella/vendors/Flot/jquery.flot.js" }, function(){
+		//head.js({ flot_pie: "/public/bower/gentelella/vendors/Flot/jquery.flot.pie.js" }, function(){
+		//head.js({ flot_time: "/public/bower/gentelella/vendors/Flot/jquery.flot.time.js" }, function(){
+		//head.js({ flot_stack: "/public/bower/gentelella/vendors/Flot/jquery.flot.stack.js" }, function(){
+		//head.js({ flot_resize: "/public/bower/gentelella/vendors/Flot/jquery.flot.resize.js" }, function(){
+		//head.js({ flot_orderBars: "/public/bower/gentelella/production/js/flot/jquery.flot.orderBars.js" }, function(){
+		//head.js({ flot_date: "/public/bower/gentelella/production/js/flot/date.js" }, function(){
+		//head.js({ flot_spline: "/public/bower/gentelella/production/js/flot/jquery.flot.spline.js" }, function(){
+		//head.js({ flot_curvedLines: "/public/bower/gentelella/production/js/flot/curvedLines.js" }, function(){
+		//head.js({ jvectormap: "/public/bower/gentelella/production/js/maps/jquery-jvectormap-2.0.3.min.js" }, function(){
+		//head.js({ moment: "/public/bower/gentelella/production/js/moment/moment.min.js" }, function(){
+		//head.js({ daterangepicker: "/public/bower/gentelella/production/js/datepicker/daterangepicker.js" }, function(){
+		//head.js({ gentelella: "/public/bower/gentelella/build/js/custom.min.js" })
+		//})})})})})})})})})})})})})})})})})})})});
+		
 	//});
 
 });
@@ -263,3 +386,7 @@ var load_app_resources = function(page) {//apply on pagerjs external resources
 		//});
 };
 
+//var beforeHide = function(page){
+	//console.log('beforeHide');
+	//console.log(page);
+//}

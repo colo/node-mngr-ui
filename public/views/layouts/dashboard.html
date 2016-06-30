@@ -42,6 +42,8 @@
 						{
 						id: '{{this.id}}',
 						role: '{{this.role}}',
+						beforeHide: root_page.beforeHide.bind(root_page),
+						afterShow: root_page.afterShow.bind(root_page)
 						}
 						">
 							<div id="{{this.id}}" class="" data-bind="with: {{this.id}}">
@@ -53,7 +55,9 @@
 						{
 						id: '{{this.id}}',
 						sourceLoaded: load_app_resources,
-						sourceOnShow: '{{this.href}} #{{this.id}}'
+						sourceOnShow: '{{this.href}} #{{this.id}}',
+						beforeHide: root_page.beforeHide.bind(root_page),
+						afterShow: root_page.afterShow.bind(root_page)
 						}
 						">
 						
