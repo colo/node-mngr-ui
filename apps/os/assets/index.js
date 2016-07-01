@@ -84,7 +84,23 @@ function getURLParameter(name, URI) {
 			this.list_blk_dev = ko.pureComputed(function(){
 				var arr = [];
 				Array.each(this.blockdevices, function(dev){
-					arr.append(Object.keys(dev));
+					var info = {};
+					info.name = Object.keys(dev)[0];
+					info.size = dev[info.name].size();
+					info.partitions = [];
+					//info.partitions = dev[info.name].partitions();
+					Object.each(dev[info.name].partitions(), function(part, key){
+						console.log('PART');
+						console.log(part);
+						var part_info = {};
+						part_info.name = key;
+						part_info.size = part.size;
+						part_info.percentage = (part_info.size * 100 / info.size).toFixed(2);
+						info.partitions.push(part_info);
+					});
+					
+					arr.push(info);
+					//arr.append(Object.keys(dev));
 				});
 				
 				console.log('list_blk_dev');
@@ -368,40 +384,59 @@ function getURLParameter(name, URI) {
 			});
 		},
 		_load_charts: function(){
-			new Chart(document.getElementById("blockdevice"), {
-				type: 'doughnut',
-				tooltipFillColor: "rgba(51, 51, 51, 0.55)",
-				data: {
-					labels: [
-						"Symbian",
-						"Blackberry",
-						"Other",
-						"Android",
-						"IOS"
+			
+			
+			Object.each(this.model.blockdevices, function(dev){//really an array
+				
+				var id = Object.keys(dev)[0];
+				var size = dev[id].size();
+				
+				console.log("blockdevice_");
+				console.log(dev[id].partitions());
+				
+				var labels = Object.keys(dev[id].partitions());
+				
+				var datasets = [{
+					data: [],
+					backgroundColor: [
+						"#BDC3C7",
+						"#9B59B6",
+						"#E74C3C",
+						"#26B99A",
+						"#3498DB"
 					],
-					datasets: [{
-						data: [15, 20, 30, 10, 30],
-						backgroundColor: [
-							"#BDC3C7",
-							"#9B59B6",
-							"#E74C3C",
-							"#26B99A",
-							"#3498DB"
-						],
-						hoverBackgroundColor: [
-							"#CFD4D8",
-							"#B370CF",
-							"#E95E4F",
-							"#36CAAB",
-							"#49A9EA"
-						]
-					}]
-				},
-				options: {
-					legend: false,
-					responsive: false
-				}
-			})
+					hoverBackgroundColor: [
+						"#CFD4D8",
+						"#B370CF",
+						"#E95E4F",
+						"#36CAAB",
+						"#49A9EA"
+					]
+				}];
+				
+				Object.each(dev[id].partitions(), function(part, key){
+					var percentage = (part.size * 100 / size).toFixed(2);
+					datasets[0].data.push(percentage);
+					
+					console.log(size);
+				})
+				
+				
+				new Chart(document.getElementById("blockdevice_"+id), {
+					type: 'doughnut',
+					tooltipFillColor: "rgba(51, 51, 51, 0.55)",
+					data: {
+						labels: labels,
+						datasets: datasets
+					},
+					options: {
+						legend: false,
+						responsive: false
+					}
+				})
+			}.bind(this));
+			
+			
 		}
 	});	
 		
