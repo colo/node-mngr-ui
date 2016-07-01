@@ -81,6 +81,16 @@ function getURLParameter(name, URI) {
 				
 			}.bind(this));
 			
+			this.list_blk_dev = ko.pureComputed(function(){
+				var arr = [];
+				Array.each(this.blockdevices, function(dev){
+					arr.append(Object.keys(dev));
+				});
+				
+				console.log('list_blk_dev');
+				console.log(arr);
+				return arr;
+			}.bind(this));
 		}
 	});
 	
@@ -134,54 +144,7 @@ function getURLParameter(name, URI) {
 				
 				this.server = data;
 				
-				var jsonRequest = new Request.JSON({
-					url: this.server+'/os',
-					onSuccess: function(server_data){
-						console.log('server_data');
-						console.log(server_data);
-						
-						Object.each(server_data, function(value, key){
-							console.log('server_data: '+key);
-							console.log(typeof(value));
-							
-								
-								if(typeof(value) == 'object'){
-									var obj = {};
-									
-									if(value[0]){//is array, not object
-										obj[key] = ko.observableArray();
-										Object.each(value, function(item, index){
-											obj[key].push(item);
-										});
-									}
-									else{
-										obj[key] = {};
-										Object.each(value, function(item, internal_key){
-											obj[key][internal_key] = ko.observable(item);
-										});
-									}
-									
-									OSModel.implement(obj);
-									
-								}
-								else{
-									var obj = {};
-									obj[key] = ko.observable(value);
-									OSModel.implement(obj);
-								}
-								
-								//if(key == 'networkInterfaces'){
-									//console.log('networkInterfaces.lo.recived.bytes');
-									//console.log(OSModel['networkInterfaces']);
-								//}
-							//}
-							
-						});
-						
-						this.fireEvent(this.STARTED);
-						
-					}.bind(this)
-				}).send();
+				this._request_update_model(['/os', '/os/blockdevices']);
 				
 			}.bind(this));
 			
@@ -213,6 +176,119 @@ function getURLParameter(name, URI) {
 			//self.URI = window.location.protocol+'//'+window.location.host+window.location.pathname;
 			
 			
+		},
+		_request_update_model(urls){
+			var self = this;
+			urls = (typeOf(urls) == 'array') ? urls : [urls];
+			
+			var requests = {}
+			
+			Array.each(urls, function(url){
+				var id = url.split('/');//split to get last portion (ex: 'os', 'blockdevices'....)
+				id = id[id.length - 1];
+				
+				console.log('url id:'+id);
+				
+				requests[id] = new Request.JSON({
+					url: this.server+url,
+					onSuccess: function(server_data){
+						console.log('server_data');
+						console.log(server_data);
+						
+						this._apply_data_model(server_data, id);
+						
+					}.bind(this)
+				});
+				
+			}.bind(this));
+			
+				
+			var success_request = [];
+			
+			var myQueue = new Request.Queue({
+				requests: requests,
+				onSuccess: function(name, instance, data){
+					
+					success_request.push(name);
+					/**
+					 * compare the every key of "request" with "success_request", return tru when all keys (request) are found
+					 * 
+					 * */
+					var all_success = Object.keys(requests).every(function(req){
+						return (success_request.indexOf(req) >= 0) ? true : false;
+					});
+					
+					
+					if(all_success)
+						self.fireEvent(self.STARTED);	
+						
+				},
+				onEnd: function(){
+					console.log('queue.onEnd');
+				}
+			});
+			
+			Object.each(requests, function(req){
+				req.send();
+			});
+			//requests.jsonRequest.send();
+		},
+		_apply_data_model: function(server_data, id){
+			
+			//var obj = ko.observable({});
+			var obj = {};
+			obj[id] = [];
+			
+			Object.each(server_data, function(value, key){
+				console.log('server_data: '+key);
+				console.log(typeof(value));
+					
+					if(id != 'os'){
+						//obj[id] = Object.merge(obj[id], this._implementable_model_object(value, key));
+						obj[id].push(this._implementable_model_object(value, key));
+						
+						if(obj[id].length == Object.getLength(server_data)){
+							
+							//console.log('finish');
+							//console.log(obj[id]);
+							
+							OSModel.implement(obj);
+						}
+					}
+					else{
+						OSModel.implement(this._implementable_model_object(value, key));
+					}
+				
+			}.bind(this));
+		},
+		_implementable_model_object(value, key){
+			var obj = {};
+
+			if(typeof(value) == 'object'){
+				
+				if(value[0]){//is array, not object
+					obj[key] = ko.observableArray();
+					Object.each(value, function(item, index){
+						obj[key].push(item);
+					});
+				}
+				else{
+					obj[key] = {};
+					Object.each(value, function(item, internal_key){
+						obj[key][internal_key] = ko.observable(item);
+					});
+				}
+				
+				
+				
+			}
+			else{
+				var obj = {};
+				obj[key] = ko.observable(value);
+				//OSModel.implement(obj);
+			}
+			
+			return obj;
 		},
 		_define_timed_requests: function(){
 			var self = this;
@@ -269,6 +345,10 @@ function getURLParameter(name, URI) {
 
 		}.protect(),
 		_define_queued_requests: function(){
+			
+			var requests = {};
+			requests = Object.merge(requests, this.timed_request);
+			
 			var myQueue = new Request.Queue({
 				requests: this.timed_request,
 				onComplete: function(name, instance, text, xml){
@@ -342,7 +422,7 @@ function getURLParameter(name, URI) {
 			
 			mainBodyModel.os(self.model);
 			
-			this._load_charts();
+			
 			
 			this._define_timed_requests();
 		
@@ -352,12 +432,9 @@ function getURLParameter(name, URI) {
 			
 		}
 		
+		this._load_charts();
 		
 		
-		
-		//timed_request.loadavg.startTimer();
-		//timed_request.freemem.startTimer();
-		//timed_request.primary_iface.startTimer();
 		
 	});	
 		
