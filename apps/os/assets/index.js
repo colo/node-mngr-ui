@@ -30,14 +30,15 @@ function getURLParameter(name, URI) {
 		options : {
 			current_size_base: 'GB',
 			current_time_base: 'D',
+			list_partitions_types: /ext|xfs/
 		},
 		
 		initialize: function(options){
 			
 			this.setOptions(options);
 			
-			//console.log('this.networkInterfaces');
-			//console.log(this.primary_iface());
+			////console.log('this.networkInterfaces');
+			////console.log(this.primary_iface());
 			
 			this.header = ko.pureComputed(function(){
 				return this.hostname()+' ['+this.type() +' '+this.release()+' '+this.arch()+']';
@@ -52,7 +53,7 @@ function getURLParameter(name, URI) {
 			}.bind(this));
 			
 			this.primary_iface_out = ko.pureComputed(function(){
-				//console.log(this.networkInterfaces[this.primary_iface()]());
+				////console.log(this.networkInterfaces[this.primary_iface()]());
 				return (this.networkInterfaces[this.primary_iface()]().transmited.bytes / this[this.options.current_size_base]).toFixed(2);
 			}.bind(this));
 			
@@ -70,42 +71,87 @@ function getURLParameter(name, URI) {
 			
 			this.user_friendly_loadavg = ko.pureComputed(function(){
 				var arr = [];
-				//console.log('user_friendly_loadavg');
-				//console.log(this.loadavg());
+				////console.log('user_friendly_loadavg');
+				////console.log(this.loadavg());
 				Array.each(this.loadavg(), function(item, index){
 					arr[index] = item.toFixed(2);
 				}.bind(this));
 				
-				//console.log(arr);
+				////console.log(arr);
 				return arr;
 				
 			}.bind(this));
 			
 			this.list_blk_dev = ko.pureComputed(function(){
 				var arr = [];
-				Array.each(this.blockdevices, function(dev){
+				
+				var colors=["aero", "purple", "red", "green",  "blue"];//class="fa fa-square $color", has to match Chart order
+				
+				Array.each(this.blockdevices, function(dev, index){
 					var info = {};
 					info.name = Object.keys(dev)[0];
 					info.size = dev[info.name].size();
+					
 					info.partitions = [];
 					//info.partitions = dev[info.name].partitions();
+					var index = 0;
 					Object.each(dev[info.name].partitions(), function(part, key){
-						console.log('PART');
-						console.log(part);
+						////console.log('PART');
+						////console.log(part);
 						var part_info = {};
 						part_info.name = key;
 						part_info.size = part.size;
 						part_info.percentage = (part_info.size * 100 / info.size).toFixed(2);
+						
+						part_info.color = colors[index];
+						
 						info.partitions.push(part_info);
-					});
+						index++;
+					}.bind(this));
 					
 					arr.push(info);
 					//arr.append(Object.keys(dev));
-				});
+				}.bind(this));
 				
-				console.log('list_blk_dev');
-				console.log(arr);
+				//console.log('list_blk_dev');
+				//console.log(arr);
 				return arr;
+			}.bind(this));
+			
+			this.list_mounts = ko.pureComputed(function(){
+				//console.log(this.mounts);
+				//console.log(this.list_blk_dev());
+				
+				var mounts = [];
+				Array.each(this.mounts, function(mount){
+					if(this.options.list_partitions_types.test(mount.type())){
+						var info = {};
+						info.percentage = mount.percentage();
+						info.point = mount.mount_point();
+						info.fs = mount.fs();
+						info.size = '?';
+						
+						//console.log(info.fs);
+						
+						Array.each(this.list_blk_dev(), function(dev){
+							var name = Object.keys(dev)[0];
+							Array.each(dev.partitions, function(part){
+								//console.log('PART');
+								//console.log(part);
+								
+								if(new RegExp(part.name).test(info.fs)){//if mount point is on listed partitions, we can get szie in bytes
+									info.size = (part.size / this[this.options.current_size_base]).toFixed(0)+ "GB";
+								}
+								
+							}.bind(this));
+						}.bind(this));
+						
+						mounts.push(info);
+					}
+				}.bind(this));
+				
+				return mounts;
+				
 			}.bind(this));
 		}
 	});
@@ -137,7 +183,7 @@ function getURLParameter(name, URI) {
 		
 		initialize: function(options){
 			//root_page.addEvent('beforeHide_os', function(page){
-				//console.log('beforeHide_os');
+				////console.log('beforeHide_os');
 				//throw new Error();}
 			//);
 		
@@ -145,28 +191,28 @@ function getURLParameter(name, URI) {
 			root_page.addEvent('afterShow_os', this.start_timed_requests.bind(this));
 			
 			//this.addEvent(this.JS_LOADED+'_Chart', function(){
-				//console.log('this.JS_LOADED_Chart');
+				////console.log('this.JS_LOADED_Chart');
 				
 				//this._load_charts();
 			//}.bind(this));
 			//this.addEvent(this.JSONP_LOADED+'_update_server', function(data){
-				//console.log('this.JSONP_LOADED_update_server');
-				//console.log(data);
+				////console.log('this.JSONP_LOADED_update_server');
+				////console.log(data);
 			//});
 			
 			this.addEvent(this.JSONP_LOADED+'_update_server', function(data){
-				console.log('this.JSONP_LOADED_update_server');
-				console.log(data);
+				//console.log('this.JSONP_LOADED_update_server');
+				//console.log(data);
 				
 				this.server = data;
 				
-				this._request_update_model(['/os', '/os/blockdevices']);
+				this._request_update_model(['/os', '/os/blockdevices', '/os/mounts']);
 				
 			}.bind(this));
 			
 			this.addEvent(this.JSONP_LOADED+'_update_primary_iface', function(data){
-				console.log('this.JSONP_LOADED');
-				console.log(data);
+				//console.log('this.JSONP_LOADED');
+				//console.log(data);
 				
 				this.primary_iface = data;
 				OSModel.implement({'primary_iface': ko.observable(data)});
@@ -174,8 +220,8 @@ function getURLParameter(name, URI) {
 			});
 			
 			//this.addEvent(this.JSONP_LOADED, function(data){
-				//console.log('this.JSONP_LOADED');
-				//console.log(data);
+				////console.log('this.JSONP_LOADED');
+				////console.log(data);
 			//});
 			
 			//this.model = new OSModel();
@@ -188,7 +234,7 @@ function getURLParameter(name, URI) {
 			
 			
 			var current_uri = new URI(window.location.pathname);
-			console.log(current_uri.toString());
+			//console.log(current_uri.toString());
 			//self.URI = window.location.protocol+'//'+window.location.host+window.location.pathname;
 			
 			
@@ -203,13 +249,13 @@ function getURLParameter(name, URI) {
 				var id = url.split('/');//split to get last portion (ex: 'os', 'blockdevices'....)
 				id = id[id.length - 1];
 				
-				console.log('url id:'+id);
+				//console.log('url id:'+id);
 				
 				requests[id] = new Request.JSON({
 					url: this.server+url,
 					onSuccess: function(server_data){
-						console.log('server_data');
-						console.log(server_data);
+						//console.log('server_data');
+						//console.log(server_data);
 						
 						this._apply_data_model(server_data, id);
 						
@@ -240,7 +286,7 @@ function getURLParameter(name, URI) {
 						
 				},
 				onEnd: function(){
-					console.log('queue.onEnd');
+					//console.log('queue.onEnd');
 				}
 			});
 			
@@ -255,27 +301,42 @@ function getURLParameter(name, URI) {
 			var obj = {};
 			obj[id] = [];
 			
-			Object.each(server_data, function(value, key){
-				console.log('server_data: '+key);
-				console.log(typeof(value));
+			//console.log('server_data: ');
+			//console.log(typeOf(server_data));
+			if(typeOf(server_data) == 'array'){	
+				Array.each(server_data, function(value, key){
+					//console.log(this._implementable_model_object(value, key)[key]);
+					obj[id].push(this._implementable_model_object(value, key)[key]);
 					
-					if(id != 'os'){
-						//obj[id] = Object.merge(obj[id], this._implementable_model_object(value, key));
-						obj[id].push(this._implementable_model_object(value, key));
-						
-						if(obj[id].length == Object.getLength(server_data)){
-							
-							//console.log('finish');
-							//console.log(obj[id]);
-							
-							OSModel.implement(obj);
-						}
+					if(obj[id].length == Object.getLength(server_data)){
+								
+						OSModel.implement(obj);
 					}
-					else{
-						OSModel.implement(this._implementable_model_object(value, key));
-					}
+					
+				}.bind(this));
 				
-			}.bind(this));
+				//console.log(obj);
+			}
+			else{
+				Object.each(server_data, function(value, key){
+					//console.log('server_data: '+key);
+					//console.log(typeOf(key));
+					//console.log(value);
+						
+						if(id != 'os'){
+							obj[id].push(this._implementable_model_object(value, key));
+							
+							if(obj[id].length == Object.getLength(server_data)){
+								
+								OSModel.implement(obj);
+							}
+						}
+						else{
+							OSModel.implement(this._implementable_model_object(value, key));
+						}
+					
+				}.bind(this));
+			}
 		},
 		_implementable_model_object(value, key){
 			var obj = {};
@@ -293,6 +354,10 @@ function getURLParameter(name, URI) {
 					Object.each(value, function(item, internal_key){
 						obj[key][internal_key] = ko.observable(item);
 					});
+					
+					//console.log('_implementable_model_object: '+key);
+					////console.log(typeof(value));
+					//console.log(obj);
 				}
 				
 				
@@ -315,8 +380,8 @@ function getURLParameter(name, URI) {
 					delay: 2000,
 					limit: 10000,
 					onSuccess: function(loadavg){
-						console.log('myRequests.loadavg: ');
-						console.log(loadavg);
+						//console.log('myRequests.loadavg: ');
+						//console.log(loadavg);
 						self.model.loadavg(loadavg);
 						//os_model.loadavg.removeAll();
 						//Array.each(res.data, function(item, index){
@@ -330,8 +395,8 @@ function getURLParameter(name, URI) {
 					delay: 2000,
 					limit: 10000,
 					onSuccess: function(freemem){
-						console.log('myRequests.freemem: ');
-						console.log(freemem);
+						//console.log('myRequests.freemem: ');
+						//console.log(freemem);
 						self.model.freemem(freemem);
 					}
 				}),
@@ -341,8 +406,8 @@ function getURLParameter(name, URI) {
 					delay: 2000,
 					limit: 10000,
 					onSuccess: function(primary_iface){
-						console.log('myRequests.'+self.model.primary_iface());
-						console.log(primary_iface);
+						//console.log('myRequests.'+self.model.primary_iface());
+						//console.log(primary_iface);
 						self.model.networkInterfaces[self.model.primary_iface()](primary_iface);
 					}
 				}),
@@ -352,8 +417,8 @@ function getURLParameter(name, URI) {
 					delay: 120000,
 					limit: 300000,
 					onSuccess: function(uptime){
-						console.log('myRequests.uptime: ');
-						console.log(uptime);
+						//console.log('myRequests.uptime: ');
+						//console.log(uptime);
 						self.model.uptime(uptime);
 					}
 				})
@@ -368,7 +433,7 @@ function getURLParameter(name, URI) {
 			var myQueue = new Request.Queue({
 				requests: this.timed_request,
 				onComplete: function(name, instance, text, xml){
-						//console.log('queue: ' + name + ' response: ', text, xml);
+						////console.log('queue: ' + name + ' response: ', text, xml);
 				}
 			});
 		}.protect(),
@@ -378,7 +443,7 @@ function getURLParameter(name, URI) {
 			});
 		},
 		stop_timed_requests: function(){
-			console.log('stop_timed_requests');
+			//console.log('stop_timed_requests');
 			Object.each(this.timed_request, function(req){
 				req.stopTimer();
 			});
@@ -391,19 +456,19 @@ function getURLParameter(name, URI) {
 				var id = Object.keys(dev)[0];
 				var size = dev[id].size();
 				
-				console.log("blockdevice_");
-				console.log(dev[id].partitions());
+				//console.log("blockdevice_");
+				//console.log(dev[id].partitions());
 				
 				var labels = Object.keys(dev[id].partitions());
 				
 				var datasets = [{
 					data: [],
 					backgroundColor: [
-						"#BDC3C7",
-						"#9B59B6",
-						"#E74C3C",
-						"#26B99A",
-						"#3498DB"
+						"#BDC3C7",//aero
+						"#9B59B6",//purple
+						"#E74C3C",//red
+						"#26B99A",//green
+						"#3498DB"//blue
 					],
 					hoverBackgroundColor: [
 						"#CFD4D8",
@@ -418,7 +483,7 @@ function getURLParameter(name, URI) {
 					var percentage = (part.size * 100 / size).toFixed(2);
 					datasets[0].data.push(percentage);
 					
-					console.log(size);
+					//console.log(size);
 				})
 				
 				
@@ -445,15 +510,15 @@ function getURLParameter(name, URI) {
 	os_page.addEvent(os_page.STARTED, function(){
 		var self = this;
 		
-		console.log('page started');
+		//console.log('page started');
 		
 		self.model = new OSModel();
 		
 		if(mainBodyModel.os() == null){
 			
-			//console.log(os_page.model['networkInterfaces']);
+			////console.log(os_page.model['networkInterfaces']);
 			
-			console.log('os binding applied');
+			//console.log('os binding applied');
 			
 			mainBodyModel.os(self.model);
 			

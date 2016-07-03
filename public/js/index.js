@@ -248,7 +248,7 @@ head.ready('mootools-more', function(){
 							//{ jvectormap: "/public/bower/gentelella/production/js/maps/jquery-jvectormap-2.0.3.min.js" },
 							//{ moment: "/public/bower/gentelella/production/js/moment/moment.min.js" },
 							//{ daterangepicker: "/public/bower/gentelella/production/js/datepicker/daterangepicker.js" },
-							//{ gentelella: "/public/bower/gentelella/build/js/custom.min.js" }
+							{ gentelella: "/public/bower/gentelella/build/js/custom.min.js" }
 						]
 					}
 				],
