@@ -42,7 +42,7 @@ function getURLParameter(name, URI) {
 			sys: 0,
 			idle: 0
 		},
-			
+		
 		options : {
 			current_size_base: 'GB',
 			current_time_base: 'D',
@@ -243,6 +243,9 @@ function getURLParameter(name, URI) {
 		
 		server: null,
 		timed_request: {},
+		
+		plot: null,
+		minute_data: [],
 		
 		options: {
 			assets: {
@@ -513,6 +516,8 @@ function getURLParameter(name, URI) {
 						console.log('myRequests.cpus: ');
 						console.log(cpus);
 						self.model.cpus(cpus);
+						
+						self._update_plot_data();
 					}
 				})
 			};
@@ -597,27 +602,37 @@ function getURLParameter(name, URI) {
 			
 		},
 		_load_plots: function(){
-			var data1 = [
-				[gd(2012, 1, 1), 17],
-				[gd(2012, 1, 2), 74],
-				[gd(2012, 1, 3), 6],
-				[gd(2012, 1, 4), 39],
-				[gd(2012, 1, 5), 20],
-				[gd(2012, 1, 6), 85],
-				[gd(2012, 1, 7), 7]
-			];
+			//var data1 = [
+				//[gd(2012, 1, 1, 12, 29, 1), 17],
+				//[gd(2012, 1, 1, 12, 29, 2), 74],
+				//[gd(2012, 1, 1, 12, 29, 3), 6],
+				//[gd(2012, 1, 1, 12, 29, 4), 39],
+				//[gd(2012, 1, 1, 12, 29, 5), 20],
+				//[gd(2012, 1, 1, 12, 29, 6), 85],
+				//[gd(2012, 1, 1, 12, 29, 7), 7]
+			//];
 
-			var data2 = [
-				[gd(2012, 1, 1), 82],
-				[gd(2012, 1, 2), 23],
-				[gd(2012, 1, 3), 66],
-				[gd(2012, 1, 4), 9],
-				[gd(2012, 1, 5), 119],
-				[gd(2012, 1, 6), 6],
-				[gd(2012, 1, 7), 9]
-			];
-			$("#canvas_dahs").length && $.plot($("#canvas_dahs"), [
-				data1, data2
+			//var data2 = [
+				//[gd(2012, 1, 1, 12, 29, 1), 82],
+				//[gd(2012, 1, 1, 12, 29, 2), 23],
+				//[gd(2012, 1, 1, 12, 29, 3), 66],
+				//[gd(2012, 1, 1, 12, 29, 4), 9],
+				//[gd(2012, 1, 1, 12, 29, 5), 100],
+				//[gd(2012, 1, 1, 12, 29, 6), 6],
+				//[gd(2012, 1, 1, 12, 29, 7), 9]
+			//];
+			var now = new Date();
+			
+			var data = [];
+			for(var i = 0; i <= 59; i++){
+				data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), i).getTime(), Math.floor((Math.random() * 100) + 1)]);
+			}
+			
+			console.log(data);
+			
+			//$("#canvas_dahs").length && 
+			this.plot = $.plot($("#canvas_dahs"), [
+				data
 			], {
 				series: {
 					lines: {
@@ -648,7 +663,8 @@ function getURLParameter(name, URI) {
 				xaxis: {
 					tickColor: "rgba(51, 51, 51, 0.06)",
 					mode: "time",
-					tickSize: [1, "day"],
+					//tickSize: [1, "minute"],
+					//minTickSize: [1, "second"],
 					//tickLength: 10,
 					axisLabel: "Date",
 					axisLabelUseCanvas: true,
@@ -657,16 +673,104 @@ function getURLParameter(name, URI) {
 					axisLabelPadding: 10
 				},
 				yaxis: {
-					ticks: 8,
+					max: 100,
+					ticks: 10,
 					tickColor: "rgba(51, 51, 51, 0.06)",
 				},
 				tooltip: false
 			});
 
-			function gd(year, month, day) {
-				return new Date(year, month - 1, day).getTime();
+			function gd(year, month, day, hh, mm, ss) {
+				return new Date(year, month - 1, day, hh, mm, ss).getTime();
 			}
+		},
+		_update_plot_data: function(){
+			console.log('_update_plot_data');
+			console.log(this.model.user_friendly_cpu_usage()['usage']);
+			
+			
+			var now = new Date();
+			//this.minute_data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()).getTime(), this.model.user_friendly_cpu_usage()['usage'].toFloat() ]);
+			
+			//console.log(this.minute_data);
+			
+			var data = this.plot.getData();
+			//var raw_data = data[0].data;
+			
+			
+			//console.log('second: '+(data[0].data.length % 60));	
+			
+			this.minute_data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()).getTime(), this.model.user_friendly_cpu_usage()['usage'].toInt() ]);
+			
+			console.log('second: '+this.minute_data.length);	
+			console.log(this.minute_data);
+			
+			this.plot = $.plot($("#canvas_dahs"), [
+					this.minute_data
+				], {
+					series: {
+						lines: {
+							show: false,
+							fill: true
+						},
+						splines: {
+							show: true,
+							tension: 0.4,
+							lineWidth: 1,
+							fill: 0.4
+						},
+						points: {
+							radius: 0,
+							show: true
+						},
+						shadowSize: 2
+					},
+					grid: {
+						verticalLines: true,
+						hoverable: true,
+						clickable: true,
+						tickColor: "#d5d5d5",
+						borderWidth: 1,
+						color: '#fff'
+					},
+					colors: ["rgba(38, 185, 154, 0.38)", "rgba(3, 88, 106, 0.38)"],
+					xaxis: {
+						tickColor: "rgba(51, 51, 51, 0.06)",
+						mode: "time",
+						//tickSize: [1, "minute"],
+						//minTickSize: [1, "second"],
+						//tickLength: 10,
+						axisLabel: "Date",
+						axisLabelUseCanvas: true,
+						axisLabelFontSizePixels: 12,
+						axisLabelFontFamily: 'Verdana, Arial',
+						axisLabelPadding: 10
+					},
+					yaxis: {
+						max: 100,
+						ticks: 10,
+						tickColor: "rgba(51, 51, 51, 0.06)",
+					},
+					tooltip: false
+				});
+				
+			//if((data[0].data.length % 60) == 0){
+			if(this.minute_data.length > 59){
+				console.log('MINUTE');
+				//this.plot.setData(
+					////raw_data
+					//this.minute_data
+				//);
+				
+				//this.plot.setupGrid();
+				//this.plot.draw();
+				
+				
+				this.minute_data = [];
+			}
+			
 		}
+		
 	});	
 		
 	var os_page = new OSPage();
@@ -695,10 +799,15 @@ function getURLParameter(name, URI) {
 			
 			this.start_timed_requests();
 			
+			
 		}
 		
 		this._load_charts();
-		this._load_plots();
+		head.ready("flot_curvedLines", function(){
+			console.log('_load_plots');
+			this._load_plots();
+		}.bind(this));
+		
 		
 		
 		
