@@ -9,7 +9,17 @@ function getURLParameter(name, URI) {
 //head.ready('jsonp', function(){
 	head.ready('history'
 	, function() {
-		
+	//head.js({ flot: "/public/bower/gentelella/vendors/Flot/jquery.flot.js" }, function(){
+		//head.js({ flot_pie: "/public/bower/gentelella/vendors/Flot/jquery.flot.pie.js" }, function(){
+		//head.js({ flot_time: "/public/bower/gentelella/vendors/Flot/jquery.flot.time.js" }, function(){
+		//head.js({ flot_stack: "/public/bower/gentelella/vendors/Flot/jquery.flot.stack.js" }, function(){
+		//head.js({ flot_resize: "/public/bower/gentelella/vendors/Flot/jquery.flot.resize.js" }, function(){
+		//head.js({ flot_orderBars: "/public/bower/gentelella/production/js/flot/jquery.flot.orderBars.js" }, function(){
+		//head.js({ flot_date: "/public/bower/gentelella/production/js/flot/date.js" }, function(){
+		//head.js({ flot_spline: "/public/bower/gentelella/production/js/flot/jquery.flot.spline.js" }, function(){
+		//head.js({ flot_curvedLines: "/public/bower/gentelella/production/js/flot/curvedLines.js" }, function(){
+		//})})})})})})})})});
+			
 	var OSModel = new Class({
 		Implements: [Options, Events],
 		
@@ -26,6 +36,12 @@ function getURLParameter(name, URI) {
 		//freemem: ko.observable(null),
 		//totalmem: ko.observable(null),
 		//networkInterfaces: {},
+		cpu_usage : {
+			user: 0,
+			nice: 0,
+			sys: 0,
+			idle: 0
+		},
 			
 		options : {
 			current_size_base: 'GB',
@@ -46,6 +62,72 @@ function getURLParameter(name, URI) {
 			
 			this.user_friendly_cpu = ko.pureComputed(function(){
 				return this.cpus()[0].model+' @ '+this.cpus()[0].speed;
+			}.bind(this));
+			
+			this.user_friendly_cpu_usage = ko.pureComputed(function(){
+				var old_cpu_usage = this.cpu_usage;
+				this.cpu_usage = {
+					user: 0,
+					nice: 0,
+					sys: 0,
+					idle: 0
+				};
+				
+				Array.each(this.cpus(), function(cpu){
+					////console.log(cpu.times);
+					
+					this.cpu_usage.user += cpu.times.user;
+					this.cpu_usage.nice += cpu.times.nice;
+					this.cpu_usage.sys += cpu.times.sys;
+					this.cpu_usage.idle += cpu.times.idle;
+
+				}.bind(this));
+				
+				var new_info = {
+					user: 0,
+					nice: 0,
+					sys: 0,
+					idle: 0
+				};
+
+				new_info.user = this.cpu_usage.user - old_cpu_usage.user;
+				new_info.nice = this.cpu_usage.nice - old_cpu_usage.nice;
+				new_info.sys = this.cpu_usage.sys - old_cpu_usage.sys;
+				new_info.idle = this.cpu_usage.idle - old_cpu_usage.idle;
+				
+				console.log(new_info);
+				
+				var total_usage = 0;
+				var total_time = 0;
+				Object.each(new_info, function(value, key){
+					if(key != 'idle'){
+						total_usage += value;
+					}
+					total_time += value;
+				});
+				
+				var percentage = {
+					user: 0,
+					nice: 0,
+					sys: 0,
+					idle: 0,
+					usage: 0
+				};
+				
+				percentage = {
+					user: ((new_info.user * 100) / total_time).toFixed(2),
+					nice: ((new_info.nice * 100) / total_time).toFixed(2),
+					sys: ((new_info.sys * 100) / total_time).toFixed(2),
+					idle: ((new_info.idle * 100) / total_time).toFixed(2),
+					usage: ((total_usage * 100) / total_time).toFixed(2)
+				};
+				
+				//var total_time = total_usage + new_info.idle;
+				
+				
+				
+				
+				return percentage;
 			}.bind(this));
 			
 			this.user_friendly_uptime = ko.pureComputed(function(){
@@ -421,6 +503,17 @@ function getURLParameter(name, URI) {
 						//console.log(uptime);
 						self.model.uptime(uptime);
 					}
+				}),
+				cpus: new Request.JSON({
+					url: this.server+'/os/cpus',
+					initialDelay: 1000,
+					delay: 2000,
+					limit: 10000,
+					onSuccess: function(cpus){
+						console.log('myRequests.cpus: ');
+						console.log(cpus);
+						self.model.cpus(cpus);
+					}
 				})
 			};
 
@@ -502,12 +595,84 @@ function getURLParameter(name, URI) {
 			}.bind(this));
 			
 			
+		},
+		_load_plots: function(){
+			var data1 = [
+				[gd(2012, 1, 1), 17],
+				[gd(2012, 1, 2), 74],
+				[gd(2012, 1, 3), 6],
+				[gd(2012, 1, 4), 39],
+				[gd(2012, 1, 5), 20],
+				[gd(2012, 1, 6), 85],
+				[gd(2012, 1, 7), 7]
+			];
+
+			var data2 = [
+				[gd(2012, 1, 1), 82],
+				[gd(2012, 1, 2), 23],
+				[gd(2012, 1, 3), 66],
+				[gd(2012, 1, 4), 9],
+				[gd(2012, 1, 5), 119],
+				[gd(2012, 1, 6), 6],
+				[gd(2012, 1, 7), 9]
+			];
+			$("#canvas_dahs").length && $.plot($("#canvas_dahs"), [
+				data1, data2
+			], {
+				series: {
+					lines: {
+						show: false,
+						fill: true
+					},
+					splines: {
+						show: true,
+						tension: 0.4,
+						lineWidth: 1,
+						fill: 0.4
+					},
+					points: {
+						radius: 0,
+						show: true
+					},
+					shadowSize: 2
+				},
+				grid: {
+					verticalLines: true,
+					hoverable: true,
+					clickable: true,
+					tickColor: "#d5d5d5",
+					borderWidth: 1,
+					color: '#fff'
+				},
+				colors: ["rgba(38, 185, 154, 0.38)", "rgba(3, 88, 106, 0.38)"],
+				xaxis: {
+					tickColor: "rgba(51, 51, 51, 0.06)",
+					mode: "time",
+					tickSize: [1, "day"],
+					//tickLength: 10,
+					axisLabel: "Date",
+					axisLabelUseCanvas: true,
+					axisLabelFontSizePixels: 12,
+					axisLabelFontFamily: 'Verdana, Arial',
+					axisLabelPadding: 10
+				},
+				yaxis: {
+					ticks: 8,
+					tickColor: "rgba(51, 51, 51, 0.06)",
+				},
+				tooltip: false
+			});
+
+			function gd(year, month, day) {
+				return new Date(year, month - 1, day).getTime();
+			}
 		}
 	});	
 		
 	var os_page = new OSPage();
 		
 	os_page.addEvent(os_page.STARTED, function(){
+		
 		var self = this;
 		
 		//console.log('page started');
@@ -533,6 +698,7 @@ function getURLParameter(name, URI) {
 		}
 		
 		this._load_charts();
+		this._load_plots();
 		
 		
 		
@@ -541,4 +707,6 @@ function getURLParameter(name, URI) {
 	});
 //});
 
+
+		
 
