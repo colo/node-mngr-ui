@@ -53,8 +53,8 @@ function getURLParameter(name, URI) {
 			
 			this.setOptions(options);
 			
-			////console.log('this.networkInterfaces');
-			////console.log(this.primary_iface());
+			//////console.log('this.networkInterfaces');
+			//////console.log(this.primary_iface());
 			
 			this.header = ko.pureComputed(function(){
 				return this.hostname()+' ['+this.type() +' '+this.release()+' '+this.arch()+']';
@@ -74,7 +74,7 @@ function getURLParameter(name, URI) {
 				};
 				
 				Array.each(this.cpus(), function(cpu){
-					////console.log(cpu.times);
+					//////console.log(cpu.times);
 					
 					this.cpu_usage.user += cpu.times.user;
 					this.cpu_usage.nice += cpu.times.nice;
@@ -95,7 +95,7 @@ function getURLParameter(name, URI) {
 				new_info.sys = this.cpu_usage.sys - old_cpu_usage.sys;
 				new_info.idle = this.cpu_usage.idle - old_cpu_usage.idle;
 				
-				console.log(new_info);
+				//console.log(new_info);
 				
 				var total_usage = 0;
 				var total_time = 0;
@@ -135,7 +135,7 @@ function getURLParameter(name, URI) {
 			}.bind(this));
 			
 			this.primary_iface_out = ko.pureComputed(function(){
-				////console.log(this.networkInterfaces[this.primary_iface()]());
+				//////console.log(this.networkInterfaces[this.primary_iface()]());
 				return (this.networkInterfaces[this.primary_iface()]().transmited.bytes / this[this.options.current_size_base]).toFixed(2);
 			}.bind(this));
 			
@@ -153,13 +153,13 @@ function getURLParameter(name, URI) {
 			
 			this.user_friendly_loadavg = ko.pureComputed(function(){
 				var arr = [];
-				////console.log('user_friendly_loadavg');
-				////console.log(this.loadavg());
+				//////console.log('user_friendly_loadavg');
+				//////console.log(this.loadavg());
 				Array.each(this.loadavg(), function(item, index){
 					arr[index] = item.toFixed(2);
 				}.bind(this));
 				
-				////console.log(arr);
+				//////console.log(arr);
 				return arr;
 				
 			}.bind(this));
@@ -178,8 +178,8 @@ function getURLParameter(name, URI) {
 					//info.partitions = dev[info.name].partitions();
 					var index = 0;
 					Object.each(dev[info.name].partitions(), function(part, key){
-						////console.log('PART');
-						////console.log(part);
+						//////console.log('PART');
+						//////console.log(part);
 						var part_info = {};
 						part_info.name = key;
 						part_info.size = part.size;
@@ -195,14 +195,14 @@ function getURLParameter(name, URI) {
 					//arr.append(Object.keys(dev));
 				}.bind(this));
 				
-				//console.log('list_blk_dev');
-				//console.log(arr);
+				////console.log('list_blk_dev');
+				////console.log(arr);
 				return arr;
 			}.bind(this));
 			
 			this.list_mounts = ko.pureComputed(function(){
-				//console.log(this.mounts);
-				//console.log(this.list_blk_dev());
+				////console.log(this.mounts);
+				////console.log(this.list_blk_dev());
 				
 				var mounts = [];
 				Array.each(this.mounts, function(mount){
@@ -213,13 +213,13 @@ function getURLParameter(name, URI) {
 						info.fs = mount.fs();
 						info.size = '?';
 						
-						//console.log(info.fs);
+						////console.log(info.fs);
 						
 						Array.each(this.list_blk_dev(), function(dev){
 							var name = Object.keys(dev)[0];
 							Array.each(dev.partitions, function(part){
-								//console.log('PART');
-								//console.log(part);
+								////console.log('PART');
+								////console.log(part);
 								
 								if(new RegExp(part.name).test(info.fs)){//if mount point is on listed partitions, we can get szie in bytes
 									info.size = (part.size / this[this.options.current_size_base]).toFixed(0)+ "GB";
@@ -245,7 +245,7 @@ function getURLParameter(name, URI) {
 		timed_request: {},
 		
 		plot: null,
-		minute_data: [],
+		plot_data: [],
 		
 		options: {
 			assets: {
@@ -264,11 +264,57 @@ function getURLParameter(name, URI) {
 					update_primary_iface: "/os/api/networkInterfaces/primary",
 				}
 			},
+			timed_plot: {
+				series: {
+					lines: {
+						show: false,
+						fill: true
+					},
+					splines: {
+						show: true,
+						tension: 0.4,
+						lineWidth: 1,
+						fill: 0.4
+					},
+					points: {
+						radius: 0,
+						show: true
+					},
+					shadowSize: 2
+				},
+				grid: {
+					verticalLines: true,
+					hoverable: true,
+					clickable: true,
+					tickColor: "#d5d5d5",
+					borderWidth: 1,
+					color: '#fff'
+				},
+				colors: ["rgba(38, 185, 154, 0.38)", "rgba(3, 88, 106, 0.38)", "rgba(215, 96, 139, 0.2)"],
+				xaxis: {
+					tickColor: "rgba(51, 51, 51, 0.06)",
+					mode: "time",
+					tickSize: [1, "minute"],
+					//minTickSize: [1, "second"],
+					//tickLength: 10,
+					axisLabel: "Date",
+					axisLabelUseCanvas: true,
+					axisLabelFontSizePixels: 12,
+					axisLabelFontFamily: 'Verdana, Arial',
+					axisLabelPadding: 10
+				},
+				yaxis: {
+					max: 100,
+					ticks: 10,
+					tickColor: "rgba(51, 51, 51, 0.06)",
+				},
+				tooltip: false
+			}
 		},
 		
 		initialize: function(options){
 			//root_page.addEvent('beforeHide_os', function(page){
-				////console.log('beforeHide_os');
+				//////console.log('beforeHide_os');
 				//throw new Error();}
 			//);
 		
@@ -276,18 +322,18 @@ function getURLParameter(name, URI) {
 			root_page.addEvent('afterShow_os', this.start_timed_requests.bind(this));
 			
 			//this.addEvent(this.JS_LOADED+'_Chart', function(){
-				////console.log('this.JS_LOADED_Chart');
+				//////console.log('this.JS_LOADED_Chart');
 				
 				//this._load_charts();
 			//}.bind(this));
 			//this.addEvent(this.JSONP_LOADED+'_update_server', function(data){
-				////console.log('this.JSONP_LOADED_update_server');
-				////console.log(data);
+				//////console.log('this.JSONP_LOADED_update_server');
+				//////console.log(data);
 			//});
 			
 			this.addEvent(this.JSONP_LOADED+'_update_server', function(data){
-				//console.log('this.JSONP_LOADED_update_server');
-				//console.log(data);
+				////console.log('this.JSONP_LOADED_update_server');
+				////console.log(data);
 				
 				this.server = data;
 				
@@ -296,8 +342,8 @@ function getURLParameter(name, URI) {
 			}.bind(this));
 			
 			this.addEvent(this.JSONP_LOADED+'_update_primary_iface', function(data){
-				//console.log('this.JSONP_LOADED');
-				//console.log(data);
+				////console.log('this.JSONP_LOADED');
+				////console.log(data);
 				
 				this.primary_iface = data;
 				OSModel.implement({'primary_iface': ko.observable(data)});
@@ -305,8 +351,8 @@ function getURLParameter(name, URI) {
 			});
 			
 			//this.addEvent(this.JSONP_LOADED, function(data){
-				////console.log('this.JSONP_LOADED');
-				////console.log(data);
+				//////console.log('this.JSONP_LOADED');
+				//////console.log(data);
 			//});
 			
 			//this.model = new OSModel();
@@ -319,7 +365,7 @@ function getURLParameter(name, URI) {
 			
 			
 			var current_uri = new URI(window.location.pathname);
-			//console.log(current_uri.toString());
+			////console.log(current_uri.toString());
 			//self.URI = window.location.protocol+'//'+window.location.host+window.location.pathname;
 			
 			
@@ -334,13 +380,13 @@ function getURLParameter(name, URI) {
 				var id = url.split('/');//split to get last portion (ex: 'os', 'blockdevices'....)
 				id = id[id.length - 1];
 				
-				//console.log('url id:'+id);
+				////console.log('url id:'+id);
 				
 				requests[id] = new Request.JSON({
 					url: this.server+url,
 					onSuccess: function(server_data){
-						//console.log('server_data');
-						//console.log(server_data);
+						////console.log('server_data');
+						////console.log(server_data);
 						
 						this._apply_data_model(server_data, id);
 						
@@ -371,7 +417,7 @@ function getURLParameter(name, URI) {
 						
 				},
 				onEnd: function(){
-					//console.log('queue.onEnd');
+					////console.log('queue.onEnd');
 				}
 			});
 			
@@ -386,11 +432,11 @@ function getURLParameter(name, URI) {
 			var obj = {};
 			obj[id] = [];
 			
-			//console.log('server_data: ');
-			//console.log(typeOf(server_data));
+			////console.log('server_data: ');
+			////console.log(typeOf(server_data));
 			if(typeOf(server_data) == 'array'){	
 				Array.each(server_data, function(value, key){
-					//console.log(this._implementable_model_object(value, key)[key]);
+					////console.log(this._implementable_model_object(value, key)[key]);
 					obj[id].push(this._implementable_model_object(value, key)[key]);
 					
 					if(obj[id].length == Object.getLength(server_data)){
@@ -400,13 +446,13 @@ function getURLParameter(name, URI) {
 					
 				}.bind(this));
 				
-				//console.log(obj);
+				////console.log(obj);
 			}
 			else{
 				Object.each(server_data, function(value, key){
-					//console.log('server_data: '+key);
-					//console.log(typeOf(key));
-					//console.log(value);
+					////console.log('server_data: '+key);
+					////console.log(typeOf(key));
+					////console.log(value);
 						
 						if(id != 'os'){
 							obj[id].push(this._implementable_model_object(value, key));
@@ -440,9 +486,9 @@ function getURLParameter(name, URI) {
 						obj[key][internal_key] = ko.observable(item);
 					});
 					
-					//console.log('_implementable_model_object: '+key);
-					////console.log(typeof(value));
-					//console.log(obj);
+					////console.log('_implementable_model_object: '+key);
+					//////console.log(typeof(value));
+					////console.log(obj);
 				}
 				
 				
@@ -465,13 +511,15 @@ function getURLParameter(name, URI) {
 					delay: 2000,
 					limit: 10000,
 					onSuccess: function(loadavg){
-						//console.log('myRequests.loadavg: ');
-						//console.log(loadavg);
+						////console.log('myRequests.loadavg: ');
+						////console.log(loadavg);
 						self.model.loadavg(loadavg);
 						//os_model.loadavg.removeAll();
 						//Array.each(res.data, function(item, index){
 							//os_model.loadavg.push(item.toFixed(2));
 						//});
+						
+						self._update_loadavg_plot_data();
 					}
 				}),
 				freemem: new Request.JSON({
@@ -480,9 +528,11 @@ function getURLParameter(name, URI) {
 					delay: 2000,
 					limit: 10000,
 					onSuccess: function(freemem){
-						//console.log('myRequests.freemem: ');
-						//console.log(freemem);
+						////console.log('myRequests.freemem: ');
+						////console.log(freemem);
 						self.model.freemem(freemem);
+						
+						self._update_usedmem_plot_data();
 					}
 				}),
 				primary_iface: new Request.JSON({
@@ -491,8 +541,8 @@ function getURLParameter(name, URI) {
 					delay: 2000,
 					limit: 10000,
 					onSuccess: function(primary_iface){
-						//console.log('myRequests.'+self.model.primary_iface());
-						//console.log(primary_iface);
+						////console.log('myRequests.'+self.model.primary_iface());
+						////console.log(primary_iface);
 						self.model.networkInterfaces[self.model.primary_iface()](primary_iface);
 					}
 				}),
@@ -502,8 +552,8 @@ function getURLParameter(name, URI) {
 					delay: 120000,
 					limit: 300000,
 					onSuccess: function(uptime){
-						//console.log('myRequests.uptime: ');
-						//console.log(uptime);
+						////console.log('myRequests.uptime: ');
+						////console.log(uptime);
 						self.model.uptime(uptime);
 					}
 				}),
@@ -513,11 +563,11 @@ function getURLParameter(name, URI) {
 					delay: 2000,
 					limit: 10000,
 					onSuccess: function(cpus){
-						console.log('myRequests.cpus: ');
-						console.log(cpus);
+						//console.log('myRequests.cpus: ');
+						//console.log(cpus);
 						self.model.cpus(cpus);
 						
-						self._update_plot_data();
+						self._update_cpu_plot_data();
 					}
 				})
 			};
@@ -531,7 +581,7 @@ function getURLParameter(name, URI) {
 			var myQueue = new Request.Queue({
 				requests: this.timed_request,
 				onComplete: function(name, instance, text, xml){
-						////console.log('queue: ' + name + ' response: ', text, xml);
+						//////console.log('queue: ' + name + ' response: ', text, xml);
 				}
 			});
 		}.protect(),
@@ -541,7 +591,7 @@ function getURLParameter(name, URI) {
 			});
 		},
 		stop_timed_requests: function(){
-			//console.log('stop_timed_requests');
+			////console.log('stop_timed_requests');
 			Object.each(this.timed_request, function(req){
 				req.stopTimer();
 			});
@@ -554,8 +604,8 @@ function getURLParameter(name, URI) {
 				var id = Object.keys(dev)[0];
 				var size = dev[id].size();
 				
-				//console.log("blockdevice_");
-				//console.log(dev[id].partitions());
+				////console.log("blockdevice_");
+				////console.log(dev[id].partitions());
 				
 				var labels = Object.keys(dev[id].partitions());
 				
@@ -581,7 +631,7 @@ function getURLParameter(name, URI) {
 					var percentage = (part.size * 100 / size).toFixed(2);
 					datasets[0].data.push(percentage);
 					
-					//console.log(size);
+					////console.log(size);
 				})
 				
 				
@@ -602,173 +652,114 @@ function getURLParameter(name, URI) {
 			
 		},
 		_load_plots: function(){
-			//var data1 = [
-				//[gd(2012, 1, 1, 12, 29, 1), 17],
-				//[gd(2012, 1, 1, 12, 29, 2), 74],
-				//[gd(2012, 1, 1, 12, 29, 3), 6],
-				//[gd(2012, 1, 1, 12, 29, 4), 39],
-				//[gd(2012, 1, 1, 12, 29, 5), 20],
-				//[gd(2012, 1, 1, 12, 29, 6), 85],
-				//[gd(2012, 1, 1, 12, 29, 7), 7]
-			//];
-
-			//var data2 = [
-				//[gd(2012, 1, 1, 12, 29, 1), 82],
-				//[gd(2012, 1, 1, 12, 29, 2), 23],
-				//[gd(2012, 1, 1, 12, 29, 3), 66],
-				//[gd(2012, 1, 1, 12, 29, 4), 9],
-				//[gd(2012, 1, 1, 12, 29, 5), 100],
-				//[gd(2012, 1, 1, 12, 29, 6), 6],
-				//[gd(2012, 1, 1, 12, 29, 7), 9]
-			//];
-			var now = new Date();
 			
-			var data = [];
+			/**
+			 * load initial data
+			 * 
+			 * */
+			var now = new Date();
+			var cpu = [];
+			var load = [];
+			var used_mem_percentage = [];
+			//for(var i = 59; i >= 0; i--){
 			for(var i = 0; i <= 59; i++){
-				data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), i).getTime(), Math.floor((Math.random() * 100) + 1)]);
+				//data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - i).getTime(), Math.floor((Math.random() * 100) + 1)]);
+				
+				cpu.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.floor((Math.random() * 10) + 1)]);
+				
+				load.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.random().toFixed(2)]);
+				
+				used_mem_percentage.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.floor((Math.random() * 10) + 1)]);
+				
 			}
 			
-			console.log(data);
+			////console.log(data);
+			this.plot_data.push(cpu);
+			this.plot_data.push(load);
+			this.plot_data.push(used_mem_percentage);
 			
 			//$("#canvas_dahs").length && 
-			this.plot = $.plot($("#canvas_dahs"), [
-				data
-			], {
-				series: {
-					lines: {
-						show: false,
-						fill: true
-					},
-					splines: {
-						show: true,
-						tension: 0.4,
-						lineWidth: 1,
-						fill: 0.4
-					},
-					points: {
-						radius: 0,
-						show: true
-					},
-					shadowSize: 2
-				},
-				grid: {
-					verticalLines: true,
-					hoverable: true,
-					clickable: true,
-					tickColor: "#d5d5d5",
-					borderWidth: 1,
-					color: '#fff'
-				},
-				colors: ["rgba(38, 185, 154, 0.38)", "rgba(3, 88, 106, 0.38)"],
-				xaxis: {
-					tickColor: "rgba(51, 51, 51, 0.06)",
-					mode: "time",
-					//tickSize: [1, "minute"],
-					//minTickSize: [1, "second"],
-					//tickLength: 10,
-					axisLabel: "Date",
-					axisLabelUseCanvas: true,
-					axisLabelFontSizePixels: 12,
-					axisLabelFontFamily: 'Verdana, Arial',
-					axisLabelPadding: 10
-				},
-				yaxis: {
-					max: 100,
-					ticks: 10,
-					tickColor: "rgba(51, 51, 51, 0.06)",
-				},
-				tooltip: false
-			});
+			this.plot = $.plot($("#canvas_dahs"), this.plot_data, this.options.timed_plot);
 
-			function gd(year, month, day, hh, mm, ss) {
-				return new Date(year, month - 1, day, hh, mm, ss).getTime();
+			var update_plots = function(){
+				//console.log('update_plots');
+				
+				this.plot = $.plot($("#canvas_dahs"),
+						//raw_data
+						this.plot_data
+				, this.options.timed_plot);
+			}.periodical(1000, this);
+			
+		},
+		_update_cpu_plot_data: function(){
+			//console.log('_update_cpu_plot_data');
+			////console.log(this.model.user_friendly_cpu_usage()['usage']);
+			if(this.plot && this.plot.getData()){
+				var now = new Date();
+				
+				var data = this.plot.getData();
+				//var raw_data = data[0].data;
+				var raw_data = [];
+				
+				raw_data = data[0].data;
+				if(raw_data.length >= 60){
+					raw_data.shift();
+				}
+				
+				raw_data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()).getTime(), this.model.user_friendly_cpu_usage()['usage'].toFloat() ]);
+				
+				this.plot_data[0] = raw_data;
+				//console.log('second: '+this.plot_data[0].length);	
+				////console.log(raw_data);
 			}
 		},
-		_update_plot_data: function(){
-			console.log('_update_plot_data');
-			console.log(this.model.user_friendly_cpu_usage()['usage']);
+		_update_loadavg_plot_data: function(){
+			//console.log('_update_loadavg_plot_data');
+			//console.log(this.model.user_friendly_loadavg()[0]);
 			
-			
-			var now = new Date();
-			//this.minute_data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()).getTime(), this.model.user_friendly_cpu_usage()['usage'].toFloat() ]);
-			
-			//console.log(this.minute_data);
-			
-			var data = this.plot.getData();
-			//var raw_data = data[0].data;
-			
-			
-			//console.log('second: '+(data[0].data.length % 60));	
-			
-			this.minute_data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()).getTime(), this.model.user_friendly_cpu_usage()['usage'].toInt() ]);
-			
-			console.log('second: '+this.minute_data.length);	
-			console.log(this.minute_data);
-			
-			this.plot = $.plot($("#canvas_dahs"), [
-					this.minute_data
-				], {
-					series: {
-						lines: {
-							show: false,
-							fill: true
-						},
-						splines: {
-							show: true,
-							tension: 0.4,
-							lineWidth: 1,
-							fill: 0.4
-						},
-						points: {
-							radius: 0,
-							show: true
-						},
-						shadowSize: 2
-					},
-					grid: {
-						verticalLines: true,
-						hoverable: true,
-						clickable: true,
-						tickColor: "#d5d5d5",
-						borderWidth: 1,
-						color: '#fff'
-					},
-					colors: ["rgba(38, 185, 154, 0.38)", "rgba(3, 88, 106, 0.38)"],
-					xaxis: {
-						tickColor: "rgba(51, 51, 51, 0.06)",
-						mode: "time",
-						//tickSize: [1, "minute"],
-						//minTickSize: [1, "second"],
-						//tickLength: 10,
-						axisLabel: "Date",
-						axisLabelUseCanvas: true,
-						axisLabelFontSizePixels: 12,
-						axisLabelFontFamily: 'Verdana, Arial',
-						axisLabelPadding: 10
-					},
-					yaxis: {
-						max: 100,
-						ticks: 10,
-						tickColor: "rgba(51, 51, 51, 0.06)",
-					},
-					tooltip: false
-				});
+			if(this.plot && this.plot.getData()){
+				var now = new Date();
 				
-			//if((data[0].data.length % 60) == 0){
-			if(this.minute_data.length > 59){
-				console.log('MINUTE');
-				//this.plot.setData(
-					////raw_data
-					//this.minute_data
-				//);
+				var data = this.plot.getData();
+				//var raw_data = data[0].data;
+				var raw_data = [];
 				
-				//this.plot.setupGrid();
-				//this.plot.draw();
+				raw_data = data[1].data;//index 1 = load
+				if(raw_data.length >= 60){
+					raw_data.shift();
+				}
 				
+				raw_data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()).getTime(), this.model.user_friendly_loadavg()[0].toFloat() ]);
 				
-				this.minute_data = [];
+				this.plot_data[1] = raw_data;
+				//console.log('second: '+this.plot_data[1].length);	
+				////console.log(raw_data);
 			}
-			
+		},
+		_update_usedmem_plot_data: function(){
+			//console.log('_update_usedmem_plot_data');
+			//console.log(this.model.totalmem());
+			//console.log(this.model.freemem());
+			if(this.plot && this.plot.getData()){
+				var used_mem_percentage = (((this.model.totalmem() - this.model.freemem()) * 100) / this.model.totalmem()).toFixed(2);
+				
+				var now = new Date();
+				
+				var data = this.plot.getData();
+				//var raw_data = data[0].data;
+				var raw_data = [];
+				
+				raw_data = data[2].data;//index 2 = used_mem
+				if(raw_data.length >= 60){
+					raw_data.shift();
+				}
+				
+				raw_data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()).getTime(), used_mem_percentage ]);
+				
+				this.plot_data[2] = raw_data;
+				//console.log('second: '+this.plot_data[2].length);	
+				////console.log(raw_data);
+			}
 		}
 		
 	});	
@@ -779,15 +770,15 @@ function getURLParameter(name, URI) {
 		
 		var self = this;
 		
-		//console.log('page started');
+		////console.log('page started');
 		
 		self.model = new OSModel();
 		
 		if(mainBodyModel.os() == null){
 			
-			////console.log(os_page.model['networkInterfaces']);
+			//////console.log(os_page.model['networkInterfaces']);
 			
-			//console.log('os binding applied');
+			////console.log('os binding applied');
 			
 			mainBodyModel.os(self.model);
 			
@@ -803,8 +794,9 @@ function getURLParameter(name, URI) {
 		}
 		
 		this._load_charts();
+		
 		head.ready("flot_curvedLines", function(){
-			console.log('_load_plots');
+			//console.log('_load_plots');
 			this._load_plots();
 		}.bind(this));
 		
