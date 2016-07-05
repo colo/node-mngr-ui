@@ -169,15 +169,17 @@ function getURLParameter(name, URI) {
 				
 				var colors=["aero", "purple", "red", "green",  "blue"];//class="fa fa-square $color", has to match Chart order
 				
-				Array.each(this.blockdevices, function(dev, index){
+				Object.each(this.blockdevices, function(dev, name){
 					var info = {};
-					info.name = Object.keys(dev)[0];
-					info.size = dev[info.name].size();
+					//info.name = Object.keys(dev)[0];
+					//info.size = dev[info.name].size();
+					info.name = name;
+					info.size = dev.size();
 					
 					info.partitions = [];
 					//info.partitions = dev[info.name].partitions();
 					var index = 0;
-					Object.each(dev[info.name].partitions(), function(part, key){
+					Object.each(dev.partitions(), function(part, key){
 						//////console.log('PART');
 						//////console.log(part);
 						var part_info = {};
@@ -290,7 +292,7 @@ function getURLParameter(name, URI) {
 					borderWidth: 1,
 					color: '#fff'
 				},
-				colors: ["rgba(38, 185, 154, 0.38)", "rgba(3, 88, 106, 0.38)", "rgba(215, 96, 139, 0.2)"],
+				colors: ["rgba(38, 185, 154, 0.38)", "rgba(3, 88, 106, 0.38)", "rgba(215, 96, 139, 0.2)", "rgba(223, 129, 46, 0.4)"],
 				xaxis: {
 					tickColor: "rgba(51, 51, 51, 0.06)",
 					mode: "time",
@@ -430,11 +432,10 @@ function getURLParameter(name, URI) {
 			
 			//var obj = ko.observable({});
 			var obj = {};
-			obj[id] = [];
 			
-			////console.log('server_data: ');
-			////console.log(typeOf(server_data));
 			if(typeOf(server_data) == 'array'){	
+				obj[id] = [];
+				
 				Array.each(server_data, function(value, key){
 					////console.log(this._implementable_model_object(value, key)[key]);
 					obj[id].push(this._implementable_model_object(value, key)[key]);
@@ -449,22 +450,34 @@ function getURLParameter(name, URI) {
 				////console.log(obj);
 			}
 			else{
-				Object.each(server_data, function(value, key){
-					////console.log('server_data: '+key);
-					////console.log(typeOf(key));
-					////console.log(value);
-						
-						if(id != 'os'){
-							obj[id].push(this._implementable_model_object(value, key));
-							
-							if(obj[id].length == Object.getLength(server_data)){
+				obj[id] = {};
+				//if(id == 'blockdevices'){
+				//console.log('server_data: ');
+				//console.log(server_data);
+				//}
 								
-								OSModel.implement(obj);
-							}
+				Object.each(server_data, function(value, key){
+					
+					if(id != 'os'){
+					
+						//obj[id].push(this._implementable_model_object(value, key));
+						//obj[id][key] = {};
+						obj[id] = Object.merge(obj[id], this._implementable_model_object(value, key));
+						
+											if(id == 'blockdevices'){
+					console.log('server_data: '+id+':'+key);
+					console.log(obj);
+					}
+						//if(obj[id].length == Object.getLength(server_data)){
+						if(Object.getLength(obj[id]) == Object.getLength(server_data)){
+							
+							OSModel.implement(obj);
 						}
-						else{
-							OSModel.implement(this._implementable_model_object(value, key));
-						}
+					}
+					else{
+						
+						OSModel.implement(this._implementable_model_object(value, key));
+					}
 					
 				}.bind(this));
 			}
@@ -569,6 +582,25 @@ function getURLParameter(name, URI) {
 						
 						self._update_cpu_plot_data();
 					}
+				}),
+				sda_stats: new Request.JSON({
+					url: this.server+'/os/blockdevices/sda/stats',
+					initialDelay: 1000,
+					delay: 2000,
+					limit: 10000,
+					onSuccess: function(stats){
+						//console.log('myRequests.cpus: ');
+						//console.log(cpus);
+						//self.model.cpus(cpus);
+						/**
+						 * save previous stats, needed to calculate times (updated stats - prev_stats)
+						 * */
+						self.model.blockdevices.sda._prev_stats = self.model.blockdevices.sda.stats();
+						
+						self.model.blockdevices.sda.stats(stats);
+						//console.log(self.model.blockdevices.sda.stats());
+						self._update_sda_stats_plot_data();
+					}
 				})
 			};
 
@@ -599,15 +631,18 @@ function getURLParameter(name, URI) {
 		_load_charts: function(){
 			
 			
-			Object.each(this.model.blockdevices, function(dev){//really an array
+			Object.each(this.model.blockdevices, function(dev, name){
+				//console.log('DEVICE');
+				//console.log(name);
+				//console.log(dev.partitions());
 				
-				var id = Object.keys(dev)[0];
-				var size = dev[id].size();
+				//var id = Object.keys(dev)[0];
+				var size = dev.size();
 				
 				////console.log("blockdevice_");
 				////console.log(dev[id].partitions());
 				
-				var labels = Object.keys(dev[id].partitions());
+				var labels = Object.keys(dev.partitions());
 				
 				var datasets = [{
 					data: [],
@@ -627,7 +662,10 @@ function getURLParameter(name, URI) {
 					]
 				}];
 				
-				Object.each(dev[id].partitions(), function(part, key){
+				Object.each(dev.partitions(), function(part, key){
+					//console.log('partition: '+key);
+					//console.log(part);
+					
 					var percentage = (part.size * 100 / size).toFixed(2);
 					datasets[0].data.push(percentage);
 					
@@ -635,7 +673,7 @@ function getURLParameter(name, URI) {
 				})
 				
 				
-				new Chart(document.getElementById("blockdevice_"+id), {
+				new Chart(document.getElementById("blockdevice_"+name), {
 					type: 'doughnut',
 					tooltipFillColor: "rgba(51, 51, 51, 0.55)",
 					data: {
@@ -661,6 +699,7 @@ function getURLParameter(name, URI) {
 			var cpu = [];
 			var load = [];
 			var used_mem_percentage = [];
+			var sda_io_percentage = [];
 			//for(var i = 59; i >= 0; i--){
 			for(var i = 0; i <= 59; i++){
 				//data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - i).getTime(), Math.floor((Math.random() * 100) + 1)]);
@@ -669,14 +708,17 @@ function getURLParameter(name, URI) {
 				
 				load.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.random().toFixed(2)]);
 				
-				used_mem_percentage.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.floor((Math.random() * 10) + 1)]);
+				used_mem_percentage.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.floor((Math.random() * 50) + 1)]);
 				
+				sda_io_percentage.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.floor((Math.random() * 10) + 1)]);
 			}
 			
 			////console.log(data);
 			this.plot_data.push(cpu);
 			this.plot_data.push(load);
 			this.plot_data.push(used_mem_percentage);
+			this.plot_data.push(sda_io_percentage);
+			
 			
 			//$("#canvas_dahs").length && 
 			this.plot = $.plot($("#canvas_dahs"), this.plot_data, this.options.timed_plot);
@@ -760,7 +802,61 @@ function getURLParameter(name, URI) {
 				//console.log('second: '+this.plot_data[2].length);	
 				////console.log(raw_data);
 			}
-		}
+		},
+		_update_sda_stats_plot_data: function(){
+			//console.log(this.model.blockdevices.sda._prev_stats.time_in_queue);
+			//console.log(this.model.blockdevices.sda.stats().time_in_queue);
+			
+			//milliseconds between last update and this one
+			var time_in_queue = this.model.blockdevices.sda.stats().time_in_queue - this.model.blockdevices.sda._prev_stats.time_in_queue;
+			
+			//console.log('TIME IN QUEUE: '+time_in_queue);
+			
+			var percentage_in_queue = [];
+			/**
+			 * each messure spent on IO, is 100% of the disk at full IO speed (at least, available for the procs),
+			 * so, as we are graphing on 1 second X, milliseconds spent on IO, would be % of that second (eg: 500ms = 50% IO)
+			 * 
+			 * */
+			if(time_in_queue < 1000){//should always enter this if, as we messure on 1 second updates (1000+)
+				//console.log('LESS THAN A SECOND');
+				percentage_in_queue.push((time_in_queue * 100) / 1000);
+			}
+			else{//updates may not get as fast as 1 second, so we split the messure for as many as seconds it takes
+				//console.log('MORE THAN A SECOND');
+				
+				for(var i = 1; i < (time_in_queue / 1000); i++){
+					//console.log('----SECOND: '+i);
+					
+					percentage_in_queue.push( 100 ); //each of this seconds was at 100%
+				}
+				
+				percentage_in_queue.push(( (time_in_queue % 1000) * 100) / 1000);
+			}
+			
+			if(this.plot && this.plot.getData()){
+				var now = new Date();
+				
+				var data = this.plot.getData();
+				//var raw_data = data[0].data;
+				var raw_data = [];
+				
+				raw_data = data[3].data;//index 3 = sda_stats
+				if(raw_data.length >= 60){
+					for(var i = (raw_data.length - 60); i < 60; i++){
+						raw_data.shift();
+					}
+				}
+				
+				for(var i = 0; i < percentage_in_queue.length; i++ ){
+					raw_data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()).getTime(), percentage_in_queue[i] ]);
+				}
+				
+				this.plot_data[3] = raw_data;
+				//console.log('second: '+this.plot_data[1].length);	
+				////console.log(raw_data);
+			}
+		},
 		
 	});	
 		

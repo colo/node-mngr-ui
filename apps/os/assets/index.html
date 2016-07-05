@@ -261,13 +261,12 @@
 								<table class="tile_info" data-bind="foreach: { data: dev.partitions, as: 'part' }">
 									<tr>
 										<td>
-											<p data-bind="template: { name: 'part_name_template', data: part }"></p>
-											
 											<script type="text/html" id="part_name_template">
 													<i data-bind="attr: {class: 'fa fa-square '+part.color }"></i>
 													
 													<!-- ko text: part.name --><!-- /ko -->
 											</script>
+											<p data-bind="template: { name: 'part_name_template', data: part }"></p>
 										</td>
 										<td data-bind="text: part.percentage+'%'"></td>
 									</tr>
