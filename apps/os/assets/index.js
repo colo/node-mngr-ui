@@ -464,10 +464,10 @@ function getURLParameter(name, URI) {
 						//obj[id][key] = {};
 						obj[id] = Object.merge(obj[id], this._implementable_model_object(value, key));
 						
-											if(id == 'blockdevices'){
-					console.log('server_data: '+id+':'+key);
-					console.log(obj);
-					}
+						if(id == 'blockdevices'){
+							console.log('server_data: '+id+':'+key);
+							console.log(obj);
+						}
 						//if(obj[id].length == Object.getLength(server_data)){
 						if(Object.getLength(obj[id]) == Object.getLength(server_data)){
 							

@@ -2,7 +2,8 @@
 
 var App = require('node-express-app'),
 	path = require('path'),
-	fs = require('fs');
+	fs = require('fs'),
+	PouchDB = require('pouchdb');
 	
 
 
@@ -65,11 +66,27 @@ module.exports = new Class({
 						callbacks: ['server'],
 						version: '',
 					},
+					{
+						path: ':prop',
+						callbacks: ['get'],
+					},
+					{
+						path: '',
+						callbacks: ['get'],
+					},
 				]
 			},
 			
 		},
   },
+  get: function(req, res, next){
+		if(req.params.prop){
+			res.json({});
+		}
+		else{
+			res.json({});
+		}
+	},
   primary_iface: function(req, res, next){
 		res.set('Content-Type', 'application/javascript').jsonp(this.options.networkInterfaces.primary);
 	},
