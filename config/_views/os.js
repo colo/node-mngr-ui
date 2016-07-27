@@ -11,24 +11,25 @@ db.info().then(function (info) {
 var ddoc = {
   _id: '_design/os',
   views: {
-    info: {
+    by_date: {
       map: function info(doc) {
 				if (doc._id.includes('.os@') && doc.data_type == 'info') {
 					var id = doc._id.split('.os@');//get host | timestamp
 					var host = id[0];
-					var date = new Date();
-					date.setTime(id[1]);
+					var date = parseInt(id[1]);
+					//var date = new Date();
+					//date.setTime(id[1]);
 					
-					var date_arr = [
-						date.getFullYear(),
-						date.getMonth() + 1,
-						date.getDate(),
-						date.getHours(),
-						date.getMinutes(),
-						date.getSeconds()
-					];
+					//var date_arr = [
+						//date.getFullYear(),
+						//date.getMonth() + 1,
+						//date.getDate(),
+						//date.getHours(),
+						//date.getMinutes(),
+						//date.getSeconds()
+					//];
 					
-					emit([host, date_arr], null);
+					emit([date, host], null);
 				}
       }.toString()
     }
@@ -43,11 +44,19 @@ db.put(ddoc).catch(function (err) {
   // ignore if doc already exists
 }).then(function () {
 	
-	//return db.query('os/info', {
-		//key     : ["localhost.colo",[2016,7,26,22,53,11]],
+	//1469639288755
+	//1469639314750
+	
+	return db.query('os/by_date', {
+		startkey: [1469639314750, "com.example.server"],
+		endkey: [99999999999999, "com.example.server"],
+		//inclusive_end: true
+  });
+  
+  //return db.query('os/info', {
+		//startkey     : ["", [2015,7,27,14,8,34]],
+		//endkey       : [{}, "\uffff"],
   //});
-  
-  
   /**
    * all from one host
    * 
@@ -56,25 +65,30 @@ db.put(ddoc).catch(function (err) {
 		//startkey     : ['localhost.colo'],
 		//endkey       : ['localhost.colo\uffff'],
   //});
+  /** OR */
+  //return db.query('os/info', {
+		//startkey     : ['localhost.colo'],
+		//endkey       : ['localhost.colo', {}],
+  //});
   
   /**
    * last from one host (reverse star & end keys)
    * 
    * */
-  return db.query('os/info', {
-		startkey     : ['localhost.colo\uffff'],
-		endkey       : ['localhost.colo'],
-		limit: 1,
-		descending: true
-  });
+  //return db.query('os/info', {
+		//startkey     : ['localhost.colo\uffff'],
+		//endkey       : ['localhost.colo'],
+		//limit: 1,
+		//descending: true
+  //});
   
   /**
    * one host - range from date
    * 
    * */
 	//return db.query('os/info', {
-		//startkey     : ["localhost.colo",[2016,7,26,0,0,0]],
-		//endkey       : ["localhost.colo",[2016,7,27,23,59,59]],
+		//startkey     : ["localhost.colo",[2016,7,27,14,8,0]],
+		//endkey       : ["localhost.colo",[2016,7,27,14,8,34]],
 		////inclusive_end: true
     ////include_docs: true
   //});
@@ -94,8 +108,8 @@ db.put(ddoc).catch(function (err) {
    * 
    * */
 	//return db.query('os/info', {
-		//startkey     : ["localhost",[2016,7,26,0,0,0]],
-		//endkey       : ["localhost\uffff",[2016,7,27,23,59,59]],
+		//startkey     : ["localhost",[2016,7,27,14,8,34]],
+		//endkey       : ["localhost\uffff",[2016,7,27,14,8, 0]],
 		////inclusive_end: true
     ////include_docs: true
   //});
@@ -112,7 +126,11 @@ db.put(ddoc).catch(function (err) {
   //});
   
 }).then(function (result) {
-	console.log(result);
+	
+	//console.log(result);
+	result.rows.forEach(function(row){
+		console.log(row.key);
+	});
   // handle result
 }).catch(function (err) {
   console.log(err);
