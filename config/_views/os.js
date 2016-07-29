@@ -30,14 +30,13 @@ var ddoc = {
 						//date.getSeconds()
 					//];
 					var host = doc.metadata.domain +'.'+doc.metadata.host;
-					var date = 0;
 					
 					if(!doc.metadata.timestamp){
 						var id = doc._id.split('@');//get host.path | timestamp
-						date = parseInt(id[1]);
+						var date = parseInt(id[1]);
 					}
 					else{
-						date = parseInt(doc.metadata.timestamp);
+						var date = parseInt(doc.metadata.timestamp);
 					}
 					
 					emit([date, host], null);
@@ -51,38 +50,16 @@ var ddoc = {
 					//var host = id[0];
 					//var date = parseInt(id[1]);
 					var host = doc.metadata.domain +'.'+doc.metadata.host;
-					var date = 0;
 					
 					if(!doc.metadata.timestamp){
 						var id = doc._id.split('@');//get host.path | timestamp
-						date = parseInt(id[1]);
+						var date = parseInt(id[1]);
 					}
 					else{
-						date = parseInt(doc.metadata.timestamp);
+						var date = parseInt(doc.metadata.timestamp);
 					}
 					
 					emit([host, date], null);
-				}
-      }.toString()
-    },
-    by_path_host: {
-      map: function info(doc) {
-				if (doc.metadata.type == 'info') {
-					//var id = doc._id.split('@');//get host.path | timestamp
-					//var host = id[0];
-					//var date = parseInt(id[1]);
-					var host = doc.metadata.domain +'.'+doc.metadata.host;
-					var date = 0;
-					
-					if(!doc.metadata.timestamp){
-						var id = doc._id.split('@');//get host.path | timestamp
-						date = parseInt(id[1]);
-					}
-					else{
-						date = parseInt(doc.metadata.timestamp);
-					}
-					
-					emit([doc.metadata.path, host, date], null);
 				}
       }.toString()
     }
@@ -99,14 +76,13 @@ var ddoc_status = {
 					//var host = id[0];
 					//var date = parseInt(id[1]);
 					var host = doc.metadata.domain +'.'+doc.metadata.host;
-					var date = 0;
 					
 					if(!doc.metadata.timestamp){
 						var id = doc._id.split('@');//get host.path | timestamp
-						date = parseInt(id[1]);
+						var date = parseInt(id[1]);
 					}
 					else{
-						date = parseInt(doc.metadata.timestamp);
+						var date = parseInt(doc.metadata.timestamp);
 					}
 					
 					emit([date, host], null);
@@ -120,38 +96,16 @@ var ddoc_status = {
 					//var host = id[0];
 					//var date = parseInt(id[1]);
 					var host = doc.metadata.domain +'.'+doc.metadata.host;
-					var date = 0;
 					
 					if(!doc.metadata.timestamp){
 						var id = doc._id.split('@');//get host.path | timestamp
-						date = parseInt(id[1]);
+						var date = parseInt(id[1]);
 					}
 					else{
-						date = parseInt(doc.metadata.timestamp);
+						var date = parseInt(doc.metadata.timestamp);
 					}
 					
 					emit([host, date], null);
-				}
-      }.toString()
-    },
-    by_path_host: {
-      map: function info(doc) {
-				if (doc.metadata.type == 'status') {
-					//var id = doc._id.split('@');//get host.path | timestamp
-					//var host = id[0];
-					//var date = parseInt(id[1]);
-					var host = doc.metadata.domain +'.'+doc.metadata.host;
-					var date = 0;
-					
-					if(!doc.metadata.timestamp){
-						var id = doc._id.split('@');//get host.path | timestamp
-						date = parseInt(id[1]);
-					}
-					else{
-						date = parseInt(doc.metadata.timestamp);
-					}
-					
-					emit([doc.metadata.path, host, date], null);
 				}
       }.toString()
     }
@@ -177,22 +131,13 @@ db.put(ddoc).catch(function (err) {
 	 * 1469675132205
 	 * */
 	
-	//return db.query('status/by_path_host', {
-		//startkey: ["os.mounts\ufff0", "localhost.colo\ufff0"],
-		//endkey: ["os.mounts", "localhost.colo"],
-		////limit: 1,
-		//descending: true,
-		//inclusive_end: true,
-		//include_docs: true
-  //});
-  
-  return db.query('info/by_path_host', {
-		startkey: ["os", "localhost.colo\ufff0"],
-		endkey: ["os", "localhost.colo"],
+	return db.query('info/by_host', {
+		startkey: ["localhost.colo\ufff0"],
+		endkey: ["localhost.colo"],
 		limit: 1,
 		descending: true,
 		inclusive_end: true,
-		//include_docs: true
+		include_docs: true
   });
    
 	//return db.query('info/by_date', {
@@ -297,7 +242,6 @@ db.put(ddoc).catch(function (err) {
   
   result.rows.forEach(function(row){
 		console.log(row.key);
-		console.log(row.doc);
 	});
 }).catch(function (err) {
   console.log(err);

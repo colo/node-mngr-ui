@@ -471,6 +471,10 @@ function getURLParameter(name, URI) {
 							console.log('server_data: '+id+':'+key);
 							console.log(obj);
 						}
+						else if(id == 'mounts'){
+							console.log('server_data: '+id+':'+key);
+							console.log(obj);
+						}
 						//if(obj[id].length == Object.getLength(server_data)){
 						if(Object.getLength(obj[id]) == Object.getLength(server_data)){
 							

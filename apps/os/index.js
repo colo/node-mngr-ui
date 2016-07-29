@@ -87,12 +87,44 @@ module.exports = new Class({
 			console.log('req.params');
 			console.log(req.params);
 			
-			res.json({});
+			//res.json({});
+			this.db.query('status/by_path_host', {
+				startkey: ["os."+req.params.prop+"\ufff0", "localhost.colo\ufff0"],
+				endkey: ["os."+req.params.prop, "localhost.colo"],
+				limit: 1,
+				descending: true,
+				inclusive_end: true,
+				include_docs: true
+			})
+			.then(function (response) {
+				if(response.rows[0].doc.data){
+					res.json(response.rows[0].doc.data);
+				}
+				else{
+					
+					delete response.rows[0].doc.metadata;
+					delete response.rows[0].doc._id;
+					delete response.rows[0].doc._rev;
+					
+					res.json(response.rows[0].doc);
+				}
+				
+				//console.log(response.rows);
+				console.log(response.rows[0].doc);
+
+				//res.json({});
+				
+			}).catch(function (err) {
+				console.log('err');
+				console.log(err);
+				res.status(500).json({error: err});
+			});
+			
 		}
 		else{
-			this.db.query('info/by_host', {
-				startkey: ["localhost.colo\ufff0"],
-				endkey: ["localhost.colo"],
+			this.db.query('info/by_path_host', {
+				startkey: ["os", "localhost.colo\ufff0"],
+				endkey: ["os", "localhost.colo"],
 				limit: 1,
 				descending: true,
 				inclusive_end: true,
