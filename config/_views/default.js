@@ -14,10 +14,10 @@ var ddoc = {
   views: {
 		by_date: {
       map: function info(doc) {
-				if (doc.data_type == 'info') {
-					var id = doc._id.split('@');//get host.path | timestamp
-					var host = id[0];
-					var date = parseInt(id[1]);
+				if (doc.metadata.type == 'info') {
+					//var id = doc._id.split('@');//get host.path | timestamp
+					//var host = doc.metadata.domain +'.'+doc.metadata.host;
+					//var date = parseInt(id[1]);
 					//var date = new Date();
 					//date.setTime(id[1]);
 					
@@ -29,6 +29,15 @@ var ddoc = {
 						//date.getMinutes(),
 						//date.getSeconds()
 					//];
+					var host = doc.metadata.domain +'.'+doc.metadata.host;
+					
+					if(!doc.metadata.timestamp){
+						var id = doc._id.split('@');//get host.path | timestamp
+						var date = parseInt(id[1]);
+					}
+					else{
+						var date = parseInt(doc.metadata.timestamp);
+					}
 					
 					emit([date, host], null);
 				}
@@ -36,10 +45,19 @@ var ddoc = {
     },
     by_host: {
       map: function info(doc) {
-				if (doc.data_type == 'info') {
-					var id = doc._id.split('@');//get host.path | timestamp
-					var host = id[0];
-					var date = parseInt(id[1]);
+				if (doc.metadata.type == 'info') {
+					//var id = doc._id.split('@');//get host.path | timestamp
+					//var host = id[0];
+					//var date = parseInt(id[1]);
+					var host = doc.metadata.domain +'.'+doc.metadata.host;
+					
+					if(!doc.metadata.timestamp){
+						var id = doc._id.split('@');//get host.path | timestamp
+						var date = parseInt(id[1]);
+					}
+					else{
+						var date = parseInt(doc.metadata.timestamp);
+					}
 					
 					emit([host, date], null);
 				}
@@ -53,21 +71,19 @@ var ddoc_status = {
   views: {
 		by_date: {
       map: function status(doc) {
-				if (doc.data_type == 'status') {
-					var id = doc._id.split('@');//get host.path | timestamp
-					var host = id[0];
-					var date = parseInt(id[1]);
-					//var date = new Date();
-					//date.setTime(id[1]);
+				if (doc.metadata.type == 'status') {
+					//var id = doc._id.split('@');//get host.path | timestamp
+					//var host = id[0];
+					//var date = parseInt(id[1]);
+					var host = doc.metadata.domain +'.'+doc.metadata.host;
 					
-					//var date_arr = [
-						//date.getFullYear(),
-						//date.getMonth() + 1,
-						//date.getDate(),
-						//date.getHours(),
-						//date.getMinutes(),
-						//date.getSeconds()
-					//];
+					if(!doc.metadata.timestamp){
+						var id = doc._id.split('@');//get host.path | timestamp
+						var date = parseInt(id[1]);
+					}
+					else{
+						var date = parseInt(doc.metadata.timestamp);
+					}
 					
 					emit([date, host], null);
 				}
@@ -75,10 +91,19 @@ var ddoc_status = {
     },
     by_host: {
       map: function status(doc) {
-				if (doc.data_type == 'status') {
-					var id = doc._id.split('@');//get host.path | timestamp
-					var host = id[0];
-					var date = parseInt(id[1]);
+				if (doc.metadata.type == 'status') {
+					//var id = doc._id.split('@');//get host.path | timestamp
+					//var host = id[0];
+					//var date = parseInt(id[1]);
+					var host = doc.metadata.domain +'.'+doc.metadata.host;
+					
+					if(!doc.metadata.timestamp){
+						var id = doc._id.split('@');//get host.path | timestamp
+						var date = parseInt(id[1]);
+					}
+					else{
+						var date = parseInt(doc.metadata.timestamp);
+					}
 					
 					emit([host, date], null);
 				}
@@ -105,13 +130,22 @@ db.put(ddoc).catch(function (err) {
 	 * 1469675114071
 	 * 1469675132205
 	 * */
-	 
-	return db.query('info/by_date', {
-		startkey: [1469675114071, "localhost.server", "os"],
-		endkey: [1469675114071, "localhost.server\ufff0", "os.mounts\ufff0"],
-		//inclusive_end: true
+	
+	return db.query('info/by_host', {
+		startkey: ["localhost.colo\ufff0"],
+		endkey: ["localhost.colo"],
+		limit: 1,
+		descending: true,
+		inclusive_end: true,
 		include_docs: true
   });
+   
+	//return db.query('info/by_date', {
+		//startkey: [1469675114071, "localhost.server", "os"],
+		//endkey: [1469675114071, "localhost.server\ufff0", "os.mounts\ufff0"],
+		////inclusive_end: true
+		//include_docs: true
+  //});
 	
 	//return db.query('os/by_date', {
 		////startkey: [1469639314750, "com.example.server"],

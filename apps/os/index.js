@@ -17,6 +17,8 @@ module.exports = new Class({
   
   options: {
 	  
+	  db: { path : path.join(__dirname,'../../../pouchdb/dashboard') },
+	  
 		id: 'os',
 		path: '/os',
 		
@@ -80,18 +82,44 @@ module.exports = new Class({
 		},
   },
   get: function(req, res, next){
+		console.log('OS API GET');
 		if(req.params.prop){
+			console.log('req.params');
+			console.log(req.params);
+			
 			res.json({});
 		}
 		else{
-			res.json({});
+			this.db.query('info/by_host', {
+				startkey: ["localhost.colo\ufff0"],
+				endkey: ["localhost.colo"],
+				limit: 1,
+				descending: true,
+				inclusive_end: true,
+				include_docs: true
+			})
+			.then(function (response) {
+				delete response.rows[0].doc.metadata;
+				delete response.rows[0].doc._id;
+				delete response.rows[0].doc._rev;
+				
+				res.json(response.rows[0].doc);
+				
+				//console.log(response.rows[0].doc);
+				
+			}).catch(function (err) {
+				console.log('err');
+				console.log(err);
+				res.status(500).json({error: err});
+			});
+
 		}
 	},
   primary_iface: function(req, res, next){
 		res.set('Content-Type', 'application/javascript').jsonp(this.options.networkInterfaces.primary);
 	},
   server: function(req, res, next){
-		res.set('Content-Type', 'application/javascript').jsonp("http://"+req.hostname+":8081");
+		res.set('Content-Type', 'application/javascript').jsonp("http://"+req.hostname+":8080");
 	},
   render: function(req, res, next){
 		if(!req.isAuthenticated()){
@@ -166,6 +194,12 @@ module.exports = new Class({
 			  
 			}.bind(this));
 		}
+		
+		this.db = new PouchDB(this.options.db.path);
+		
+		this.db.info().then(function (info) {
+			console.log(info);
+		})
 		
 		this.profile('os_init');//end profiling
 		

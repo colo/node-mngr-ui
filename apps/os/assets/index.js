@@ -339,7 +339,7 @@ function getURLParameter(name, URI) {
 				
 				this.server = data;
 				
-				this._request_update_model(['/os', '/os/blockdevices', '/os/mounts']);
+				this._request_update_model(['/os/api', '/os/api/blockdevices', '/os/api/mounts']);
 				
 			}.bind(this));
 			
@@ -379,12 +379,15 @@ function getURLParameter(name, URI) {
 			var requests = {}
 			
 			Array.each(urls, function(url){
-				var id = url.split('/');//split to get last portion (ex: 'os', 'blockdevices'....)
-				id = id[id.length - 1];
+				var id = url.replace('/api', '');
+				id = id.split('/');//split to get last portion (ex: 'os', 'blockdevices'....)
+				id = id[id.length - 1]; //last part would be "/api"
 				
 				////console.log('url id:'+id);
 				
 				requests[id] = new Request.JSON({
+					method: 'get',
+					secure: true,
 					url: this.server+url,
 					onSuccess: function(server_data){
 						////console.log('server_data');
