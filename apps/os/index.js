@@ -3,6 +3,7 @@
 var App = require('node-express-app'),
 	path = require('path'),
 	fs = require('fs'),
+	os = require('os'),
 	PouchDB = require('pouchdb');
 	
 
@@ -69,6 +70,10 @@ module.exports = new Class({
 						version: '',
 					},
 					{
+						path: ':prop/:key',
+						callbacks: ['get'],
+					},
+					{
 						path: ':prop',
 						callbacks: ['get'],
 					},
@@ -83,9 +88,27 @@ module.exports = new Class({
   },
   get: function(req, res, next){
 		console.log('OS API GET');
+		console.log('req.params');
+		console.log(req.params);
+			
+		var is_os_func = false;
+		
 		if(req.params.prop){
-			console.log('req.params');
-			console.log(req.params);
+			try{
+				Object.each(os, function(item, key){
+					if(req.params.prop == key){
+						is_os_func = true;
+						throw new Error('Found');
+					}
+				});
+			}
+			catch(e){
+				//console.log(e);
+			}
+		}
+		
+		if(!is_os_func && req.params.prop){
+			
 			
 			//res.json({});
 			this.db.query('status/by_path_host', {
@@ -122,30 +145,72 @@ module.exports = new Class({
 			
 		}
 		else{
-			this.db.query('info/by_path_host', {
-				startkey: ["os", "localhost.colo\ufff0"],
-				endkey: ["os", "localhost.colo"],
-				limit: 1,
-				descending: true,
-				inclusive_end: true,
-				include_docs: true
-			})
-			.then(function (response) {
-				delete response.rows[0].doc.metadata;
-				delete response.rows[0].doc._id;
-				delete response.rows[0].doc._rev;
+			if(req.params.prop){
 				
-				res.json(response.rows[0].doc);
-				
-				//console.log(response.rows[0].doc);
-				
-			}).catch(function (err) {
-				console.log('err');
-				console.log(err);
-				res.status(500).json({error: err});
-			});
-
+				this.db.query('status/by_path_host', {
+					startkey: ["os", "localhost.colo\ufff0"],
+					endkey: ["os", "localhost.colo"],
+					limit: 1,
+					descending: true,
+					inclusive_end: true,
+					include_docs: true
+				})
+				.then(function (response) {
+					//delete response.rows[0].doc.metadata;
+					//delete response.rows[0].doc._id;
+					//delete response.rows[0].doc._rev;
+					
+					if(req.params.key){
+						if(response.rows[0].doc[req.params.prop][req.params.key]){
+							res.json(response.rows[0].doc[req.params.prop][req.params.key]);
+						}
+						else{
+							res.status(500).json({error: 'Bad key ['+req.params.key+'] on property '+req.params.prop});
+						}
+					}
+					else{
+						if(response.rows[0].doc[req.params.prop]){
+							res.json(response.rows[0].doc[req.params.prop]);
+						}
+						else{
+							res.status(500).json({error: 'Bad property '+req.params.prop});
+						}
+					}
+					
+					//console.log(response.rows[0].doc);
+					
+				}).catch(function (err) {
+					console.log('err');
+					console.log(err);
+					res.status(500).json({error: err});
+				});
+			}
+			else{
+				this.db.query('info/by_path_host', {
+					startkey: ["os", "localhost.colo\ufff0"],
+					endkey: ["os", "localhost.colo"],
+					limit: 1,
+					descending: true,
+					inclusive_end: true,
+					include_docs: true
+				})
+				.then(function (response) {
+					delete response.rows[0].doc.metadata;
+					delete response.rows[0].doc._id;
+					delete response.rows[0].doc._rev;
+					
+					res.json(response.rows[0].doc);
+					
+					//console.log(response.rows[0].doc);
+					
+				}).catch(function (err) {
+					console.log('err');
+					console.log(err);
+					res.status(500).json({error: err});
+				});
+			}
 		}
+		//res.json({});
 	},
   primary_iface: function(req, res, next){
 		res.set('Content-Type', 'application/javascript').jsonp(this.options.networkInterfaces.primary);
@@ -232,6 +297,53 @@ module.exports = new Class({
 		this.db.info().then(function (info) {
 			console.log(info);
 		})
+		
+		//dynamically create routes based on OS module (ex: /os/hostname|/os/cpus|...)
+		//Object.each(os, function(item, key){
+			
+			
+			//if(key != 'getNetworkInterfaces'){//deprecated func
+				//console.log(key);
+				
+				//var callbacks = [];
+			
+				////if(key == 'networkInterfaces'){//use internal func
+					////this[key] = function(req, res, next){
+						////console.log('params');
+						////console.log(req.params);
+						
+					////}
+				////}
+				////else{
+					//this[key] = function(req, res, next){
+						//console.log('params');
+						//console.log(req.params);
+						
+						////var result = (typeof(item) == 'function') ? os[key]() : os[key];
+						
+						////if(req.params.prop && result[req.params.prop]){
+							////res.json(result[req.params.prop]);
+						////}
+						////else if(req.params.prop){
+							////res.status(500).json({ error: 'Bad property'});
+						////}
+						////else{
+							////res.json(result);
+						////}
+					//}
+				////}
+				
+				//this.options.api.routes.get.push({
+						//path: key,
+						//callbacks: [key]
+				//});
+				
+				//this.options.api.routes.get.push({
+						//path: key+'/:prop',
+						//callbacks: [key]
+				//});
+			//}
+		//}.bind(this));
 		
 		this.profile('os_init');//end profiling
 		

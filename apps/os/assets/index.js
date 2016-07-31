@@ -526,7 +526,8 @@ function getURLParameter(name, URI) {
 			var self = this;
 			this.timed_request = {
 				loadavg: new Request.JSON({
-					url: this.server+'/os/loadavg',
+					url: this.server+'/os/api/loadavg',
+					method: 'get',
 					initialDelay: 1000,
 					delay: 2000,
 					limit: 10000,
@@ -543,7 +544,8 @@ function getURLParameter(name, URI) {
 					}
 				}),
 				freemem: new Request.JSON({
-					url: this.server+'/os/freemem',
+					url: this.server+'/os/api/freemem',
+					method: 'get',
 					initialDelay: 1000,
 					delay: 2000,
 					limit: 10000,
@@ -556,7 +558,8 @@ function getURLParameter(name, URI) {
 					}
 				}),
 				primary_iface: new Request.JSON({
-					url: this.server+'/os/networkInterfaces/'+this.primary_iface,
+					url: this.server+'/os/api/networkInterfaces/'+this.primary_iface,
+					method: 'get',
 					initialDelay: 1000,
 					delay: 2000,
 					limit: 10000,
@@ -567,7 +570,8 @@ function getURLParameter(name, URI) {
 					}
 				}),
 				uptime: new Request.JSON({
-					url: this.server+'/os/uptime',
+					url: this.server+'/os/api/uptime',
+					method: 'get',
 					initialDelay: 60000,
 					delay: 120000,
 					limit: 300000,
@@ -578,7 +582,8 @@ function getURLParameter(name, URI) {
 					}
 				}),
 				cpus: new Request.JSON({
-					url: this.server+'/os/cpus',
+					url: this.server+'/os/api/cpus',
+					method: 'get',
 					initialDelay: 1000,
 					delay: 2000,
 					limit: 10000,
@@ -591,7 +596,8 @@ function getURLParameter(name, URI) {
 					}
 				}),
 				sda_stats: new Request.JSON({
-					url: this.server+'/os/blockdevices/sda/stats',
+					url: this.server+'/os/api/blockdevices/sda/stats',
+					method: 'get',
 					initialDelay: 1000,
 					delay: 2000,
 					limit: 10000,
