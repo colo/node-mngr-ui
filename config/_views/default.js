@@ -1,8 +1,13 @@
+//pouchdb-server --level-backend sqldown --level-prefix ~/projects/pouchdb/
+
 var PouchDB = require('pouchdb'),
 		path = require('path'),
 		jsonfile = require('jsonfile');
+		//websql = require('pouchdb/extras/websql');
 
-var db = new PouchDB(path.join(__dirname,'../../../pouchdb/dashboard'));
+//var db = new PouchDB(path.join(__dirname,'../../../pouchdb/dashboard'), {adapter: 'websql'});
+var db = new PouchDB(path.join(__dirname,'../../../pouchdb/dashboard'), {db: require('sqldown')});
+
 		
 db.info().then(function (info) {
 	console.log(info);
@@ -158,7 +163,7 @@ var ddoc_status = {
   }
 }
 // save the design doc
-db.put(ddoc).catch(function (err) {
+db.put(ddoc_status).catch(function (err) {
   if (err.name !== 'conflict') {
     throw err;
   }

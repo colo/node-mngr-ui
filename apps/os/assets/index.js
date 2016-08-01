@@ -65,6 +65,8 @@ function getURLParameter(name, URI) {
 			}.bind(this));
 			
 			this.user_friendly_cpu_usage = ko.pureComputed(function(){
+				//console.log('user_friendly_cpu_usage');
+				
 				var old_cpu_usage = this.cpu_usage;
 				this.cpu_usage = {
 					user: 0,
@@ -74,7 +76,6 @@ function getURLParameter(name, URI) {
 				};
 				
 				Array.each(this.cpus(), function(cpu){
-					//////console.log(cpu.times);
 					
 					this.cpu_usage.user += cpu.times.user;
 					this.cpu_usage.nice += cpu.times.nice;
@@ -106,6 +107,7 @@ function getURLParameter(name, URI) {
 					total_time += value;
 				});
 				
+				
 				var percentage = {
 					user: 0,
 					nice: 0,
@@ -123,7 +125,6 @@ function getURLParameter(name, URI) {
 				};
 				
 				//var total_time = total_usage + new_info.idle;
-				
 				
 				
 				
@@ -388,7 +389,7 @@ function getURLParameter(name, URI) {
 				requests[id] = new Request.JSON({
 					method: 'get',
 					secure: true,
-					url: this.server+url,
+					url: this.server+url+'?type=info',
 					onSuccess: function(server_data){
 						////console.log('server_data');
 						////console.log(server_data);
@@ -526,7 +527,7 @@ function getURLParameter(name, URI) {
 			var self = this;
 			this.timed_request = {
 				loadavg: new Request.JSON({
-					url: this.server+'/os/api/loadavg',
+					url: this.server+'/os/api/loadavg?type=status',
 					method: 'get',
 					initialDelay: 1000,
 					delay: 2000,
@@ -544,7 +545,7 @@ function getURLParameter(name, URI) {
 					}
 				}),
 				freemem: new Request.JSON({
-					url: this.server+'/os/api/freemem',
+					url: this.server+'/os/api/freemem?type=status',
 					method: 'get',
 					initialDelay: 1000,
 					delay: 2000,
@@ -558,7 +559,7 @@ function getURLParameter(name, URI) {
 					}
 				}),
 				primary_iface: new Request.JSON({
-					url: this.server+'/os/api/networkInterfaces/'+this.primary_iface,
+					url: this.server+'/os/api/networkInterfaces/'+this.primary_iface+'?type=status',
 					method: 'get',
 					initialDelay: 1000,
 					delay: 2000,
@@ -570,7 +571,7 @@ function getURLParameter(name, URI) {
 					}
 				}),
 				uptime: new Request.JSON({
-					url: this.server+'/os/api/uptime',
+					url: this.server+'/os/api/uptime?type=status',
 					method: 'get',
 					initialDelay: 60000,
 					delay: 120000,
@@ -582,21 +583,21 @@ function getURLParameter(name, URI) {
 					}
 				}),
 				cpus: new Request.JSON({
-					url: this.server+'/os/api/cpus',
+					url: this.server+'/os/api/cpus?type=status',
 					method: 'get',
 					initialDelay: 1000,
 					delay: 2000,
 					limit: 10000,
 					onSuccess: function(cpus){
-						//console.log('myRequests.cpus: ');
-						//console.log(cpus);
+						console.log('myRequests.cpus: ');
+						console.log(cpus);
 						self.model.cpus(cpus);
 						
 						self._update_cpu_plot_data();
 					}
 				}),
 				sda_stats: new Request.JSON({
-					url: this.server+'/os/api/blockdevices/sda/stats',
+					url: this.server+'/os/api/blockdevices/sda/stats?type=status',
 					method: 'get',
 					initialDelay: 1000,
 					delay: 2000,

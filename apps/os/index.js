@@ -5,6 +5,7 @@ var App = require('node-express-app'),
 	fs = require('fs'),
 	os = require('os'),
 	PouchDB = require('pouchdb');
+	//websql = require('pouchdb/extras/websql');
 	
 
 
@@ -70,6 +71,10 @@ module.exports = new Class({
 						version: '',
 					},
 					{
+						path: ':prop/:key/:info',
+						callbacks: ['get'],
+					},
+					{
 						path: ':prop/:key',
 						callbacks: ['get'],
 					},
@@ -90,6 +95,10 @@ module.exports = new Class({
 		console.log('OS API GET');
 		console.log('req.params');
 		console.log(req.params);
+		console.log(req.query);
+		
+		var doc_type = req.query.type || 'info';
+		
 			
 		var is_os_func = false;
 		
@@ -111,7 +120,7 @@ module.exports = new Class({
 			
 			
 			//res.json({});
-			this.db.query('status/by_path_host', {
+			this.db.query(doc_type+'/by_path_host', {
 				startkey: ["os."+req.params.prop+"\ufff0", "localhost.colo\ufff0"],
 				endkey: ["os."+req.params.prop, "localhost.colo"],
 				limit: 1,
@@ -120,8 +129,10 @@ module.exports = new Class({
 				include_docs: true
 			})
 			.then(function (response) {
+				var result = null;
+				
 				if(response.rows[0].doc.data){
-					res.json(response.rows[0].doc.data);
+					result = response.rows[0].doc.data;
 				}
 				else{
 					
@@ -129,13 +140,41 @@ module.exports = new Class({
 					delete response.rows[0].doc._id;
 					delete response.rows[0].doc._rev;
 					
-					res.json(response.rows[0].doc);
+					result =  response.rows[0].doc;
 				}
 				
+				if(req.params.key){
+					if(req.params.info){
+						if(result[req.params.key][req.params.info]){
+							res.json(result[req.params.key][req.params.info]);
+						}
+						else{
+							res.status(500).json({error: 'No ['+req.params.info+'] at key ['+req.params.key+'] on property '+req.params.prop});
+						}
+					}
+					else if(result[req.params.key]){
+						res.json(result[req.params.key]);
+					}
+					else{
+						res.status(500).json({error: 'Bad key ['+req.params.key+'] on property '+req.params.prop});
+					}
+				}
+				else{
+					//if(response.rows[0].doc[req.params.prop]){
+						//res.json(response.rows[0].doc[req.params.prop]);
+					//}
+					//else{
+						//res.status(500).json({error: 'Bad property '+req.params.prop});
+					//}
+					res.json(result);
+				}
+				
+				
+				
 				//console.log(response.rows);
-				console.log(response.rows[0].doc);
+				console.log(result);
 
-				//res.json({});
+				
 				
 			}).catch(function (err) {
 				console.log('err');
@@ -147,7 +186,7 @@ module.exports = new Class({
 		else{
 			if(req.params.prop){
 				
-				this.db.query('status/by_path_host', {
+				this.db.query(doc_type+'/by_path_host', {
 					startkey: ["os", "localhost.colo\ufff0"],
 					endkey: ["os", "localhost.colo"],
 					limit: 1,
@@ -186,7 +225,7 @@ module.exports = new Class({
 				});
 			}
 			else{
-				this.db.query('info/by_path_host', {
+				this.db.query(doc_type+'/by_path_host', {
 					startkey: ["os", "localhost.colo\ufff0"],
 					endkey: ["os", "localhost.colo"],
 					limit: 1,
@@ -292,7 +331,7 @@ module.exports = new Class({
 			}.bind(this));
 		}
 		
-		this.db = new PouchDB(this.options.db.path);
+		this.db = new PouchDB(this.options.db.path, {db: require('sqldown')});
 		
 		this.db.info().then(function (info) {
 			console.log(info);
