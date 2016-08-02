@@ -133,6 +133,7 @@ module.exports = new Class({
 				
 				if(response.rows[0].doc.data){
 					result = response.rows[0].doc.data;
+					//console.log(response.rows[0].doc.data);
 				}
 				else{
 					
@@ -142,6 +143,8 @@ module.exports = new Class({
 					
 					result =  response.rows[0].doc;
 				}
+				
+				console.log(response);
 				
 				if(req.params.key){
 					if(req.params.info){
@@ -172,7 +175,7 @@ module.exports = new Class({
 				
 				
 				//console.log(response.rows);
-				console.log(result);
+				
 
 				
 				

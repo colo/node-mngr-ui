@@ -166,11 +166,16 @@ function getURLParameter(name, URI) {
 			}.bind(this));
 			
 			this.list_blk_dev = ko.pureComputed(function(){
+				console.log('list_blk_dev');
+				console.log(this.blockdevices);
+				
 				var arr = [];
 				
 				var colors=["aero", "purple", "red", "green",  "blue"];//class="fa fa-square $color", has to match Chart order
 				
 				Object.each(this.blockdevices, function(dev, name){
+					console.log(dev);
+					
 					var info = {};
 					//info.name = Object.keys(dev)[0];
 					//info.size = dev[info.name].size();
@@ -204,11 +209,13 @@ function getURLParameter(name, URI) {
 			}.bind(this));
 			
 			this.list_mounts = ko.pureComputed(function(){
-				////console.log(this.mounts);
-				////console.log(this.list_blk_dev());
+				console.log('this.mounts');
+				//console.log(this.mounts);
+				//console.log(this.list_blk_dev());
 				
 				var mounts = [];
 				Array.each(this.mounts, function(mount){
+					
 					if(this.options.list_partitions_types.test(mount.type())){
 						var info = {};
 						info.percentage = mount.percentage();
@@ -216,7 +223,7 @@ function getURLParameter(name, URI) {
 						info.fs = mount.fs();
 						info.size = '?';
 						
-						////console.log(info.fs);
+						//console.log(info.fs);
 						
 						Array.each(this.list_blk_dev(), function(dev){
 							var name = Object.keys(dev)[0];
@@ -235,6 +242,7 @@ function getURLParameter(name, URI) {
 					}
 				}.bind(this));
 				
+				console.log(mounts);
 				return mounts;
 				
 			}.bind(this));
@@ -898,7 +906,7 @@ function getURLParameter(name, URI) {
 		
 			this._define_queued_requests();
 			
-			this.start_timed_requests();
+			//this.start_timed_requests();
 			
 			
 		}

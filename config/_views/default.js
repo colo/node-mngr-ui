@@ -181,6 +181,7 @@ db.put(ddoc_status).catch(function (err) {
 	 * 1469675114071
 	 * 1469675132205
 	 * */
+	return {};
 	
 	//return db.query('status/by_path_host', {
 		//startkey: ["os.mounts\ufff0", "localhost.colo\ufff0"],
@@ -191,14 +192,14 @@ db.put(ddoc_status).catch(function (err) {
 		//include_docs: true
   //});
   
-  return db.query('info/by_path_host', {
-		startkey: ["os", "localhost.colo\ufff0"],
-		endkey: ["os", "localhost.colo"],
-		limit: 1,
-		descending: true,
-		inclusive_end: true,
-		//include_docs: true
-  });
+  //return db.query('info/by_path_host', {
+		//startkey: ["os", "localhost.colo\ufff0"],
+		//endkey: ["os", "localhost.colo"],
+		//limit: 1,
+		//descending: true,
+		//inclusive_end: true,
+		////include_docs: true
+  //});
    
 	//return db.query('info/by_date', {
 		//startkey: [1469675114071, "localhost.server", "os"],
