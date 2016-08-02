@@ -71,15 +71,15 @@ module.exports = new Class({
 						version: '',
 					},
 					{
-						path: ':prop/:key/:info',
+						path: ':module/:property/:info',
 						callbacks: ['get'],
 					},
 					{
-						path: ':prop/:key',
+						path: ':module/:property',
 						callbacks: ['get'],
 					},
 					{
-						path: ':prop',
+						path: ':module',
 						callbacks: ['get'],
 					},
 					{
@@ -98,14 +98,18 @@ module.exports = new Class({
 		console.log(req.query);
 		
 		var doc_type = req.query.type || 'info';
+		var range = req.query.range || null;
 		
+		var module = req.params.module || null; 
+		var property = req.params.property || null;
+		var info = req.params.info || null;
 			
 		var is_os_func = false;
 		
-		if(req.params.prop){
+		if(module){
 			try{
 				Object.each(os, function(item, key){
-					if(req.params.prop == key){
+					if(module == key){
 						is_os_func = true;
 						throw new Error('Found');
 					}
@@ -116,21 +120,57 @@ module.exports = new Class({
 			}
 		}
 		
-		if(!is_os_func && req.params.prop){
+		var query = {
+			descending: true,
+			inclusive_end: true,
+			include_docs: true
+		};
+		
+		var start_path = '';
+		var end_path = '';
+		
+		var startkey = [];
+		var endkey = [];
+		
+		if(is_os_func || !module){
+			end_path = "os";
+			start_path = end_path;
+		}
+		else{
+			end_path = "os."+module;
+			start_path = end_path+"\ufff0";
+		}
+		
+		startkey.push(start_path);
+		startkey.push("localhost.colo\ufff0");
+		
+		endkey.push(end_path);
+		endkey.push("localhost.colo");
+		
+		if(range){
+			console.log(range);
+			startkey.push(range['end'].toInt());
+			endkey.push(range['start'].toInt());
+		}
+		else{
+			query['limit'] = 1;
+		}
+		
+		query['startkey'] = startkey;
+		query['endkey'] = endkey;
+		
+		console.log(query);
+		
+		this.db.query(doc_type+'/by_path_host', query)
+		.then(function (response) {
+			console.log(response);
 			
+			var result = null;
 			
-			//res.json({});
-			this.db.query(doc_type+'/by_path_host', {
-				startkey: ["os."+req.params.prop+"\ufff0", "localhost.colo\ufff0"],
-				endkey: ["os."+req.params.prop, "localhost.colo"],
-				limit: 1,
-				descending: true,
-				inclusive_end: true,
-				include_docs: true
-			})
-			.then(function (response) {
-				var result = null;
-				
+			if(response.rows.length == 0){
+				res.status(404).json({});
+			}
+			else{
 				if(response.rows[0].doc.data){
 					result = response.rows[0].doc.data;
 					//console.log(response.rows[0].doc.data);
@@ -144,115 +184,47 @@ module.exports = new Class({
 					result =  response.rows[0].doc;
 				}
 				
-				console.log(response);
 				
-				if(req.params.key){
-					if(req.params.info){
-						if(result[req.params.key][req.params.info]){
-							res.json(result[req.params.key][req.params.info]);
-						}
-						else{
-							res.status(500).json({error: 'No ['+req.params.info+'] at key ['+req.params.key+'] on property '+req.params.prop});
-						}
-					}
-					else if(result[req.params.key]){
-						res.json(result[req.params.key]);
+				
+				if(module){
+					if(is_os_func){
+						res.json(result[module]);
 					}
 					else{
-						res.status(500).json({error: 'Bad key ['+req.params.key+'] on property '+req.params.prop});
+						if(property){
+							if(info){
+								if(result[property][info]){
+									res.json(result[property][info]);
+								}
+								else{
+									res.status(500).json({error: 'No ['+info+'] at property ['+property+'] on module '+module});
+								}
+							}
+							else if(result[property]){
+								res.json(result[property]);
+							}
+							else{
+								res.status(500).json({error: 'Bad property ['+property+'] on module '+module});
+							}
+						}
+						else{
+							res.json(result);
+						}
+						
 					}
 				}
 				else{
-					//if(response.rows[0].doc[req.params.prop]){
-						//res.json(response.rows[0].doc[req.params.prop]);
-					//}
-					//else{
-						//res.status(500).json({error: 'Bad property '+req.params.prop});
-					//}
 					res.json(result);
 				}
 				
-				
-				
-				//console.log(response.rows);
-				
-
-				
-				
-			}).catch(function (err) {
-				console.log('err');
-				console.log(err);
-				res.status(500).json({error: err});
-			});
+			}
 			
-		}
-		else{
-			if(req.params.prop){
-				
-				this.db.query(doc_type+'/by_path_host', {
-					startkey: ["os", "localhost.colo\ufff0"],
-					endkey: ["os", "localhost.colo"],
-					limit: 1,
-					descending: true,
-					inclusive_end: true,
-					include_docs: true
-				})
-				.then(function (response) {
-					//delete response.rows[0].doc.metadata;
-					//delete response.rows[0].doc._id;
-					//delete response.rows[0].doc._rev;
-					
-					if(req.params.key){
-						if(response.rows[0].doc[req.params.prop][req.params.key]){
-							res.json(response.rows[0].doc[req.params.prop][req.params.key]);
-						}
-						else{
-							res.status(500).json({error: 'Bad key ['+req.params.key+'] on property '+req.params.prop});
-						}
-					}
-					else{
-						if(response.rows[0].doc[req.params.prop]){
-							res.json(response.rows[0].doc[req.params.prop]);
-						}
-						else{
-							res.status(500).json({error: 'Bad property '+req.params.prop});
-						}
-					}
-					
-					//console.log(response.rows[0].doc);
-					
-				}).catch(function (err) {
-					console.log('err');
-					console.log(err);
-					res.status(500).json({error: err});
-				});
-			}
-			else{
-				this.db.query(doc_type+'/by_path_host', {
-					startkey: ["os", "localhost.colo\ufff0"],
-					endkey: ["os", "localhost.colo"],
-					limit: 1,
-					descending: true,
-					inclusive_end: true,
-					include_docs: true
-				})
-				.then(function (response) {
-					delete response.rows[0].doc.metadata;
-					delete response.rows[0].doc._id;
-					delete response.rows[0].doc._rev;
-					
-					res.json(response.rows[0].doc);
-					
-					//console.log(response.rows[0].doc);
-					
-				}).catch(function (err) {
-					console.log('err');
-					console.log(err);
-					res.status(500).json({error: err});
-				});
-			}
-		}
-		//res.json({});
+		}).catch(function (err) {
+			console.log('err');
+			console.log(err);
+			res.status(500).json({error: err});
+		});
+		
 	},
   primary_iface: function(req, res, next){
 		res.set('Content-Type', 'application/javascript').jsonp(this.options.networkInterfaces.primary);

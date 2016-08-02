@@ -735,6 +735,25 @@ function getURLParameter(name, URI) {
 				sda_io_percentage.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.floor((Math.random() * 10) + 1)]);
 			}
 			
+			new Request.JSON({
+				url: this.server+'/os/api/cpus?type=status&range[start]='+(now.getTime() - 7200000) +'&range[end]='+now.getTime(),
+				method: 'get',
+				//initialDelay: 1000,
+				//delay: 2000,
+				//limit: 10000,
+				onSuccess: function(cpus){
+					console.log('myRequests.cpus: ');
+					console.log(cpus);
+					//self.model.loadavg(loadavg);
+					//os_model.loadavg.removeAll();
+					//Array.each(res.data, function(item, index){
+						//os_model.loadavg.push(item.toFixed(2));
+					//});
+					
+					//self._update_loadavg_plot_data();
+				}
+			}).send();
+			
 			////console.log(data);
 			this.plot_data.push(cpu);
 			this.plot_data.push(load);
