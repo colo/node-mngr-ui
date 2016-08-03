@@ -99,6 +99,7 @@ module.exports = new Class({
 		
 		var doc_type = req.query.type || 'info';
 		var range = req.query.range || null;
+		var limit = req.query.limit || 1;
 		
 		var module = req.params.module || null; 
 		var property = req.params.property || null;
@@ -153,7 +154,7 @@ module.exports = new Class({
 			endkey.push(range['start'].toInt());
 		}
 		else{
-			query['limit'] = 1;
+			query['limit'] = limit;
 		}
 		
 		query['startkey'] = startkey;
@@ -165,53 +166,68 @@ module.exports = new Class({
 		.then(function (response) {
 			console.log(response);
 			
-			var result = null;
+			
 			
 			if(response.rows.length == 0){
 				res.status(404).json({});
 			}
 			else{
-				if(response.rows[0].doc.data){
-					result = response.rows[0].doc.data;
-					//console.log(response.rows[0].doc.data);
-				}
-				else{
+				var result = [];
+				
+				Array.each(response.rows, function(row){
+					var value = null;
 					
-					delete response.rows[0].doc.metadata;
-					delete response.rows[0].doc._id;
-					delete response.rows[0].doc._rev;
-					
-					result =  response.rows[0].doc;
-				}
-				
-				
-				
-				if(module){
-					if(is_os_func){
-						res.json(result[module]);
+					if(row.doc.data){
+						value = row.doc.data;
+						//console.log(response.rows[0].doc.data);
 					}
 					else{
-						if(property){
-							if(info){
-								if(result[property][info]){
-									res.json(result[property][info]);
-								}
-								else{
-									res.status(500).json({error: 'No ['+info+'] at property ['+property+'] on module '+module});
-								}
-							}
-							else if(result[property]){
-								res.json(result[property]);
-							}
-							else{
-								res.status(500).json({error: 'Bad property ['+property+'] on module '+module});
-							}
+						
+						delete row.doc.metadata;
+						delete row.doc._id;
+						delete row.doc._rev;
+						
+						value = row.doc;
+					}
+					
+					
+					
+					if(module){
+						if(is_os_func){
+							result.push(value[module]);
 						}
 						else{
-							res.json(result);
+							if(property){
+								if(info){
+									if(value[property][info]){
+										result.push(value[property][info]);
+									}
+									else{
+										//res.status(500).json({error: 'No ['+info+'] at property ['+property+'] on module '+module});
+										throw new Error('No ['+info+'] at property ['+property+'] on module '+module);
+									}
+								}
+								else if(value[property]){
+									result.push(value[property]);
+								}
+								else{
+									//res.status(500).json({error: 'Bad property ['+property+'] on module '+module});
+									throw new Error('Bad property ['+property+'] on module '+module);
+								}
+							}
+							else{
+								result.push(value);
+							}
+							
 						}
-						
 					}
+					else{
+						result.push(value);
+					}
+				});
+				
+				if(result.length == 1){
+					res.json(result[0]);
 				}
 				else{
 					res.json(result);
@@ -222,7 +238,7 @@ module.exports = new Class({
 		}).catch(function (err) {
 			console.log('err');
 			console.log(err);
-			res.status(500).json({error: err});
+			res.status(500).json({error: err.message});
 		});
 		
 	},

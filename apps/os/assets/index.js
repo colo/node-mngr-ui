@@ -48,7 +48,73 @@ function getURLParameter(name, URI) {
 			current_time_base: 'D',
 			list_partitions_types: /ext|xfs/
 		},
-		
+		cpu_usage_percentage: function(cpus){
+			cpus = cpus || this.cpus();
+			//console.log('user_friendly_cpu_usage');
+			
+			var old_cpu_usage = this.cpu_usage;
+			this.cpu_usage = {
+				user: 0,
+				nice: 0,
+				sys: 0,
+				idle: 0
+			};
+			
+			Array.each(cpus, function(cpu){
+				
+				this.cpu_usage.user += cpu.times.user;
+				this.cpu_usage.nice += cpu.times.nice;
+				this.cpu_usage.sys += cpu.times.sys;
+				this.cpu_usage.idle += cpu.times.idle;
+
+			}.bind(this));
+			
+			var new_info = {
+				user: 0,
+				nice: 0,
+				sys: 0,
+				idle: 0
+			};
+
+			new_info.user = this.cpu_usage.user - old_cpu_usage.user;
+			new_info.nice = this.cpu_usage.nice - old_cpu_usage.nice;
+			new_info.sys = this.cpu_usage.sys - old_cpu_usage.sys;
+			new_info.idle = this.cpu_usage.idle - old_cpu_usage.idle;
+			
+			//console.log(new_info);
+			
+			var total_usage = 0;
+			var total_time = 0;
+			Object.each(new_info, function(value, key){
+				if(key != 'idle'){
+					total_usage += value;
+				}
+				total_time += value;
+			});
+			
+			
+			var percentage = {
+				user: 0,
+				nice: 0,
+				sys: 0,
+				idle: 0,
+				usage: 0
+			};
+			
+			percentage = {
+				user: ((new_info.user * 100) / total_time).toFixed(2),
+				nice: ((new_info.nice * 100) / total_time).toFixed(2),
+				sys: ((new_info.sys * 100) / total_time).toFixed(2),
+				idle: ((new_info.idle * 100) / total_time).toFixed(2),
+				usage: ((total_usage * 100) / total_time).toFixed(2)
+			};
+			
+			//var total_time = total_usage + new_info.idle;
+			
+			
+			//console.log(percentage);
+			return percentage;
+		},
 		initialize: function(options){
 			
 			this.setOptions(options);
@@ -64,72 +130,7 @@ function getURLParameter(name, URI) {
 				return this.cpus()[0].model+' @ '+this.cpus()[0].speed;
 			}.bind(this));
 			
-			this.user_friendly_cpu_usage = ko.pureComputed(function(){
-				//console.log('user_friendly_cpu_usage');
-				
-				var old_cpu_usage = this.cpu_usage;
-				this.cpu_usage = {
-					user: 0,
-					nice: 0,
-					sys: 0,
-					idle: 0
-				};
-				
-				Array.each(this.cpus(), function(cpu){
-					
-					this.cpu_usage.user += cpu.times.user;
-					this.cpu_usage.nice += cpu.times.nice;
-					this.cpu_usage.sys += cpu.times.sys;
-					this.cpu_usage.idle += cpu.times.idle;
-
-				}.bind(this));
-				
-				var new_info = {
-					user: 0,
-					nice: 0,
-					sys: 0,
-					idle: 0
-				};
-
-				new_info.user = this.cpu_usage.user - old_cpu_usage.user;
-				new_info.nice = this.cpu_usage.nice - old_cpu_usage.nice;
-				new_info.sys = this.cpu_usage.sys - old_cpu_usage.sys;
-				new_info.idle = this.cpu_usage.idle - old_cpu_usage.idle;
-				
-				//console.log(new_info);
-				
-				var total_usage = 0;
-				var total_time = 0;
-				Object.each(new_info, function(value, key){
-					if(key != 'idle'){
-						total_usage += value;
-					}
-					total_time += value;
-				});
-				
-				
-				var percentage = {
-					user: 0,
-					nice: 0,
-					sys: 0,
-					idle: 0,
-					usage: 0
-				};
-				
-				percentage = {
-					user: ((new_info.user * 100) / total_time).toFixed(2),
-					nice: ((new_info.nice * 100) / total_time).toFixed(2),
-					sys: ((new_info.sys * 100) / total_time).toFixed(2),
-					idle: ((new_info.idle * 100) / total_time).toFixed(2),
-					usage: ((total_usage * 100) / total_time).toFixed(2)
-				};
-				
-				//var total_time = total_usage + new_info.idle;
-				
-				
-				
-				return percentage;
-			}.bind(this));
+			this.user_friendly_cpu_usage = ko.pureComputed(this.cpu_usage_percentage.bind(this));
 			
 			this.user_friendly_uptime = ko.pureComputed(function(){
 				return (this.uptime() / this[this.options.current_time_base]).toFixed(0);
@@ -735,15 +736,22 @@ function getURLParameter(name, URI) {
 				sda_io_percentage.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.floor((Math.random() * 10) + 1)]);
 			}
 			
+			var self = this;
+			//console.log(self.model);
+			
 			new Request.JSON({
 				url: this.server+'/os/api/cpus?type=status&range[start]='+(now.getTime() - 7200000) +'&range[end]='+now.getTime(),
 				method: 'get',
 				//initialDelay: 1000,
 				//delay: 2000,
 				//limit: 10000,
-				onSuccess: function(cpus){
+				onSuccess: function(docs){
 					console.log('myRequests.cpus: ');
-					console.log(cpus);
+					//console.log(docs);
+					Array.each(docs, function(cpus){
+							console.log(self.model.cpu_usage_percentage(cpus)['usage'].toFloat());
+					});
+					
 					//self.model.loadavg(loadavg);
 					//os_model.loadavg.removeAll();
 					//Array.each(res.data, function(item, index){

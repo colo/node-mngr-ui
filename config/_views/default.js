@@ -163,7 +163,7 @@ var ddoc_status = {
   }
 }
 // save the design doc
-db.put(ddoc).catch(function (err) {
+db.put(ddoc_status).catch(function (err) {
   if (err.name !== 'conflict') {
     throw err;
   }
