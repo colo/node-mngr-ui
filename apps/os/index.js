@@ -160,11 +160,11 @@ module.exports = new Class({
 		query['startkey'] = startkey;
 		query['endkey'] = endkey;
 		
-		console.log(query);
+		//console.log(query);
 		
 		this.db.query(doc_type+'/by_path_host', query)
 		.then(function (response) {
-			console.log(response);
+			//console.log(response);
 			
 			
 			
@@ -174,33 +174,39 @@ module.exports = new Class({
 			else{
 				var result = [];
 				
-				Array.each(response.rows, function(row){
+				Array.each(response.rows, function(row, index){
 					var value = null;
 					
 					if(row.doc.data){
 						value = row.doc.data;
-						//console.log(response.rows[0].doc.data);
+						////console.log(response.rows[0].doc.data);
 					}
 					else{
 						
-						delete row.doc.metadata;
-						delete row.doc._id;
-						delete row.doc._rev;
+						//delete row.doc.metadata;
+						//delete row.doc._id;
+						//delete row.doc._rev;
 						
-						value = row.doc;
+						value = Object.clone(row.doc);
 					}
 					
-					
+					delete value.metadata;
+					delete value._id;
+					delete value._rev;
+						
 					
 					if(module){
 						if(is_os_func){
-							result.push(value[module]);
+							//result.push(value[module]);
+							result[index] = value[module];
+							
 						}
 						else{
 							if(property){
 								if(info){
 									if(value[property][info]){
-										result.push(value[property][info]);
+										//result.push(value[property][info]);
+										result[index] = value[property][info];
 									}
 									else{
 										//res.status(500).json({error: 'No ['+info+'] at property ['+property+'] on module '+module});
@@ -208,7 +214,8 @@ module.exports = new Class({
 									}
 								}
 								else if(value[property]){
-									result.push(value[property]);
+									//result.push(value[property]);
+									result[index] = value[property];
 								}
 								else{
 									//res.status(500).json({error: 'Bad property ['+property+'] on module '+module});
@@ -216,15 +223,30 @@ module.exports = new Class({
 								}
 							}
 							else{
-								result.push(value);
+								//result.push(value);
+								result[index] = value;
 							}
 							
 						}
 					}
 					else{
-						result.push(value);
+						//result.push(value);
+						result[index] = value;
 					}
+					
+					//if(typeOf(result[index]) != 'object'){
+					var data = result[index];
+					delete result[index];
+					result[index] = {};
+					result[index]['data'] = data;
+					//}
+					
+					result[index]['_rev'] = row.doc._rev;
+					result[index]['_id'] = row.doc._id;
+					result[index]['metadata'] = row.doc.metadata;
 				});
+				
+				console.log(result);
 				
 				if(result.length == 1){
 					res.json(result[0]);
@@ -238,7 +260,7 @@ module.exports = new Class({
 		}).catch(function (err) {
 			console.log('err');
 			console.log(err);
-			res.status(500).json({error: err.message});
+			res.status(err.status).json({error: err.message});
 		});
 		
 	},

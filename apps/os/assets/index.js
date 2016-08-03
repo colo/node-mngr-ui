@@ -76,10 +76,19 @@ function getURLParameter(name, URI) {
 				idle: 0
 			};
 
-			new_info.user = this.cpu_usage.user - old_cpu_usage.user;
-			new_info.nice = this.cpu_usage.nice - old_cpu_usage.nice;
-			new_info.sys = this.cpu_usage.sys - old_cpu_usage.sys;
-			new_info.idle = this.cpu_usage.idle - old_cpu_usage.idle;
+			var user = this.cpu_usage.user - old_cpu_usage.user;
+			var nice = this.cpu_usage.nice - old_cpu_usage.nice;
+			var sys = this.cpu_usage.sys - old_cpu_usage.sys;
+			var idle = this.cpu_usage.idle - old_cpu_usage.idle;
+			
+			/**
+			 * may result on 0 if there are no new docs on database and the data we get if always from last doc
+			 * 
+			* */
+			new_info.user = (user <= 0) ? old_cpu_usage.user : user;
+			new_info.nice = (nice <= 0) ? old_cpu_usage.nice : nice;
+			new_info.sys =  (sys <= 0)  ? old_cpu_usage.sys : sys;
+			new_info.idle = (idle <= 0) ? old_cpu_usage.idle : idle;
 			
 			//console.log(new_info);
 			
@@ -137,7 +146,8 @@ function getURLParameter(name, URI) {
 			}.bind(this));
 			
 			this.primary_iface_out = ko.pureComputed(function(){
-				//////console.log(this.networkInterfaces[this.primary_iface()]());
+				console.log('this.networkInterfaces[this.primary_iface()]()');
+				console.log(this.primary_iface());
 				return (this.networkInterfaces[this.primary_iface()]().transmited.bytes / this[this.options.current_size_base]).toFixed(2);
 			}.bind(this));
 			
@@ -155,8 +165,8 @@ function getURLParameter(name, URI) {
 			
 			this.user_friendly_loadavg = ko.pureComputed(function(){
 				var arr = [];
-				//////console.log('user_friendly_loadavg');
-				//////console.log(this.loadavg());
+				console.log('user_friendly_loadavg');
+				console.log(this.loadavg());
 				Array.each(this.loadavg(), function(item, index){
 					arr[index] = item.toFixed(2);
 				}.bind(this));
@@ -443,6 +453,15 @@ function getURLParameter(name, URI) {
 		},
 		_apply_data_model: function(server_data, id){
 			
+			delete server_data._id;
+			delete server_data._rev;
+			delete server_data.metadata;
+			
+			if(server_data.data)
+				server_data = server_data.data;
+			
+			
+			
 			//var obj = ko.observable({});
 			var obj = {};
 			
@@ -542,9 +561,9 @@ function getURLParameter(name, URI) {
 					delay: 2000,
 					limit: 10000,
 					onSuccess: function(loadavg){
-						////console.log('myRequests.loadavg: ');
-						////console.log(loadavg);
-						self.model.loadavg(loadavg);
+						console.log('myRequests.loadavg: ');
+						console.log(loadavg);
+						self.model.loadavg(loadavg.data);
 						//os_model.loadavg.removeAll();
 						//Array.each(res.data, function(item, index){
 							//os_model.loadavg.push(item.toFixed(2));
@@ -562,7 +581,7 @@ function getURLParameter(name, URI) {
 					onSuccess: function(freemem){
 						////console.log('myRequests.freemem: ');
 						////console.log(freemem);
-						self.model.freemem(freemem);
+						self.model.freemem(freemem.data);
 						
 						self._update_usedmem_plot_data();
 					}
@@ -574,9 +593,9 @@ function getURLParameter(name, URI) {
 					delay: 2000,
 					limit: 10000,
 					onSuccess: function(primary_iface){
-						////console.log('myRequests.'+self.model.primary_iface());
-						////console.log(primary_iface);
-						self.model.networkInterfaces[self.model.primary_iface()](primary_iface);
+						//console.log('myRequests.'+self.model.primary_iface());
+						//console.log(primary_iface);
+						self.model.networkInterfaces[self.model.primary_iface()](primary_iface.data[self.model.primary_iface()]);
 					}
 				}),
 				uptime: new Request.JSON({
@@ -588,7 +607,7 @@ function getURLParameter(name, URI) {
 					onSuccess: function(uptime){
 						////console.log('myRequests.uptime: ');
 						////console.log(uptime);
-						self.model.uptime(uptime);
+						self.model.uptime(uptime.data);
 					}
 				}),
 				cpus: new Request.JSON({
@@ -600,7 +619,7 @@ function getURLParameter(name, URI) {
 					onSuccess: function(cpus){
 						console.log('myRequests.cpus: ');
 						console.log(cpus);
-						self.model.cpus(cpus);
+						self.model.cpus(cpus.data);
 						
 						self._update_cpu_plot_data();
 					}
@@ -620,7 +639,7 @@ function getURLParameter(name, URI) {
 						 * */
 						self.model.blockdevices.sda._prev_stats = self.model.blockdevices.sda.stats();
 						
-						self.model.blockdevices.sda.stats(stats);
+						self.model.blockdevices.sda.stats(stats.data);
 						//console.log(self.model.blockdevices.sda.stats());
 						self._update_sda_stats_plot_data();
 					}
@@ -727,7 +746,7 @@ function getURLParameter(name, URI) {
 			for(var i = 0; i <= 59; i++){
 				//data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - i).getTime(), Math.floor((Math.random() * 100) + 1)]);
 				
-				cpu.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.floor((Math.random() * 10) + 1)]);
+				//cpu.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.floor((Math.random() * 10) + 1)]);
 				
 				load.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.random().toFixed(2)]);
 				
@@ -739,28 +758,35 @@ function getURLParameter(name, URI) {
 			var self = this;
 			//console.log(self.model);
 			
-			new Request.JSON({
-				url: this.server+'/os/api/cpus?type=status&range[start]='+(now.getTime() - 7200000) +'&range[end]='+now.getTime(),
-				method: 'get',
-				//initialDelay: 1000,
-				//delay: 2000,
-				//limit: 10000,
-				onSuccess: function(docs){
-					console.log('myRequests.cpus: ');
-					//console.log(docs);
-					Array.each(docs, function(cpus){
-							console.log(self.model.cpu_usage_percentage(cpus)['usage'].toFloat());
-					});
-					
-					//self.model.loadavg(loadavg);
-					//os_model.loadavg.removeAll();
-					//Array.each(res.data, function(item, index){
-						//os_model.loadavg.push(item.toFixed(2));
+			//new Request.JSON({
+				//url: this.server+'/os/api/cpus?type=status&range[start]='+(now.getTime() - 120000) +'&range[end]='+(now.getTime()),
+				//method: 'get',
+				////initialDelay: 1000,
+				////delay: 2000,
+				////limit: 10000,
+				//onSuccess: function(docs){
+					//var cpu = [];
+					//console.log('myRequests.cpus: ');
+					////console.log(docs);
+					//Array.each(docs, function(doc){
+						//var usage = self.model.cpu_usage_percentage(doc.data)['usage'].toFloat();
+						
+						//console.log(doc.metadata.timestamp);
+						//console.log(usage);
+						
+						//cpu.push([doc.metadata.timestamp, usage]);
 					//});
 					
-					//self._update_loadavg_plot_data();
-				}
-			}).send();
+					//self.plot_data[0] = cpu;
+					////self.model.loadavg(loadavg);
+					////os_model.loadavg.removeAll();
+					////Array.each(res.data, function(item, index){
+						////os_model.loadavg.push(item.toFixed(2));
+					////});
+					
+					////self._update_loadavg_plot_data();
+				//}
+			//}).send();
 			
 			////console.log(data);
 			this.plot_data.push(cpu);
@@ -779,7 +805,7 @@ function getURLParameter(name, URI) {
 						//raw_data
 						this.plot_data
 				, this.options.timed_plot);
-			}.periodical(1000, this);
+			}.periodical(5000, this);
 			
 		},
 		_update_cpu_plot_data: function(){
@@ -794,7 +820,9 @@ function getURLParameter(name, URI) {
 				
 				raw_data = data[0].data;
 				if(raw_data.length >= 60){
-					raw_data.shift();
+					for(var i = 0; i < (raw_data.length - 60); i++){
+						raw_data.shift();
+					}
 				}
 				
 				raw_data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()).getTime(), this.model.user_friendly_cpu_usage()['usage'].toFloat() ]);
@@ -817,7 +845,9 @@ function getURLParameter(name, URI) {
 				
 				raw_data = data[1].data;//index 1 = load
 				if(raw_data.length >= 60){
-					raw_data.shift();
+					for(var i = 0; i < (raw_data.length - 60); i++){
+						raw_data.shift();
+					}
 				}
 				
 				raw_data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()).getTime(), this.model.user_friendly_loadavg()[0].toFloat() ]);
@@ -842,7 +872,9 @@ function getURLParameter(name, URI) {
 				
 				raw_data = data[2].data;//index 2 = used_mem
 				if(raw_data.length >= 60){
-					raw_data.shift();
+					for(var i = 0; i < (raw_data.length - 60); i++){
+						raw_data.shift();
+					}
 				}
 				
 				raw_data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()).getTime(), used_mem_percentage ]);
@@ -892,7 +924,7 @@ function getURLParameter(name, URI) {
 				
 				raw_data = data[3].data;//index 3 = sda_stats
 				if(raw_data.length >= 60){
-					for(var i = (raw_data.length - 60); i < 60; i++){
+					for(var i = 0; i < (raw_data.length - 60); i++){
 						raw_data.shift();
 					}
 				}
@@ -933,7 +965,7 @@ function getURLParameter(name, URI) {
 		
 			this._define_queued_requests();
 			
-			//this.start_timed_requests();
+			this.start_timed_requests();
 			
 			
 		}
