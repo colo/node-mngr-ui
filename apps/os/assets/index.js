@@ -97,10 +97,15 @@ function getURLParameter(name, URI) {
 					
 					requests: {
 						periodical: {
-							method: 'get',
-							initialDelay: 5000,
-							delay: 5000,
-							limit: 10000,
+							_defaults: {
+								url: '?type=status&limit=1&range[start]='+(Date.now() - 10000) +'&range[end]='+(Date.now() - 5000),
+							},
+							conf: {
+								method: 'get',
+								initialDelay: 5000,
+								delay: 5000,
+								limit: 10000,
+							}
 						},
 						update_model: ['/os/api', '/os/api/blockdevices', '/os/api/mounts']
 					}
@@ -285,33 +290,46 @@ function getURLParameter(name, URI) {
 					
 					return obj;
 				},
+				
+				requests: {
+					timed_request: {
+						//_defaults: {
+							//url: '?type=status&limit=1&range[start]='+(Date.now() - 10000) +'&range[end]='+(Date.now() - 5000),
+						//},
+						loadavg : {
+							url: '/os/api/loadavg'
+						},
+						freemem: {
+							url: '/os/api/freemem'
+						},
+						cpus: {
+							url: '/os/api/cpus'
+						}
+					}
+				}
 				_define_timed_requests: function(){
 					var self = this;
 					this.timed_request = {
-						loadavg: new Request.JSON(Object.merge(this.options.requests.periodical, {
+						/*loadavg: new Request.JSON(Object.merge(this.options.requests.periodical, {
 							url: this.server+'/os/api/loadavg?type=status&limit=1&range[start]='+(Date.now() - 10000) +'&range[end]='+(Date.now() - 5000),
 							onSuccess: function(loadavg){
 								console.log('myRequests.loadavg: ');
 								console.log(loadavg);
+
 								self.model.loadavg(loadavg.data);
-								//os_model.loadavg.removeAll();
-								//Array.each(res.data, function(item, index){
-									//os_model.loadavg.push(item.toFixed(2));
-								//});
 								
 								self._update_loadavg_plot_data();
 							}
-						})),
+						})),*/
+						/*
 						freemem: new Request.JSON(Object.merge(this.options.requests.periodical, {
 							url: this.server+'/os/api/freemem?type=status&limit=1&range[start]='+(Date.now() - 10000) +'&range[end]='+(Date.now() - 5000),
 							onSuccess: function(freemem){
-								////console.log('myRequests.freemem: ');
-								////console.log(freemem);
 								self.model.freemem(freemem.data);
 								
 								self._update_usedmem_plot_data();
 							}
-						})),
+						})),*/
 						primary_iface: new Request.JSON(Object.merge(this.options.requests.periodical, {
 							url: this.server+'/os/api/networkInterfaces/'+this.primary_iface+'?type=status&limit=1&range[start]='+(Date.now() - 10000) +'&range[end]='+(Date.now() - 5000),
 							onSuccess: function(primary_iface){
@@ -331,16 +349,17 @@ function getURLParameter(name, URI) {
 								self.model.uptime(uptime.data);
 							}
 						})),
+						/*
 						cpus: new Request.JSON(Object.merge(this.options.requests.periodical, {
 							url: this.server+'/os/api/cpus?type=status&limit=1&range[start]='+(Date.now() - 10000) +'&range[end]='+(Date.now() - 5000),
 							onSuccess: function(cpus){
-								console.log('myRequests.cpus: ');
-								console.log(cpus);
+								//console.log('myRequests.cpus: ');
+								//console.log(cpus);
 								self.model.cpus(cpus.data);
 								
 								self._update_cpu_plot_data();
 							}
-						})),
+						})),*/
 						sda_stats: new Request.JSON(Object.merge(this.options.requests.periodical, {
 							url: this.server+'/os/api/blockdevices/sda/stats?type=status&limit=1&range[start]='+(Date.now() - 10000) +'&range[end]='+(Date.now() - 5000),
 							onSuccess: function(stats){
