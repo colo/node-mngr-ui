@@ -152,15 +152,19 @@ module.exports = new Class({
 			console.log(range);
 			startkey.push(range['end'].toInt());
 			endkey.push(range['start'].toInt());
+			
+			if(req.query.limit){//we may want only a limited number of docs on range
+				query['limit'] = req.query.limit;
+			}
 		}
-		else{
+		else{//put limit '1' if no range
 			query['limit'] = limit;
 		}
 		
 		query['startkey'] = startkey;
 		query['endkey'] = endkey;
 		
-		//console.log(query);
+		console.log(query);
 		
 		this.db.query(doc_type+'/by_path_host', query)
 		.then(function (response) {

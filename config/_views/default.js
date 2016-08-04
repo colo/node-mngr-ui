@@ -163,7 +163,7 @@ var ddoc_status = {
   }
 }
 // save the design doc
-db.put(ddoc).catch(function (err) {
+db.put(ddoc_status).catch(function (err) {
   if (err.name !== 'conflict') {
     throw err;
   }
@@ -184,12 +184,12 @@ db.put(ddoc).catch(function (err) {
 	//return {};
 	
 	return db.query('status/by_path_host', {
-		startkey: ["os.blockdevices", "localhost.colo\ufff0"],
-		endkey: ["os.blockdevices", "localhost.colo"],
-		//limit: 1,
+		startkey: ["os.blockdevices", "localhost.colo\ufff0", 1470277762363],
+		endkey: ["os.blockdevices", "localhost.colo", 1470277760000],
+		limit: 1,
 		descending: true,
 		inclusive_end: true,
-		include_docs: true
+		//include_docs: true
 	});
   
   //return db.query('info/by_path_host', {

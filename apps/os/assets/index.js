@@ -331,6 +331,15 @@ function getURLParameter(name, URI) {
 					tickColor: "rgba(51, 51, 51, 0.06)",
 				},
 				tooltip: false
+			},
+			
+			requests: {
+				periodical: {
+					method: 'get',
+					initialDelay: 5000,
+					delay: 5000,
+					limit: 10000,
+				}
 			}
 		},
 		
@@ -554,12 +563,8 @@ function getURLParameter(name, URI) {
 		_define_timed_requests: function(){
 			var self = this;
 			this.timed_request = {
-				loadavg: new Request.JSON({
-					url: this.server+'/os/api/loadavg?type=status',
-					method: 'get',
-					initialDelay: 1000,
-					delay: 2000,
-					limit: 10000,
+				loadavg: new Request.JSON(Object.merge(this.options.requests.periodical, {
+					url: this.server+'/os/api/loadavg?type=status&limit=1&range[start]='+(Date.now() - 10000) +'&range[end]='+(Date.now() - 5000),
 					onSuccess: function(loadavg){
 						console.log('myRequests.loadavg: ');
 						console.log(loadavg);
@@ -571,13 +576,9 @@ function getURLParameter(name, URI) {
 						
 						self._update_loadavg_plot_data();
 					}
-				}),
-				freemem: new Request.JSON({
-					url: this.server+'/os/api/freemem?type=status',
-					method: 'get',
-					initialDelay: 1000,
-					delay: 2000,
-					limit: 10000,
+				})),
+				freemem: new Request.JSON(Object.merge(this.options.requests.periodical, {
+					url: this.server+'/os/api/freemem?type=status&limit=1&range[start]='+(Date.now() - 10000) +'&range[end]='+(Date.now() - 5000),
 					onSuccess: function(freemem){
 						////console.log('myRequests.freemem: ');
 						////console.log(freemem);
@@ -585,37 +586,28 @@ function getURLParameter(name, URI) {
 						
 						self._update_usedmem_plot_data();
 					}
-				}),
-				primary_iface: new Request.JSON({
-					url: this.server+'/os/api/networkInterfaces/'+this.primary_iface+'?type=status',
-					method: 'get',
-					initialDelay: 1000,
-					delay: 2000,
-					limit: 10000,
+				})),
+				primary_iface: new Request.JSON(Object.merge(this.options.requests.periodical, {
+					url: this.server+'/os/api/networkInterfaces/'+this.primary_iface+'?type=status&limit=1&range[start]='+(Date.now() - 10000) +'&range[end]='+(Date.now() - 5000),
 					onSuccess: function(primary_iface){
 						//console.log('myRequests.'+self.model.primary_iface());
 						//console.log(primary_iface);
 						self.model.networkInterfaces[self.model.primary_iface()](primary_iface.data[self.model.primary_iface()]);
 					}
-				}),
-				uptime: new Request.JSON({
-					url: this.server+'/os/api/uptime?type=status',
-					method: 'get',
+				})),
+				uptime: new Request.JSON(Object.merge(this.options.requests.periodical, {
+					url: this.server+'/os/api/uptime?type=status&limit=1&range[start]='+(Date.now() - 10000) +'&range[end]='+(Date.now() - 5000),
 					initialDelay: 60000,
-					delay: 120000,
+					delay: 110000,
 					limit: 300000,
 					onSuccess: function(uptime){
 						////console.log('myRequests.uptime: ');
 						////console.log(uptime);
 						self.model.uptime(uptime.data);
 					}
-				}),
-				cpus: new Request.JSON({
-					url: this.server+'/os/api/cpus?type=status',
-					method: 'get',
-					initialDelay: 1000,
-					delay: 2000,
-					limit: 10000,
+				})),
+				cpus: new Request.JSON(Object.merge(this.options.requests.periodical, {
+					url: this.server+'/os/api/cpus?type=status&limit=1&range[start]='+(Date.now() - 10000) +'&range[end]='+(Date.now() - 5000),
 					onSuccess: function(cpus){
 						console.log('myRequests.cpus: ');
 						console.log(cpus);
@@ -623,13 +615,9 @@ function getURLParameter(name, URI) {
 						
 						self._update_cpu_plot_data();
 					}
-				}),
-				sda_stats: new Request.JSON({
-					url: this.server+'/os/api/blockdevices/sda/stats?type=status',
-					method: 'get',
-					initialDelay: 1000,
-					delay: 2000,
-					limit: 10000,
+				})),
+				sda_stats: new Request.JSON(Object.merge(this.options.requests.periodical, {
+					url: this.server+'/os/api/blockdevices/sda/stats?type=status&limit=1&range[start]='+(Date.now() - 10000) +'&range[end]='+(Date.now() - 5000),
 					onSuccess: function(stats){
 						//console.log('myRequests.cpus: ');
 						//console.log(cpus);
@@ -643,7 +631,7 @@ function getURLParameter(name, URI) {
 						//console.log(self.model.blockdevices.sda.stats());
 						self._update_sda_stats_plot_data();
 					}
-				})
+				}))
 			};
 
 		}.protect(),
