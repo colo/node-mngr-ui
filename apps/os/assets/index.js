@@ -24,6 +24,9 @@ function getURLParameter(name, URI) {
 			var OSPage = new Class({
 				Extends: Page,
 				
+				ON_PERIODICAL_REQUEST_TIMEOUT: 'onPeriodicalRequestTimeout',
+				ON_PERIODICAL_REQUEST_FAILURE: 'onPeriodicalRequestFailure',
+				
 				server: null,
 				timed_request: {},
 				
@@ -32,6 +35,7 @@ function getURLParameter(name, URI) {
 				plot_data_order: ['cpus', 'loadavg', 'freemem', 'sda_stats'],
 				
 				timed_request: {},
+				timed_request_queue: null,
 				
 				options: {
 					assets: {
@@ -102,10 +106,11 @@ function getURLParameter(name, URI) {
 						periodical: {
 							_defaults: {
 								url: '?type=status&limit=1&range[start]=%d&range[end]=%d',
+								//url: '?type=status&limit=1',
 								method: 'get',
-								initialDelay: 1000,
+								initialDelay: 5000,
 								delay: 5000,
-								limit: 10000,
+								limit: 15000,
 								noCache: true
 							},
 							
@@ -157,6 +162,16 @@ function getURLParameter(name, URI) {
 					
 					root_page.addEvent('beforeHide_os', this.stop_timed_requests.bind(this));
 					root_page.addEvent('afterShow_os', this.start_timed_requests.bind(this));
+					
+					//var stop_start_periodical_requests = function(){
+						//console.log('stop_start_periodical_requests');
+						
+						//this.stop_timed_requests();
+						//this.start_timed_requests();
+					//};
+					
+					//this.addEvent(this.ON_PERIODICAL_REQUEST_TIMEOUT, stop_start_periodical_requests.bind(this));
+					//this.addEvent(this.ON_PERIODICAL_REQUEST_FAILURE, stop_start_periodical_requests.bind(this));
 					
 					this.addEvent(this.JSONP_LOADED+'_update_server', function(data){
 						this.server = data;
@@ -350,21 +365,29 @@ function getURLParameter(name, URI) {
 										self.model[key](doc.data);
 										
 										self._update_plot_data(key);
+									},
+									onFailure: function(){
+										console.log('onFailure');
+										self.fireEvent(self.ON_PERIODICAL_REQUEST_FAILURE);
+									},
+									onTimeout: function(){
+										console.log('onTimeout');
+										self.fireEvent(self.ON_PERIODICAL_REQUEST_TIMEOUT);
 									}
 								},
 								this.options.requests.periodical._defaults
 							);
 							
-							default_req.url = sprintf(default_req.url, Date.now() - 10000, Date.now() - 5000);
+							default_req.url = sprintf(default_req.url, - 10000, - 5000);
 					
 							console.log('KEY '+key);
 							
 							req.url = this.server + req.url + default_req.url;
 							
-							//console.log(Object.merge(
-								//Object.clone(default_req),
-								//req
-							//));
+							console.log(Object.merge(
+								Object.clone(default_req),
+								req
+							));
 								
 							this.timed_request[key] = new Request.JSON(
 								Object.merge(
@@ -382,15 +405,22 @@ function getURLParameter(name, URI) {
 					var requests = {};
 					requests = Object.merge(requests, this.timed_request);
 					
-					var myQueue = new Request.Queue({
+					this.timed_request_queue = new Request.Queue({
 						requests: this.timed_request,
+						stopOnFailure: false,
 						onComplete: function(name, instance, text, xml){
 								//////console.log('queue: ' + name + ' response: ', text, xml);
 						}
 					});
 				}.protect(),
 				start_timed_requests: function(){
-					Object.each(this.timed_request, function(req){
+					console.log('start_timed_requests');
+					
+					//this.timed_request_queue.resume();
+					
+					Object.each(this.timed_request, function(req, key){
+						console.log('starting.... '+key);
+						
 						req.startTimer();
 					});
 				},
@@ -604,7 +634,7 @@ function getURLParameter(name, URI) {
 						switch (type){
 							case 'sda_stats':
 								for(var i = 0; i < data.length; i++ ){
-									raw_data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()+ i).getTime(), data[i] ]);
+									raw_data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()).getTime(), data[i] ]);
 								}
 								break;
 								

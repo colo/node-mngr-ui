@@ -150,6 +150,14 @@ module.exports = new Class({
 		
 		if(range){
 			console.log(range);
+			if(range['end'].toInt() < 0)
+				range['end'] = Date.now() + range['end'].toInt();
+			
+			if(range['start'].toInt() < 0)
+				range['start'] = Date.now() + range['start'].toInt();
+				
+			console.log(range);
+				
 			startkey.push(range['end'].toInt());
 			endkey.push(range['start'].toInt());
 			

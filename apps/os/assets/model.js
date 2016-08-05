@@ -99,7 +99,8 @@ var OSModel = new Class({
 		//var total_time = total_usage + new_info.idle;
 		
 		
-		//console.log(percentage);
+		console.log(percentage);
+		
 		return percentage;
 	},
 	initialize: function(options){
