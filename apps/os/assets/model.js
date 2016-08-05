@@ -28,7 +28,7 @@ var OSModel = new Class({
 	},
 	cpu_usage_percentage: function(cpus){
 		cpus = cpus || this.cpus();
-		//console.log('user_friendly_cpu_usage');
+		//console.log('user_friendly_cpus_usage');
 		
 		var old_cpu_usage = this.cpu_usage;
 		this.cpu_usage = {
@@ -113,11 +113,11 @@ var OSModel = new Class({
 			return this.hostname()+' ['+this.type() +' '+this.release()+' '+this.arch()+']';
 		}.bind(this));
 		
-		this.user_friendly_cpu = ko.pureComputed(function(){
+		this.user_friendly_cpus = ko.pureComputed(function(){
 			return this.cpus()[0].model+' @ '+this.cpus()[0].speed;
 		}.bind(this));
 		
-		this.user_friendly_cpu_usage = ko.pureComputed(this.cpu_usage_percentage.bind(this));
+		this.user_friendly_cpus_usage = ko.pureComputed(this.cpu_usage_percentage.bind(this));
 		
 		this.user_friendly_uptime = ko.pureComputed(function(){
 			return (this.uptime() / this[this.options.current_time_base]).toFixed(0);

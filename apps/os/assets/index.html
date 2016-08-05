@@ -1,7 +1,7 @@
 <div class="page-title">
 	<div class="title_left">
 		<h3 data-bind="text: header()"></h3>
-		<h4 data-bind="text: user_friendly_cpu()"></h4>
+		<h4 data-bind="text: user_friendly_cpus()"></h4>
 	</div>
 
 <!--
@@ -32,8 +32,8 @@
 		</div>
 		<div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
 			<span class="count_top"><i class="fa fa-clock-o"></i> CPU Usage</span>
-			<div class="count" data-bind="text: user_friendly_cpu_usage().usage">0</div>
-			<span class="count_bottom" data-bind="text: user_friendly_cpu_usage().user+' | '+user_friendly_cpu_usage().nice+' | '+user_friendly_cpu_usage().sys">0|0|0</span>
+			<div class="count" data-bind="text: user_friendly_cpus_usage().usage">0</div>
+			<span class="count_bottom" data-bind="text: user_friendly_cpus_usage().user+' | '+user_friendly_cpus_usage().nice+' | '+user_friendly_cpus_usage().sys">0|0|0</span>
 <!--
 			<span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>3% </i> From last Week</span>
 -->

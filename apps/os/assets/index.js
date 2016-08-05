@@ -29,11 +29,14 @@ function getURLParameter(name, URI) {
 				
 				plot: null,
 				plot_data: [],
+				plot_data_order: ['cpus', 'loadavg', 'freemem', 'sda_stats'],
+				
+				timed_request: {},
 				
 				options: {
 					assets: {
 						js: [
-							//{ model: '/public/apps/os/model.js' },
+							{ sprintf: '/public/bower/sprintf/dist/sprintf.min.js' },
 							{ gentelella_deps: [
 									{ bootstrap: "/public/bower/gentelella/vendors/bootstrap/dist/js/bootstrap.min.js" },
 									{ Chart: "/public/bower/gentelella/vendors/Chart.js/dist/Chart.min.js" },
@@ -98,17 +101,56 @@ function getURLParameter(name, URI) {
 					requests: {
 						periodical: {
 							_defaults: {
-								url: '?type=status&limit=1&range[start]='+(Date.now() - 10000) +'&range[end]='+(Date.now() - 5000),
-							},
-							conf: {
+								url: '?type=status&limit=1&range[start]=%d&range[end]=%d',
 								method: 'get',
-								initialDelay: 5000,
+								initialDelay: 1000,
 								delay: 5000,
 								limit: 10000,
+								noCache: true
+							},
+							
+							loadavg : {
+								url: '/os/api/loadavg'
+							},
+							freemem: {
+								url: '/os/api/freemem'
+							},
+							cpus: {
+								url: '/os/api/cpus'
+							},
+							uptime: {
+								url: '/os/api/uptime'
+							},
+							primary_iface: {
+								url: '/os/api/networkInterfaces/'+this.primary_iface,
+								onSuccess: function(doc){
+									console.log('myRequests.'+os_page.model.primary_iface());
+									console.log(doc);
+									os_page.model.networkInterfaces[os_page.model.primary_iface()](doc.data[os_page.model.primary_iface()]);
+								}.bind(this)
+							},
+							sda_stats: {
+								url: '/os/api/blockdevices/sda/stats',
+								onSuccess: function(doc){
+									console.log('myRequests.sda_stats: ');
+									console.log(doc);
+									
+									/**
+									 * save previous stats, needed to calculate times (updated stats - prev_stats)
+									 * */
+									os_page.model.blockdevices.sda._prev_stats = os_page.model.blockdevices.sda.stats();
+									
+									os_page.model.blockdevices.sda.stats(doc.data);
+									//console.log(self.model.blockdevices.sda.stats());
+									//os_page._update_sda_stats_plot_data();
+									os_page._update_plot_data('sda_stats');
+								}
 							}
 						},
 						update_model: ['/os/api', '/os/api/blockdevices', '/os/api/mounts']
-					}
+					},
+					
+					
 				},
 				
 				initialize: function(options){
@@ -291,92 +333,48 @@ function getURLParameter(name, URI) {
 					return obj;
 				},
 				
-				requests: {
-					timed_request: {
-						//_defaults: {
-							//url: '?type=status&limit=1&range[start]='+(Date.now() - 10000) +'&range[end]='+(Date.now() - 5000),
-						//},
-						loadavg : {
-							url: '/os/api/loadavg'
-						},
-						freemem: {
-							url: '/os/api/freemem'
-						},
-						cpus: {
-							url: '/os/api/cpus'
-						}
-					}
-				}
 				_define_timed_requests: function(){
 					var self = this;
-					this.timed_request = {
-						/*loadavg: new Request.JSON(Object.merge(this.options.requests.periodical, {
-							url: this.server+'/os/api/loadavg?type=status&limit=1&range[start]='+(Date.now() - 10000) +'&range[end]='+(Date.now() - 5000),
-							onSuccess: function(loadavg){
-								console.log('myRequests.loadavg: ');
-								console.log(loadavg);
+					
+					console.log('_define_timed_requests');
+					
+					
+					Object.each(this.options.requests.periodical, function(req, key){
+						if(key.charAt(0) != '_'){
+							var default_req = Object.append(
+								{
+									onSuccess: function(doc){
+										console.log('myRequests.'+key);
+										//console.log(doc);
 
-								self.model.loadavg(loadavg.data);
+										self.model[key](doc.data);
+										
+										self._update_plot_data(key);
+									}
+								},
+								this.options.requests.periodical._defaults
+							);
+							
+							default_req.url = sprintf(default_req.url, Date.now() - 10000, Date.now() - 5000);
+					
+							console.log('KEY '+key);
+							
+							req.url = this.server + req.url + default_req.url;
+							
+							//console.log(Object.merge(
+								//Object.clone(default_req),
+								//req
+							//));
 								
-								self._update_loadavg_plot_data();
-							}
-						})),*/
-						/*
-						freemem: new Request.JSON(Object.merge(this.options.requests.periodical, {
-							url: this.server+'/os/api/freemem?type=status&limit=1&range[start]='+(Date.now() - 10000) +'&range[end]='+(Date.now() - 5000),
-							onSuccess: function(freemem){
-								self.model.freemem(freemem.data);
-								
-								self._update_usedmem_plot_data();
-							}
-						})),*/
-						primary_iface: new Request.JSON(Object.merge(this.options.requests.periodical, {
-							url: this.server+'/os/api/networkInterfaces/'+this.primary_iface+'?type=status&limit=1&range[start]='+(Date.now() - 10000) +'&range[end]='+(Date.now() - 5000),
-							onSuccess: function(primary_iface){
-								//console.log('myRequests.'+self.model.primary_iface());
-								//console.log(primary_iface);
-								self.model.networkInterfaces[self.model.primary_iface()](primary_iface.data[self.model.primary_iface()]);
-							}
-						})),
-						uptime: new Request.JSON(Object.merge(this.options.requests.periodical, {
-							url: this.server+'/os/api/uptime?type=status&limit=1&range[start]='+(Date.now() - 10000) +'&range[end]='+(Date.now() - 5000),
-							initialDelay: 60000,
-							delay: 110000,
-							limit: 300000,
-							onSuccess: function(uptime){
-								////console.log('myRequests.uptime: ');
-								////console.log(uptime);
-								self.model.uptime(uptime.data);
-							}
-						})),
-						/*
-						cpus: new Request.JSON(Object.merge(this.options.requests.periodical, {
-							url: this.server+'/os/api/cpus?type=status&limit=1&range[start]='+(Date.now() - 10000) +'&range[end]='+(Date.now() - 5000),
-							onSuccess: function(cpus){
-								//console.log('myRequests.cpus: ');
-								//console.log(cpus);
-								self.model.cpus(cpus.data);
-								
-								self._update_cpu_plot_data();
-							}
-						})),*/
-						sda_stats: new Request.JSON(Object.merge(this.options.requests.periodical, {
-							url: this.server+'/os/api/blockdevices/sda/stats?type=status&limit=1&range[start]='+(Date.now() - 10000) +'&range[end]='+(Date.now() - 5000),
-							onSuccess: function(stats){
-								//console.log('myRequests.cpus: ');
-								//console.log(cpus);
-								//self.model.cpus(cpus);
-								/**
-								 * save previous stats, needed to calculate times (updated stats - prev_stats)
-								 * */
-								self.model.blockdevices.sda._prev_stats = self.model.blockdevices.sda.stats();
-								
-								self.model.blockdevices.sda.stats(stats.data);
-								//console.log(self.model.blockdevices.sda.stats());
-								self._update_sda_stats_plot_data();
-							}
-						}))
-					};
+							this.timed_request[key] = new Request.JSON(
+								Object.merge(
+									Object.clone(default_req),
+									req
+								)
+							);
+						}
+					}.bind(this));
+					
 
 				}.protect(),
 				_define_queued_requests: function(){
@@ -540,136 +538,86 @@ function getURLParameter(name, URI) {
 					}.periodical(5000, this);
 					
 				},
-				_update_cpu_plot_data: function(){
-					//console.log('_update_cpu_plot_data');
-					////console.log(this.model.user_friendly_cpu_usage()['usage']);
-					if(this.plot && this.plot.getData()){
+				_update_plot_data: function(type){
+					console.log('_update_plot_data: '+type);
+					
+					var index = this.plot_data_order.indexOf(type);
+					
+					if(index >= 0 && this.plot && this.plot.getData()){
 						var now = new Date();
 						
 						var data = this.plot.getData();
-						//var raw_data = data[0].data;
 						var raw_data = [];
 						
-						raw_data = data[0].data;
+						raw_data = data[index].data;
 						if(raw_data.length >= 60){
 							for(var i = 0; i < (raw_data.length - 60); i++){
 								raw_data.shift();
 							}
 						}
 						
-						raw_data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()).getTime(), this.model.user_friendly_cpu_usage()['usage'].toFloat() ]);
+						data = null;
 						
-						this.plot_data[0] = raw_data;
-						//console.log('second: '+this.plot_data[0].length);	
-						////console.log(raw_data);
-					}
-				},
-				_update_loadavg_plot_data: function(){
-					//console.log('_update_loadavg_plot_data');
-					//console.log(this.model.user_friendly_loadavg()[0]);
-					
-					if(this.plot && this.plot.getData()){
-						var now = new Date();
-						
-						var data = this.plot.getData();
-						//var raw_data = data[0].data;
-						var raw_data = [];
-						
-						raw_data = data[1].data;//index 1 = load
-						if(raw_data.length >= 60){
-							for(var i = 0; i < (raw_data.length - 60); i++){
-								raw_data.shift();
-							}
-						}
-						
-						raw_data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()).getTime(), this.model.user_friendly_loadavg()[0].toFloat() ]);
-						
-						this.plot_data[1] = raw_data;
-						//console.log('second: '+this.plot_data[1].length);	
-						////console.log(raw_data);
-					}
-				},
-				_update_usedmem_plot_data: function(){
-					//console.log('_update_usedmem_plot_data');
-					//console.log(this.model.totalmem());
-					//console.log(this.model.freemem());
-					if(this.plot && this.plot.getData()){
-						var used_mem_percentage = (((this.model.totalmem() - this.model.freemem()) * 100) / this.model.totalmem()).toFixed(2);
-						
-						var now = new Date();
-						
-						var data = this.plot.getData();
-						//var raw_data = data[0].data;
-						var raw_data = [];
-						
-						raw_data = data[2].data;//index 2 = used_mem
-						if(raw_data.length >= 60){
-							for(var i = 0; i < (raw_data.length - 60); i++){
-								raw_data.shift();
-							}
-						}
-						
-						raw_data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()).getTime(), used_mem_percentage ]);
-						
-						this.plot_data[2] = raw_data;
-						//console.log('second: '+this.plot_data[2].length);	
-						////console.log(raw_data);
-					}
-				},
-				_update_sda_stats_plot_data: function(){
-					//console.log(this.model.blockdevices.sda._prev_stats.time_in_queue);
-					//console.log(this.model.blockdevices.sda.stats().time_in_queue);
-					
-					//milliseconds between last update and this one
-					var time_in_queue = this.model.blockdevices.sda.stats().time_in_queue - this.model.blockdevices.sda._prev_stats.time_in_queue;
-					
-					//console.log('TIME IN QUEUE: '+time_in_queue);
-					
-					var percentage_in_queue = [];
-					/**
-					 * each messure spent on IO, is 100% of the disk at full IO speed (at least, available for the procs),
-					 * so, as we are graphing on 1 second X, milliseconds spent on IO, would be % of that second (eg: 500ms = 50% IO)
-					 * 
-					 * */
-					if(time_in_queue < 1000){//should always enter this if, as we messure on 1 second updates (1000+)
-						//console.log('LESS THAN A SECOND');
-						percentage_in_queue.push((time_in_queue * 100) / 1000);
-					}
-					else{//updates may not get as fast as 1 second, so we split the messure for as many as seconds it takes
-						//console.log('MORE THAN A SECOND');
-						
-						for(var i = 1; i < (time_in_queue / 1000); i++){
-							//console.log('----SECOND: '+i);
+						switch (type){
+							case 'freemem': data = (((this.model.totalmem() - this.model.freemem()) * 100) / this.model.totalmem()).toFixed(2);
+								break;
 							
-							percentage_in_queue.push( 100 ); //each of this seconds was at 100%
+							case 'cpus': data = this.model.user_friendly_cpus_usage()['usage'].toFloat();
+								break;
+								
+							case 'loadavg': data = this.model.user_friendly_loadavg()[0].toFloat();
+								break;
+								
+							case 'sda_stats': 
+								//milliseconds between last update and this one
+								var time_in_queue = this.model.blockdevices.sda.stats().time_in_queue - this.model.blockdevices.sda._prev_stats.time_in_queue;
+								
+								//console.log('TIME IN QUEUE: '+time_in_queue);
+								
+								//var percentage_in_queue = [];
+								data = [];
+								/**
+								 * each messure spent on IO, is 100% of the disk at full IO speed (at least, available for the procs),
+								 * so, as we are graphing on 1 second X, milliseconds spent on IO, would be % of that second (eg: 500ms = 50% IO)
+								 * 
+								 * */
+								if(time_in_queue < 1000){//should always enter this if, as we messure on 1 second updates (1000+)
+									//console.log('LESS THAN A SECOND');
+									data.push((time_in_queue * 100) / 1000);
+								}
+								else{//updates may not get as fast as 1 second, so we split the messure for as many as seconds it takes
+									//console.log('MORE THAN A SECOND');
+									
+									for(var i = 1; i < (time_in_queue / 1000); i++){
+										//console.log('----SECOND: '+i);
+										
+										data.push( 100 ); //each of this seconds was at 100%
+									}
+									
+									data.push(( (time_in_queue % 1000) * 100) / 1000);
+								}
+								
+								break;
 						}
 						
-						percentage_in_queue.push(( (time_in_queue % 1000) * 100) / 1000);
-					}
-					
-					if(this.plot && this.plot.getData()){
-						var now = new Date();
-						
-						var data = this.plot.getData();
-						//var raw_data = data[0].data;
-						var raw_data = [];
-						
-						raw_data = data[3].data;//index 3 = sda_stats
-						if(raw_data.length >= 60){
-							for(var i = 0; i < (raw_data.length - 60); i++){
-								raw_data.shift();
-							}
+						//push data
+						switch (type){
+							case 'sda_stats':
+								for(var i = 0; i < data.length; i++ ){
+									raw_data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()+ i).getTime(), data[i] ]);
+								}
+								break;
+								
+							default: 
+								raw_data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()).getTime(), data ]);
 						}
 						
-						for(var i = 0; i < percentage_in_queue.length; i++ ){
-							raw_data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()).getTime(), percentage_in_queue[i] ]);
-						}
 						
-						this.plot_data[3] = raw_data;
-						//console.log('second: '+this.plot_data[1].length);	
-						////console.log(raw_data);
+						this.plot_data[index] = raw_data;
+						
 					}
 				},
+				
 				
 			});	
 				
