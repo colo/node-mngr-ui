@@ -110,7 +110,7 @@ function getURLParameter(name, URI) {
 								method: 'get',
 								initialDelay: 5000,
 								delay: 5000,
-								limit: 15000,
+								limit: 5000,
 								noCache: true
 							},
 							
@@ -148,7 +148,7 @@ function getURLParameter(name, URI) {
 									os_page.model.blockdevices.sda.stats(doc.data);
 									//console.log(self.model.blockdevices.sda.stats());
 									//os_page._update_sda_stats_plot_data();
-									os_page._update_plot_data('sda_stats');
+									os_page._update_plot_data('sda_stats', doc.metadata.timestamp);
 								}
 							}
 						},
@@ -364,7 +364,7 @@ function getURLParameter(name, URI) {
 
 										self.model[key](doc.data);
 										
-										self._update_plot_data(key);
+										self._update_plot_data(key, doc.metadata.timestamp);
 									},
 									onFailure: function(){
 										console.log('onFailure');
@@ -416,13 +416,15 @@ function getURLParameter(name, URI) {
 				start_timed_requests: function(){
 					console.log('start_timed_requests');
 					
-					//this.timed_request_queue.resume();
+					
 					
 					Object.each(this.timed_request, function(req, key){
 						console.log('starting.... '+key);
 						
 						req.startTimer();
 					});
+					
+					//this.timed_request_queue.resume();
 				},
 				stop_timed_requests: function(){
 					////console.log('stop_timed_requests');
@@ -430,67 +432,67 @@ function getURLParameter(name, URI) {
 						req.stopTimer();
 					});
 				},
-				_load_charts: function(){
+				//_load_charts: function(){
 					
 					
-					Object.each(this.model.blockdevices, function(dev, name){
-						//console.log('DEVICE');
-						//console.log(name);
-						//console.log(dev.partitions());
+					//Object.each(this.model.blockdevices, function(dev, name){
+						////console.log('DEVICE');
+						////console.log(name);
+						////console.log(dev.partitions());
 						
-						//var id = Object.keys(dev)[0];
-						var size = dev.size();
+						////var id = Object.keys(dev)[0];
+						//var size = dev.size();
 						
-						////console.log("blockdevice_");
-						////console.log(dev[id].partitions());
+						//////console.log("blockdevice_");
+						//////console.log(dev[id].partitions());
 						
-						var labels = Object.keys(dev.partitions());
+						//var labels = Object.keys(dev.partitions());
 						
-						var datasets = [{
-							data: [],
-							backgroundColor: [
-								"#BDC3C7",//aero
-								"#9B59B6",//purple
-								"#E74C3C",//red
-								"#26B99A",//green
-								"#3498DB"//blue
-							],
-							hoverBackgroundColor: [
-								"#CFD4D8",
-								"#B370CF",
-								"#E95E4F",
-								"#36CAAB",
-								"#49A9EA"
-							]
-						}];
+						//var datasets = [{
+							//data: [],
+							//backgroundColor: [
+								//"#BDC3C7",//aero
+								//"#9B59B6",//purple
+								//"#E74C3C",//red
+								//"#26B99A",//green
+								//"#3498DB"//blue
+							//],
+							//hoverBackgroundColor: [
+								//"#CFD4D8",
+								//"#B370CF",
+								//"#E95E4F",
+								//"#36CAAB",
+								//"#49A9EA"
+							//]
+						//}];
 						
-						Object.each(dev.partitions(), function(part, key){
-							//console.log('partition: '+key);
-							//console.log(part);
+						//Object.each(dev.partitions(), function(part, key){
+							////console.log('partition: '+key);
+							////console.log(part);
 							
-							var percentage = (part.size * 100 / size).toFixed(2);
-							datasets[0].data.push(percentage);
+							//var percentage = (part.size * 100 / size).toFixed(2);
+							//datasets[0].data.push(percentage);
 							
-							////console.log(size);
-						})
+							//////console.log(size);
+						//})
 						
 						
-						new Chart(document.getElementById("blockdevice_"+name), {
-							type: 'doughnut',
-							tooltipFillColor: "rgba(51, 51, 51, 0.55)",
-							data: {
-								labels: labels,
-								datasets: datasets
-							},
-							options: {
-								legend: false,
-								responsive: false
-							}
-						})
-					}.bind(this));
+						//new Chart(document.getElementById("blockdevice_"+name), {
+							//type: 'doughnut',
+							//tooltipFillColor: "rgba(51, 51, 51, 0.55)",
+							//data: {
+								//labels: labels,
+								//datasets: datasets
+							//},
+							//options: {
+								//legend: false,
+								//responsive: false
+							//}
+						//})
+					//}.bind(this));
 					
 					
-				},
+				//},
 				_load_plots: function(){
 					
 					/**
@@ -503,19 +505,19 @@ function getURLParameter(name, URI) {
 					var used_mem_percentage = [];
 					var sda_io_percentage = [];
 					//for(var i = 59; i >= 0; i--){
-					for(var i = 0; i <= 59; i++){
-						//data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - i).getTime(), Math.floor((Math.random() * 100) + 1)]);
+					//for(var i = 0; i <= 59; i++){
+						////data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - i).getTime(), Math.floor((Math.random() * 100) + 1)]);
 						
-						//cpu.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.floor((Math.random() * 10) + 1)]);
+						////cpu.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.floor((Math.random() * 10) + 1)]);
 						
-						load.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.random().toFixed(2)]);
+						//load.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.random().toFixed(2)]);
 						
-						used_mem_percentage.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.floor((Math.random() * 50) + 1)]);
+						//used_mem_percentage.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.floor((Math.random() * 50) + 1)]);
 						
-						sda_io_percentage.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.floor((Math.random() * 10) + 1)]);
-					}
+						//sda_io_percentage.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.floor((Math.random() * 10) + 1)]);
+					//}
 					
-					var self = this;
+					//var self = this;
 					//console.log(self.model);
 					
 					//new Request.JSON({
@@ -568,13 +570,15 @@ function getURLParameter(name, URI) {
 					}.periodical(5000, this);
 					
 				},
-				_update_plot_data: function(type){
+				_update_plot_data: function(type, timestamp){
+					timestamp = timestamp || Date.now();
 					console.log('_update_plot_data: '+type);
+					console.log('_update_plot_data timestamp: '+timestamp);
 					
 					var index = this.plot_data_order.indexOf(type);
 					
 					if(index >= 0 && this.plot && this.plot.getData()){
-						var now = new Date();
+						
 						
 						var data = this.plot.getData();
 						var raw_data = [];
@@ -634,12 +638,12 @@ function getURLParameter(name, URI) {
 						switch (type){
 							case 'sda_stats':
 								for(var i = 0; i < data.length; i++ ){
-									raw_data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()).getTime(), data[i] ]);
+									raw_data.push([timestamp, data[i] ]);
 								}
 								break;
 								
 							default: 
-								raw_data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()).getTime(), data ]);
+								raw_data.push([timestamp, data ]);
 						}
 						
 						
@@ -680,7 +684,7 @@ function getURLParameter(name, URI) {
 					
 				}
 				
-				this._load_charts();
+				//this._load_charts();
 				
 				head.ready("flot_curvedLines", function(){
 					//console.log('_load_plots');

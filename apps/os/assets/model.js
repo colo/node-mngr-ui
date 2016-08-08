@@ -24,85 +24,115 @@ var OSModel = new Class({
 	options : {
 		current_size_base: 'GB',
 		current_time_base: 'D',
-		list_partitions_types: /ext|xfs/
-	},
-	cpu_usage_percentage: function(cpus){
-		cpus = cpus || this.cpus();
-		//console.log('user_friendly_cpus_usage');
+		list_partitions_types: /ext|xfs/,
 		
-		var old_cpu_usage = this.cpu_usage;
-		this.cpu_usage = {
-			user: 0,
-			nice: 0,
-			sys: 0,
-			idle: 0
-		};
-		
-		Array.each(cpus, function(cpu){
-			
-			this.cpu_usage.user += cpu.times.user;
-			this.cpu_usage.nice += cpu.times.nice;
-			this.cpu_usage.sys += cpu.times.sys;
-			this.cpu_usage.idle += cpu.times.idle;
-
-		}.bind(this));
-		
-		var new_info = {
-			user: 0,
-			nice: 0,
-			sys: 0,
-			idle: 0
-		};
-
-		var user = this.cpu_usage.user - old_cpu_usage.user;
-		var nice = this.cpu_usage.nice - old_cpu_usage.nice;
-		var sys = this.cpu_usage.sys - old_cpu_usage.sys;
-		var idle = this.cpu_usage.idle - old_cpu_usage.idle;
-		
-		/**
-		 * may result on 0 if there are no new docs on database and the data we get if always from last doc
-		 * 
-		* */
-		new_info.user = (user <= 0) ? old_cpu_usage.user : user;
-		new_info.nice = (nice <= 0) ? old_cpu_usage.nice : nice;
-		new_info.sys =  (sys <= 0)  ? old_cpu_usage.sys : sys;
-		new_info.idle = (idle <= 0) ? old_cpu_usage.idle : idle;
-		
-		//console.log(new_info);
-		
-		var total_usage = 0;
-		var total_time = 0;
-		Object.each(new_info, function(value, key){
-			if(key != 'idle'){
-				total_usage += value;
+		blockdevice_chart: {
+			type: 'doughnut',
+			tooltipFillColor: "rgba(51, 51, 51, 0.55)",
+			data: {
+				labels: [],
+				datasets: [{
+					data: [],
+					backgroundColor: [
+						"#BDC3C7",//aero
+						"#9B59B6",//purple
+						"#E74C3C",//red
+						"#26B99A",//green
+						"#3498DB"//blue
+					],
+					hoverBackgroundColor: [
+						"#CFD4D8",
+						"#B370CF",
+						"#E95E4F",
+						"#36CAAB",
+						"#49A9EA"
+					]
+				}]
+			},
+			options: {
+				legend: false,
+				responsive: false
 			}
-			total_time += value;
-		});
+		},
 		
-		
-		var percentage = {
-			user: 0,
-			nice: 0,
-			sys: 0,
-			idle: 0,
-			usage: 0
-		};
-		
-		percentage = {
-			user: ((new_info.user * 100) / total_time).toFixed(2),
-			nice: ((new_info.nice * 100) / total_time).toFixed(2),
-			sys: ((new_info.sys * 100) / total_time).toFixed(2),
-			idle: ((new_info.idle * 100) / total_time).toFixed(2),
-			usage: ((total_usage * 100) / total_time).toFixed(2)
-		};
-		
-		//var total_time = total_usage + new_info.idle;
-		
-		
-		console.log(percentage);
-		
-		return percentage;
 	},
+	//cpu_usage_percentage: function(cpus){
+		//cpus = cpus || this.cpus();
+		////console.log('user_friendly_cpus_usage');
+		
+		//var old_cpu_usage = this.cpu_usage;
+		//this.cpu_usage = {
+			//user: 0,
+			//nice: 0,
+			//sys: 0,
+			//idle: 0
+		//};
+		
+		//Array.each(cpus, function(cpu){
+			
+			//this.cpu_usage.user += cpu.times.user;
+			//this.cpu_usage.nice += cpu.times.nice;
+			//this.cpu_usage.sys += cpu.times.sys;
+			//this.cpu_usage.idle += cpu.times.idle;
+
+		//}.bind(this));
+		
+		//var new_info = {
+			//user: 0,
+			//nice: 0,
+			//sys: 0,
+			//idle: 0
+		//};
+
+		//var user = this.cpu_usage.user - old_cpu_usage.user;
+		//var nice = this.cpu_usage.nice - old_cpu_usage.nice;
+		//var sys = this.cpu_usage.sys - old_cpu_usage.sys;
+		//var idle = this.cpu_usage.idle - old_cpu_usage.idle;
+		
+		///**
+		 //* may result on 0 if there are no new docs on database and the data we get if always from last doc
+		 //* 
+		//* */
+		//new_info.user = (user <= 0) ? old_cpu_usage.user : user;
+		//new_info.nice = (nice <= 0) ? old_cpu_usage.nice : nice;
+		//new_info.sys =  (sys <= 0)  ? old_cpu_usage.sys : sys;
+		//new_info.idle = (idle <= 0) ? old_cpu_usage.idle : idle;
+		
+		////console.log(new_info);
+		
+		//var total_usage = 0;
+		//var total_time = 0;
+		//Object.each(new_info, function(value, key){
+			//if(key != 'idle'){
+				//total_usage += value;
+			//}
+			//total_time += value;
+		//});
+		
+		
+		//var percentage = {
+			//user: 0,
+			//nice: 0,
+			//sys: 0,
+			//idle: 0,
+			//usage: 0
+		//};
+		
+		//percentage = {
+			//user: ((new_info.user * 100) / total_time).toFixed(2),
+			//nice: ((new_info.nice * 100) / total_time).toFixed(2),
+			//sys: ((new_info.sys * 100) / total_time).toFixed(2),
+			//idle: ((new_info.idle * 100) / total_time).toFixed(2),
+			//usage: ((total_usage * 100) / total_time).toFixed(2)
+		//};
+		
+		////var total_time = total_usage + new_info.idle;
+		
+		
+		//console.log(percentage);
+		
+		//return percentage;
+	//},
 	initialize: function(options){
 		
 		this.setOptions(options);
@@ -118,15 +148,93 @@ var OSModel = new Class({
 			return this.cpus()[0].model+' @ '+this.cpus()[0].speed;
 		}.bind(this));
 		
-		this.user_friendly_cpus_usage = ko.pureComputed(this.cpu_usage_percentage.bind(this));
+		//this.user_friendly_cpus_usage = ko.pureComputed(this.cpu_usage_percentage.bind(this));
+		this.user_friendly_cpus_usage = ko.pureComputed(function(){
+			cpus = this.cpus();
+			//cpus = cpus || this.cpus();
+			//console.log('user_friendly_cpus_usage');
+			
+			var old_cpu_usage = this.cpu_usage;
+			this.cpu_usage = {
+				user: 0,
+				nice: 0,
+				sys: 0,
+				idle: 0
+			};
+			
+			Array.each(cpus, function(cpu){
+				
+				this.cpu_usage.user += cpu.times.user;
+				this.cpu_usage.nice += cpu.times.nice;
+				this.cpu_usage.sys += cpu.times.sys;
+				this.cpu_usage.idle += cpu.times.idle;
+
+			}.bind(this));
+			
+			var new_info = {
+				user: 0,
+				nice: 0,
+				sys: 0,
+				idle: 0
+			};
+
+			var user = this.cpu_usage.user - old_cpu_usage.user;
+			var nice = this.cpu_usage.nice - old_cpu_usage.nice;
+			var sys = this.cpu_usage.sys - old_cpu_usage.sys;
+			var idle = this.cpu_usage.idle - old_cpu_usage.idle;
+			
+			/**
+			 * may result on 0 if there are no new docs on database and the data we get if always from last doc
+			 * 
+			* */
+			new_info.user = (user <= 0) ? old_cpu_usage.user : user;
+			new_info.nice = (nice <= 0) ? old_cpu_usage.nice : nice;
+			new_info.sys =  (sys <= 0)  ? old_cpu_usage.sys : sys;
+			new_info.idle = (idle <= 0) ? old_cpu_usage.idle : idle;
+			
+			//console.log(new_info);
+			
+			var total_usage = 0;
+			var total_time = 0;
+			Object.each(new_info, function(value, key){
+				if(key != 'idle'){
+					total_usage += value;
+				}
+				total_time += value;
+			});
+			
+			
+			var percentage = {
+				user: 0,
+				nice: 0,
+				sys: 0,
+				idle: 0,
+				usage: 0
+			};
+			
+			percentage = {
+				user: ((new_info.user * 100) / total_time).toFixed(2),
+				nice: ((new_info.nice * 100) / total_time).toFixed(2),
+				sys: ((new_info.sys * 100) / total_time).toFixed(2),
+				idle: ((new_info.idle * 100) / total_time).toFixed(2),
+				usage: ((total_usage * 100) / total_time).toFixed(2)
+			};
+			
+			//var total_time = total_usage + new_info.idle;
+			
+			
+			console.log(percentage);
+			
+			return percentage;
+		}.bind(this));
 		
 		this.user_friendly_uptime = ko.pureComputed(function(){
 			return (this.uptime() / this[this.options.current_time_base]).toFixed(0);
 		}.bind(this));
 		
 		this.primary_iface_out = ko.pureComputed(function(){
-			console.log('this.networkInterfaces[this.primary_iface()]()');
-			console.log(this.primary_iface());
+			//console.log('this.networkInterfaces[this.primary_iface()]()');
+			//console.log(this.primary_iface());
 			return (this.networkInterfaces[this.primary_iface()]().transmited.bytes / this[this.options.current_size_base]).toFixed(2);
 		}.bind(this));
 		
@@ -144,8 +252,8 @@ var OSModel = new Class({
 		
 		this.user_friendly_loadavg = ko.pureComputed(function(){
 			var arr = [];
-			console.log('user_friendly_loadavg');
-			console.log(this.loadavg());
+			//console.log('user_friendly_loadavg');
+			//console.log(this.loadavg());
 			Array.each(this.loadavg(), function(item, index){
 				arr[index] = item.toFixed(2);
 			}.bind(this));
@@ -156,8 +264,8 @@ var OSModel = new Class({
 		}.bind(this));
 		
 		this.list_blk_dev = ko.pureComputed(function(){
-			console.log('list_blk_dev');
-			console.log(this.blockdevices);
+			//console.log('list_blk_dev');
+			//console.log(this.blockdevices);
 			
 			var arr = [];
 			
@@ -199,7 +307,7 @@ var OSModel = new Class({
 		}.bind(this));
 		
 		this.list_mounts = ko.pureComputed(function(){
-			console.log('this.mounts');
+			//console.log('this.mounts');
 			//console.log(this.mounts);
 			//console.log(this.list_blk_dev());
 			
@@ -236,6 +344,47 @@ var OSModel = new Class({
 			return mounts;
 			
 		}.bind(this));
+		
+		var self = this;
+		ko.bindingHandlers.load_chart = {
+			init: function(element, valueAccessor) {
+					var name = ko.unwrap(valueAccessor()); // Get the current value of the current property we're bound to
+					
+					console.log('load_chart');
+					console.log(element);
+					console.log(name);
+					//$(element).toggle(value); // jQuery will hide/show the element depending on whether "value" or true or false
+					
+					var dev = self.blockdevices[name];
+					
+					////console.log('DEVICE');
+					//console.log(name);
+					//console.log(dev.partitions());
+					
+					//var id = Object.keys(dev)[0];
+					var size = dev.size();
+					
+					////console.log("blockdevice_");
+					////console.log(dev[id].partitions());
+					var blockdevice_chart = Object.clone(self.options.blockdevice_chart);
+					
+					blockdevice_chart.data.labels = Object.keys(dev.partitions());
+					
+					Object.each(dev.partitions(), function(part, key){
+						
+						var percentage = (part.size * 100 / size).toFixed(2);
+						blockdevice_chart.data.datasets[0].data.push(percentage);
+						
+					})
+					new Chart(element, blockdevice_chart)
+					
+			},
+			update: function(element, valueAccessor, allBindings) {
+					// Leave as before
+			}
+		};
+
+		
 	}
 });
 

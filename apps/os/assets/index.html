@@ -255,7 +255,7 @@
 						</tr>
 						<tr>
 							<td>
-								<canvas height="140" width="140" style="margin: 15px 10px 10px 0" data-bind="attr: {id: 'blockdevice_'+dev.name}"></canvas>
+								<canvas height="140" width="140" style="margin: 15px 10px 10px 0" data-bind="load_chart: dev.name,attr: {id: 'blockdevice_'+dev.name}"></canvas>
 							</td>
 							<td>
 								<table class="tile_info" data-bind="foreach: { data: dev.partitions, as: 'part' }">
