@@ -30,9 +30,9 @@ function getURLParameter(name, URI) {
 				server: null,
 				timed_request: {},
 				
-				plot: null,
-				plot_data: [],
-				plot_data_order: ['cpus', 'loadavg', 'freemem', 'sda_stats'],
+				//plot: null,
+				//plot_data: [],
+				//plot_data_order: ['cpus', 'loadavg', 'freemem', 'sda_stats'],
 				
 				timed_request: {},
 				timed_request_queue: null,
@@ -55,52 +55,52 @@ function getURLParameter(name, URI) {
 							update_primary_iface: "/os/api/networkInterfaces/primary",
 						}
 					},
-					timed_plot: {
-						series: {
-							lines: {
-								show: false,
-								fill: true
-							},
-							splines: {
-								show: true,
-								tension: 0.4,
-								lineWidth: 1,
-								fill: 0.4
-							},
-							points: {
-								radius: 0,
-								show: true
-							},
-							shadowSize: 2
-						},
-						grid: {
-							verticalLines: true,
-							hoverable: true,
-							clickable: true,
-							tickColor: "#d5d5d5",
-							borderWidth: 1,
-							color: '#fff'
-						},
-						colors: ["rgba(38, 185, 154, 0.38)", "rgba(3, 88, 106, 0.38)", "rgba(215, 96, 139, 0.2)", "rgba(223, 129, 46, 0.4)"],
-						xaxis: {
-							tickColor: "rgba(51, 51, 51, 0.06)",
-							mode: "time",
-							tickSize: [1, "minute"],
-							//minTickSize: [1, "second"],
-							//tickLength: 10,
-							axisLabel: "Date",
-							axisLabelUseCanvas: true,
-							axisLabelFontSizePixels: 12,
-							axisLabelFontFamily: 'Verdana, Arial',
-							axisLabelPadding: 10
-						},
-						yaxis: {
-							max: 100,
-							ticks: 10,
-							tickColor: "rgba(51, 51, 51, 0.06)",
-						},
-						tooltip: false
-					},
+					//timed_plot: {
+						//series: {
+							//lines: {
+								//show: false,
+								//fill: true
+							//},
+							//splines: {
+								//show: true,
+								//tension: 0.4,
+								//lineWidth: 1,
+								//fill: 0.4
+							//},
+							//points: {
+								//radius: 0,
+								//show: true
+							//},
+							//shadowSize: 2
+						//},
+						//grid: {
+							//verticalLines: true,
+							//hoverable: true,
+							//clickable: true,
+							//tickColor: "#d5d5d5",
+							//borderWidth: 1,
+							//color: '#fff'
+						//},
+						//colors: ["rgba(38, 185, 154, 0.38)", "rgba(3, 88, 106, 0.38)", "rgba(215, 96, 139, 0.2)", "rgba(223, 129, 46, 0.4)"],
+						//xaxis: {
+							//tickColor: "rgba(51, 51, 51, 0.06)",
+							//mode: "time",
+							//tickSize: [1, "minute"],
+							////minTickSize: [1, "second"],
+							////tickLength: 10,
+							//axisLabel: "Date",
+							//axisLabelUseCanvas: true,
+							//axisLabelFontSizePixels: 12,
+							//axisLabelFontFamily: 'Verdana, Arial',
+							//axisLabelPadding: 10
+						//},
+						//yaxis: {
+							//max: 100,
+							//ticks: 10,
+							//tickColor: "rgba(51, 51, 51, 0.06)",
+						//},
+						//tooltip: false
+					//},
 					
 					requests: {
 						periodical: {
@@ -146,9 +146,8 @@ function getURLParameter(name, URI) {
 									os_page.model.blockdevices.sda._prev_stats = os_page.model.blockdevices.sda.stats();
 									
 									os_page.model.blockdevices.sda.stats(doc.data);
-									//console.log(self.model.blockdevices.sda.stats());
-									//os_page._update_sda_stats_plot_data();
-									os_page._update_plot_data('sda_stats', doc.metadata.timestamp);
+									
+									//os_page._update_plot_data('sda_stats', doc.metadata.timestamp);
 								}
 							}
 						},
@@ -364,7 +363,7 @@ function getURLParameter(name, URI) {
 
 										self.model[key](doc.data);
 										
-										self._update_plot_data(key, doc.metadata.timestamp);
+										//self._update_plot_data(key, doc.metadata.timestamp);
 									},
 									onFailure: function(){
 										console.log('onFailure');
@@ -494,80 +493,44 @@ function getURLParameter(name, URI) {
 					
 				//},
 				_load_plots: function(){
-					
-					/**
-					 * load initial data
-					 * 
-					 * */
 					var now = new Date();
-					var cpu = [];
-					var load = [];
-					var used_mem_percentage = [];
-					var sda_io_percentage = [];
-					//for(var i = 59; i >= 0; i--){
-					//for(var i = 0; i <= 59; i++){
-						////data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - i).getTime(), Math.floor((Math.random() * 100) + 1)]);
-						
-						////cpu.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.floor((Math.random() * 10) + 1)]);
-						
-						//load.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.random().toFixed(2)]);
-						
-						//used_mem_percentage.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.floor((Math.random() * 50) + 1)]);
-						
-						//sda_io_percentage.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.floor((Math.random() * 10) + 1)]);
-					//}
+					console.log('LOAD PLOTS')
 					
-					//var self = this;
+					var self = this;
 					//console.log(self.model);
 					
-					//new Request.JSON({
-						//url: this.server+'/os/api/cpus?type=status&range[start]='+(now.getTime() - 120000) +'&range[end]='+(now.getTime()),
-						//method: 'get',
-						////initialDelay: 1000,
-						////delay: 2000,
-						////limit: 10000,
-						//onSuccess: function(docs){
-							//var cpu = [];
-							//console.log('myRequests.cpus: ');
-							////console.log(docs);
-							//Array.each(docs, function(doc){
-								//var usage = self.model.cpu_usage_percentage(doc.data)['usage'].toFloat();
+					new Request.JSON({
+						url: this.server+'/os/api/cpus?type=status&range[start]='+(now.getTime() - 120000) +'&range[end]='+(now.getTime()),
+						method: 'get',
+						//initialDelay: 1000,
+						//delay: 2000,
+						//limit: 10000,
+						onSuccess: function(docs){
+							var cpu = [];
+							console.log('myRequests.cpus: ');
+							//console.log(docs);
+							Array.each(docs, function(doc){
+								var usage = self.model.cpu_usage_percentage(doc.data)['usage'].toFloat();
 								
-								//console.log(doc.metadata.timestamp);
-								//console.log(usage);
+								console.log(doc.metadata.timestamp);
+								console.log(usage);
 								
 								//cpu.push([doc.metadata.timestamp, usage]);
-							//});
+								//self.model.cpu_usage_percentage(doc.data)['usage'].toFloat();
+								self.model._update_plot_data('cpus', usage, doc.metadata.timestamp);
+							});
 							
 							//self.plot_data[0] = cpu;
-							////self.model.loadavg(loadavg);
-							////os_model.loadavg.removeAll();
-							////Array.each(res.data, function(item, index){
-								////os_model.loadavg.push(item.toFixed(2));
-							////});
+							//self.model.loadavg(loadavg);
+							//os_model.loadavg.removeAll();
+							//Array.each(res.data, function(item, index){
+								//os_model.loadavg.push(item.toFixed(2));
+							//});
 							
-							////self._update_loadavg_plot_data();
-						//}
-					//}).send();
+							//self._update_loadavg_plot_data();
+						}
+					}).send();
 					
-					////console.log(data);
-					this.plot_data.push(cpu);
-					this.plot_data.push(load);
-					this.plot_data.push(used_mem_percentage);
-					this.plot_data.push(sda_io_percentage);
-					
-					
-					//$("#canvas_dahs").length && 
-					this.plot = $.plot($("#canvas_dahs"), this.plot_data, this.options.timed_plot);
-
-					var update_plots = function(){
-						//console.log('update_plots');
-						
-						this.plot = $.plot($("#canvas_dahs"),
-								//raw_data
-								this.plot_data
-						, this.options.timed_plot);
-					}.periodical(5000, this);
 					
 				},
 				_update_plot_data: function(type, timestamp){
