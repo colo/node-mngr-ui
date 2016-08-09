@@ -147,7 +147,7 @@ function getURLParameter(name, URI) {
 									/**
 									 * save previous stats, needed to calculate times (updated stats - prev_stats)
 									 * */
-									os_page.model.blockdevices.sda._prev_stats = os_page.model.blockdevices.sda.stats();
+									//os_page.model.blockdevices.sda._prev_stats = os_page.model.blockdevices.sda.stats();
 									
 									os_page.model.blockdevices.sda.stats(doc.data);
 									
@@ -508,7 +508,7 @@ function getURLParameter(name, URI) {
 					//console.log(self.model);
 					
 					new Request.JSON({
-						url: this.server+'/os/api/cpus?type=status&range[start]='+(now.getTime() - 60000) +'&range[end]='+(now.getTime()),
+						url: this.server+'/os/api/cpus?type=status&range[start]='+(now.getTime() - 120000) +'&range[end]='+(now.getTime()),
 						method: 'get',
 						//initialDelay: 1000,
 						//delay: 2000,
@@ -516,7 +516,7 @@ function getURLParameter(name, URI) {
 						onSuccess: function(docs){
 							var cpu = [];
 							console.log('myRequests.cpus: ');
-							console.log(docs);
+							//console.log(docs);
 							
 							var last = {
 								user: 0,
@@ -547,7 +547,7 @@ function getURLParameter(name, URI) {
 								
 								last = Object.clone(cpu_usage);
 								
-								console.log(percentage);
+								//console.log(percentage);
 								
 								self.model._update_plot_data('cpus', percentage['usage'].toFloat(), doc.metadata.timestamp);
 								
@@ -557,7 +557,51 @@ function getURLParameter(name, URI) {
 						}
 					}).send();
 					
+					new Request.JSON({
+						url: this.server+'/os/api/freemem?type=status&range[start]='+(now.getTime() - 120000) +'&range[end]='+(now.getTime()),
+						method: 'get',
+						//initialDelay: 1000,
+						//delay: 2000,
+						//limit: 10000,
+						onSuccess: function(docs){
+							var cpu = [];
+							console.log('myRequests.freemem: ');
+							//console.log(docs);
+							/** docs come from lastes [0] to oldest [N-1] */
+							for(var i = docs.length - 1; i >= 0; i--){
+								var doc = docs[i];
+								
+								self.model._update_plot_data('freemem', (((self.model.totalmem() - doc.data) * 100) / self.model.totalmem()).toFixed(2), doc.metadata.timestamp);
+								
+							}
+								
+						}
+							
+						
+					}).send();
 					
+					new Request.JSON({
+						url: this.server+'/os/api/loadavg?type=status&range[start]='+(now.getTime() - 120000) +'&range[end]='+(now.getTime()),
+						method: 'get',
+						//initialDelay: 1000,
+						//delay: 2000,
+						//limit: 10000,
+						onSuccess: function(docs){
+							var cpu = [];
+							console.log('myRequests.loadavg: ');
+							//console.log(docs);
+							/** docs come from lastes [0] to oldest [N-1] */
+							for(var i = docs.length - 1; i >= 0; i--){
+								var doc = docs[i];
+								//console.log(doc.data[0].toFloat())
+								self.model._update_plot_data('loadavg', doc.data[0].toFloat(), doc.metadata.timestamp);
+								
+							}
+								
+						}
+							
+						
+					}).send();
 				},
 				//_update_plot_data: function(type, timestamp){
 					//timestamp = timestamp || Date.now();
