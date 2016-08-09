@@ -14,12 +14,20 @@ var OSModel = new Class({
 	//freemem: ko.observable(null),
 	//totalmem: ko.observable(null),
 	//networkInterfaces: {},
-	cpu_usage : {
-		user: 0,
-		nice: 0,
-		sys: 0,
-		idle: 0
-	},
+	//cpu_usage : {
+		//user: 0,
+		//nice: 0,
+		//sys: 0,
+		//idle: 0
+	//},
+	cpu_usage: [
+		{
+			user: 0,
+			nice: 0,
+			sys: 0,
+			idle: 0
+		}
+	],
 	
 	plot: null,
 	plot_data: [],
@@ -106,30 +114,108 @@ var OSModel = new Class({
 				tooltip: false
 			},
 			
-			update_interval: 5000,
+			update_interval: 1000,
 		}
 		
 	},
-	cpu_usage_percentage: function(cpus){
-		cpus = cpus || this.cpus();
+	//cpu_usage_percentage: function(cpus){
+		//cpus = cpus || this.cpus();
+		////console.log('user_friendly_cpus_usage');
+		
+		//var old_cpu_usage = this.cpu_usage;
+		//this.cpu_usage = {
+			//user: 0,
+			//nice: 0,
+			//sys: 0,
+			//idle: 0
+		//};
+		
+		//Array.each(cpus, function(cpu){
+			
+			//this.cpu_usage.user += cpu.times.user;
+			//this.cpu_usage.nice += cpu.times.nice;
+			//this.cpu_usage.sys += cpu.times.sys;
+			//this.cpu_usage.idle += cpu.times.idle;
+
+		//}.bind(this));
+		
+		//var new_info = {
+			//user: 0,
+			//nice: 0,
+			//sys: 0,
+			//idle: 0
+		//};
+
+		//var user = this.cpu_usage.user - old_cpu_usage.user;
+		//var nice = this.cpu_usage.nice - old_cpu_usage.nice;
+		//var sys = this.cpu_usage.sys - old_cpu_usage.sys;
+		//var idle = this.cpu_usage.idle - old_cpu_usage.idle;
+		
+		///**
+		 //* may result on 0 if there are no new docs on database and the data we get if always from last doc
+		 //* 
+		//* */
+		//new_info.user = (user <= 0) ? old_cpu_usage.user : user;
+		//new_info.nice = (nice <= 0) ? old_cpu_usage.nice : nice;
+		//new_info.sys =  (sys <= 0)  ? old_cpu_usage.sys : sys;
+		//new_info.idle = (idle <= 0) ? old_cpu_usage.idle : idle;
+		
+		////console.log(new_info);
+		
+		//var total_usage = 0;
+		//var total_time = 0;
+		//Object.each(new_info, function(value, key){
+			//if(key != 'idle'){
+				//total_usage += value;
+			//}
+			//total_time += value;
+		//});
+		
+		
+		//var percentage = {
+			//user: 0,
+			//nice: 0,
+			//sys: 0,
+			//idle: 0,
+			//usage: 0
+		//};
+		
+		//percentage = {
+			//user: ((new_info.user * 100) / total_time).toFixed(2),
+			//nice: ((new_info.nice * 100) / total_time).toFixed(2),
+			//sys: ((new_info.sys * 100) / total_time).toFixed(2),
+			//idle: ((new_info.idle * 100) / total_time).toFixed(2),
+			//usage: ((total_usage * 100) / total_time).toFixed(2)
+		//};
+		
+		////var total_time = total_usage + new_info.idle;
+		
+		
+		//console.log(percentage);
+		//this._update_plot_data('cpus', percentage['usage'].toFloat());
+		
+		//return percentage;
+	//},
+	cpu_usage_percentage: function(old_data, new_data){
+		//cpus = cpus || this.cpus();
 		//console.log('user_friendly_cpus_usage');
 		
-		var old_cpu_usage = this.cpu_usage;
-		this.cpu_usage = {
-			user: 0,
-			nice: 0,
-			sys: 0,
-			idle: 0
-		};
+		//var old_cpu_usage = this.cpu_usage;
+		//var cpu_usage = {
+			//user: 0,
+			//nice: 0,
+			//sys: 0,
+			//idle: 0
+		//};
 		
-		Array.each(cpus, function(cpu){
+		//Array.each(cpus, function(cpu){
 			
-			this.cpu_usage.user += cpu.times.user;
-			this.cpu_usage.nice += cpu.times.nice;
-			this.cpu_usage.sys += cpu.times.sys;
-			this.cpu_usage.idle += cpu.times.idle;
+			//cpu_usage.user += cpu.times.user;
+			//cpu_usage.nice += cpu.times.nice;
+			//cpu_usage.sys += cpu.times.sys;
+			//cpu_usage.idle += cpu.times.idle;
 
-		}.bind(this));
+		//}.bind(this));
 		
 		var new_info = {
 			user: 0,
@@ -137,21 +223,24 @@ var OSModel = new Class({
 			sys: 0,
 			idle: 0
 		};
-
-		var user = this.cpu_usage.user - old_cpu_usage.user;
-		var nice = this.cpu_usage.nice - old_cpu_usage.nice;
-		var sys = this.cpu_usage.sys - old_cpu_usage.sys;
-		var idle = this.cpu_usage.idle - old_cpu_usage.idle;
+		
+		//var last = this.cpu_usage.length -1;
+		
+		var user = new_data.user - old_data.user;
+		var nice = new_data.nice - old_data.nice;
+		var sys = new_data.sys - old_data.sys;
+		var idle = new_data.idle - old_data.idle;
 		
 		/**
 		 * may result on 0 if there are no new docs on database and the data we get if always from last doc
 		 * 
 		* */
-		new_info.user = (user <= 0) ? old_cpu_usage.user : user;
-		new_info.nice = (nice <= 0) ? old_cpu_usage.nice : nice;
-		new_info.sys =  (sys <= 0)  ? old_cpu_usage.sys : sys;
-		new_info.idle = (idle <= 0) ? old_cpu_usage.idle : idle;
+		new_info.user = (user <= 0) ? 0 : user;
+		new_info.nice = (nice <= 0) ? 0 : nice;
+		new_info.sys =  (sys <= 0)  ? 0 : sys;
+		new_info.idle = (idle <= 0) ? 0 : idle;
 		
+		//console.log('new_info');
 		//console.log(new_info);
 		
 		var total_usage = 0;
@@ -172,19 +261,22 @@ var OSModel = new Class({
 			usage: 0
 		};
 		
-		percentage = {
-			user: ((new_info.user * 100) / total_time).toFixed(2),
-			nice: ((new_info.nice * 100) / total_time).toFixed(2),
-			sys: ((new_info.sys * 100) / total_time).toFixed(2),
-			idle: ((new_info.idle * 100) / total_time).toFixed(2),
-			usage: ((total_usage * 100) / total_time).toFixed(2)
-		};
-		
+		if(total_time > 0){
+			percentage = {
+				user: ((new_info.user * 100) / total_time).toFixed(2),
+				nice: ((new_info.nice * 100) / total_time).toFixed(2),
+				sys: ((new_info.sys * 100) / total_time).toFixed(2),
+				idle: ((new_info.idle * 100) / total_time).toFixed(2),
+				usage: ((total_usage * 100) / total_time).toFixed(2)
+			};
+		}
 		//var total_time = total_usage + new_info.idle;
 		
+		//this.cpu_usage.push(cpu_usage);
 		
-		console.log(percentage);
-		this._update_plot_data('cpus', percentage['usage'].toFloat());
+		//console.log(percentage);
+		
+		//this._update_plot_data('cpus', percentage['usage'].toFloat());
 		
 		return percentage;
 	},
@@ -203,7 +295,34 @@ var OSModel = new Class({
 			return this.cpus()[0].model+' @ '+this.cpus()[0].speed;
 		}.bind(this));
 		
-		this.user_friendly_cpus_usage = ko.pureComputed(this.cpu_usage_percentage.bind(this));
+		this.user_friendly_cpus_usage = ko.pureComputed(function(){
+			var last = this.cpu_usage.length -1;
+			
+			var cpu_usage = {
+				user: 0,
+				nice: 0,
+				sys: 0,
+				idle: 0
+			};
+			
+			Array.each(this.cpus(), function(cpu){
+				
+				cpu_usage.user += cpu.times.user;
+				cpu_usage.nice += cpu.times.nice;
+				cpu_usage.sys += cpu.times.sys;
+				cpu_usage.idle += cpu.times.idle;
+
+			}.bind(this));
+			
+			this.cpu_usage.push(cpu_usage);
+			
+			var percentage = this.cpu_usage_percentage(this.cpu_usage[last], cpu_usage);
+			
+			this._update_plot_data('cpus', percentage['usage'].toFloat());
+			
+			return percentage;
+			
+		}.bind(this));
 		//this.user_friendly_cpus_usage = ko.pureComputed(function(){
 			//cpus = this.cpus();
 			////cpus = cpus || this.cpus();
@@ -441,11 +560,14 @@ var OSModel = new Class({
 			}
 		};
 		
-		head.ready("flot_curvedLines", function(){
-			//console.log('_load_plot');
-			this._load_plot();
+		//head.ready("flot_curvedLines", function(){
+			////console.log('_load_plot');
+			//this._load_plot();
+		//}.bind(this));
+		ko.tasks.schedule(function () {
+				//console.log('my microtask');
+				this._load_plot();
 		}.bind(this));
-		
 	},
 	_load_plot: function(){
 					
@@ -478,21 +600,24 @@ var OSModel = new Class({
 		console.log(this.options.timed_plot._defaults);
 		
 		this.plot = $.plot($("#canvas_dahs"), this.plot_data, this.options.timed_plot._defaults);
-
+		
+		
 		var update_plot = function(){
 			console.log('update_plot');
 			
 			this.plot = $.plot($("#canvas_dahs"),
 				//raw_data
 				this.plot_data,
-				this.options.timed_plot._defaults);
+				this.options.timed_plot._defaults
+			);
 		}.periodical(this.options.timed_plot.update_interval, this);
 		
 	},
 	_update_plot_data: function(type, new_data, timestamp){
-		timestamp = timestamp || Date.now();
+		timestamp = timestamp || Date.now().getTime();
 		console.log('_update_plot_data: '+type);
 		console.log('_update_plot_data timestamp: '+timestamp);
+		console.log('_update_plot_data data: '+new_data);
 		
 		var index = this.plot_data_order.indexOf(type);
 		
