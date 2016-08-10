@@ -33,6 +33,14 @@ var OSModel = new Class({
 	plot_data: [],
 	plot_data_order: ['cpus', 'loadavg', 'freemem', 'sda_stats'],
 	
+	periodical_functions: {
+		'plot_update':{
+			'fn': null,
+			'interval': 0
+		},
+	},
+	periodical_functions_timers : {},
+	
 	options : {
 		current_size_base: 'GB',
 		current_time_base: 'D',
@@ -68,13 +76,30 @@ var OSModel = new Class({
 		},
 		timed_plot: {
 			_defaults: {
+				//series: {
+					//lines: {
+						//show: false,
+						//fill: true
+					//},
+					//splines: {
+						//show: true,
+						//tension: 0.4,
+						//lineWidth: 1,
+						//fill: 0.4
+					//},
+					//points: {
+						//radius: 0,
+						//show: true
+					//},
+					//shadowSize: 2
+				//},
 				series: {
 					lines: {
-						show: false,
-						fill: true
+						show: true,
+						fill: false
 					},
 					splines: {
-						show: true,
+						show: false,
 						tension: 0.4,
 						lineWidth: 1,
 						fill: 0.4
@@ -83,7 +108,7 @@ var OSModel = new Class({
 						radius: 0,
 						show: true
 					},
-					shadowSize: 2
+					shadowSize: 0
 				},
 				grid: {
 					verticalLines: true,
@@ -118,104 +143,8 @@ var OSModel = new Class({
 		}
 		
 	},
-	//cpu_usage_percentage: function(cpus){
-		//cpus = cpus || this.cpus();
-		////console.log('user_friendly_cpus_usage');
-		
-		//var old_cpu_usage = this.cpu_usage;
-		//this.cpu_usage = {
-			//user: 0,
-			//nice: 0,
-			//sys: 0,
-			//idle: 0
-		//};
-		
-		//Array.each(cpus, function(cpu){
-			
-			//this.cpu_usage.user += cpu.times.user;
-			//this.cpu_usage.nice += cpu.times.nice;
-			//this.cpu_usage.sys += cpu.times.sys;
-			//this.cpu_usage.idle += cpu.times.idle;
-
-		//}.bind(this));
-		
-		//var new_info = {
-			//user: 0,
-			//nice: 0,
-			//sys: 0,
-			//idle: 0
-		//};
-
-		//var user = this.cpu_usage.user - old_cpu_usage.user;
-		//var nice = this.cpu_usage.nice - old_cpu_usage.nice;
-		//var sys = this.cpu_usage.sys - old_cpu_usage.sys;
-		//var idle = this.cpu_usage.idle - old_cpu_usage.idle;
-		
-		///**
-		 //* may result on 0 if there are no new docs on database and the data we get if always from last doc
-		 //* 
-		//* */
-		//new_info.user = (user <= 0) ? old_cpu_usage.user : user;
-		//new_info.nice = (nice <= 0) ? old_cpu_usage.nice : nice;
-		//new_info.sys =  (sys <= 0)  ? old_cpu_usage.sys : sys;
-		//new_info.idle = (idle <= 0) ? old_cpu_usage.idle : idle;
-		
-		////console.log(new_info);
-		
-		//var total_usage = 0;
-		//var total_time = 0;
-		//Object.each(new_info, function(value, key){
-			//if(key != 'idle'){
-				//total_usage += value;
-			//}
-			//total_time += value;
-		//});
-		
-		
-		//var percentage = {
-			//user: 0,
-			//nice: 0,
-			//sys: 0,
-			//idle: 0,
-			//usage: 0
-		//};
-		
-		//percentage = {
-			//user: ((new_info.user * 100) / total_time).toFixed(2),
-			//nice: ((new_info.nice * 100) / total_time).toFixed(2),
-			//sys: ((new_info.sys * 100) / total_time).toFixed(2),
-			//idle: ((new_info.idle * 100) / total_time).toFixed(2),
-			//usage: ((total_usage * 100) / total_time).toFixed(2)
-		//};
-		
-		////var total_time = total_usage + new_info.idle;
-		
-		
-		//console.log(percentage);
-		//this._update_plot_data('cpus', percentage['usage'].toFloat());
-		
-		//return percentage;
-	//},
+	
 	cpu_usage_percentage: function(old_data, new_data){
-		//cpus = cpus || this.cpus();
-		//console.log('user_friendly_cpus_usage');
-		
-		//var old_cpu_usage = this.cpu_usage;
-		//var cpu_usage = {
-			//user: 0,
-			//nice: 0,
-			//sys: 0,
-			//idle: 0
-		//};
-		
-		//Array.each(cpus, function(cpu){
-			
-			//cpu_usage.user += cpu.times.user;
-			//cpu_usage.nice += cpu.times.nice;
-			//cpu_usage.sys += cpu.times.sys;
-			//cpu_usage.idle += cpu.times.idle;
-
-		//}.bind(this));
 		
 		var new_info = {
 			user: 0,
@@ -245,8 +174,8 @@ var OSModel = new Class({
 		new_info.sys =  (sys <= 0)  ? 0 : sys;
 		new_info.idle = (idle <= 0) ? 0 : idle;
 		
-		//console.log('new_info');
-		//console.log(new_info);
+		////console.log('new_info');
+		////console.log(new_info);
 		
 		var total_usage = 0;
 		var total_time = 0;
@@ -275,13 +204,6 @@ var OSModel = new Class({
 				usage: ((total_usage * 100) / total_time).toFixed(2)
 			};
 		}
-		//var total_time = total_usage + new_info.idle;
-		
-		//this.cpu_usage.push(cpu_usage);
-		
-		//console.log(percentage);
-		
-		//this._update_plot_data('cpus', percentage['usage'].toFloat());
 		
 		return percentage;
 	},
@@ -289,8 +211,8 @@ var OSModel = new Class({
 		
 		this.setOptions(options);
 		
-		//////console.log('this.networkInterfaces');
-		//////console.log(this.primary_iface());
+		////////console.log('this.networkInterfaces');
+		////////console.log(this.primary_iface());
 		
 		this.header = ko.pureComputed(function(){
 			return this.hostname()+' ['+this.type() +' '+this.release()+' '+this.arch()+']';
@@ -323,99 +245,19 @@ var OSModel = new Class({
 			
 			var percentage = this.cpu_usage_percentage(this.cpu_usage[last], cpu_usage);
 			
-			//this._update_plot_data('cpus', percentage['usage'].toFloat());
+			
 			
 			return percentage;
 			
 		}.bind(this));
-		//this.user_friendly_cpus_usage = ko.pureComputed(function(){
-			//cpus = this.cpus();
-			////cpus = cpus || this.cpus();
-			////console.log('user_friendly_cpus_usage');
-			
-			//var old_cpu_usage = this.cpu_usage;
-			//this.cpu_usage = {
-				//user: 0,
-				//nice: 0,
-				//sys: 0,
-				//idle: 0
-			//};
-			
-			//Array.each(cpus, function(cpu){
-				
-				//this.cpu_usage.user += cpu.times.user;
-				//this.cpu_usage.nice += cpu.times.nice;
-				//this.cpu_usage.sys += cpu.times.sys;
-				//this.cpu_usage.idle += cpu.times.idle;
-
-			//}.bind(this));
-			
-			//var new_info = {
-				//user: 0,
-				//nice: 0,
-				//sys: 0,
-				//idle: 0
-			//};
-
-			//var user = this.cpu_usage.user - old_cpu_usage.user;
-			//var nice = this.cpu_usage.nice - old_cpu_usage.nice;
-			//var sys = this.cpu_usage.sys - old_cpu_usage.sys;
-			//var idle = this.cpu_usage.idle - old_cpu_usage.idle;
-			
-			///**
-			 //* may result on 0 if there are no new docs on database and the data we get if always from last doc
-			 //* 
-			//* */
-			//new_info.user = (user <= 0) ? old_cpu_usage.user : user;
-			//new_info.nice = (nice <= 0) ? old_cpu_usage.nice : nice;
-			//new_info.sys =  (sys <= 0)  ? old_cpu_usage.sys : sys;
-			//new_info.idle = (idle <= 0) ? old_cpu_usage.idle : idle;
-			
-			////console.log(new_info);
-			
-			//var total_usage = 0;
-			//var total_time = 0;
-			//Object.each(new_info, function(value, key){
-				//if(key != 'idle'){
-					//total_usage += value;
-				//}
-				//total_time += value;
-			//});
-			
-			
-			//var percentage = {
-				//user: 0,
-				//nice: 0,
-				//sys: 0,
-				//idle: 0,
-				//usage: 0
-			//};
-			
-			//percentage = {
-				//user: ((new_info.user * 100) / total_time).toFixed(2),
-				//nice: ((new_info.nice * 100) / total_time).toFixed(2),
-				//sys: ((new_info.sys * 100) / total_time).toFixed(2),
-				//idle: ((new_info.idle * 100) / total_time).toFixed(2),
-				//usage: ((total_usage * 100) / total_time).toFixed(2)
-			//};
-			
-			////var total_time = total_usage + new_info.idle;
-			
-			
-			//console.log(percentage);
-			
-			//this._update_plot_data('cpus', percentage['usage'].toFloat());
-			
-			//return percentage;
-		//}.bind(this));
 		
 		this.user_friendly_uptime = ko.pureComputed(function(){
 			return (this.uptime() / this[this.options.current_time_base]).toFixed(0);
 		}.bind(this));
 		
 		this.primary_iface_out = ko.pureComputed(function(){
-			//console.log('this.networkInterfaces[this.primary_iface()]()');
-			//console.log(this.primary_iface());
+			////console.log('this.networkInterfaces[this.primary_iface()]()');
+			////console.log(this.primary_iface());
 			return (this.networkInterfaces[this.primary_iface()]().transmited.bytes / this[this.options.current_size_base]).toFixed(2);
 		}.bind(this));
 		
@@ -437,30 +279,30 @@ var OSModel = new Class({
 		
 		this.user_friendly_loadavg = ko.pureComputed(function(){
 			var arr = [];
-			//console.log('user_friendly_loadavg');
-			//console.log(this.loadavg());
+			////console.log('user_friendly_loadavg');
+			////console.log(this.loadavg());
 			Array.each(this.loadavg(), function(item, index){
 				arr[index] = item.toFixed(2);
 			}.bind(this));
 			
 			/** update plot with 'loadavg' */
-			this._update_plot_data('loadavg', arr[0].toFloat());
+			//this._update_plot_data('loadavg', arr[0].toFloat());
 			
-			//////console.log(arr);
+			////////console.log(arr);
 			return arr;
 			
 		}.bind(this));
 		
 		this.list_blk_dev = ko.pureComputed(function(){
-			//console.log('list_blk_dev');
-			//console.log(this.blockdevices);
+			////console.log('list_blk_dev');
+			////console.log(this.blockdevices);
 			
 			var arr = [];
 			
 			var colors=["aero", "purple", "red", "green",  "blue"];//class="fa fa-square $color", has to match Chart order
 			
 			Object.each(this.blockdevices, function(dev, name){
-				console.log(dev);
+				//console.log(dev);
 				
 				var info = {};
 				//info.name = Object.keys(dev)[0];
@@ -472,8 +314,8 @@ var OSModel = new Class({
 				//info.partitions = dev[info.name].partitions();
 				var index = 0;
 				Object.each(dev.partitions(), function(part, key){
-					//////console.log('PART');
-					//////console.log(part);
+					////////console.log('PART');
+					////////console.log(part);
 					var part_info = {};
 					part_info.name = key;
 					part_info.size = part.size;
@@ -489,15 +331,15 @@ var OSModel = new Class({
 				//arr.append(Object.keys(dev));
 			}.bind(this));
 			
-			////console.log('list_blk_dev');
-			////console.log(arr);
+			//////console.log('list_blk_dev');
+			//////console.log(arr);
 			return arr;
 		}.bind(this));
 		
 		this.list_mounts = ko.pureComputed(function(){
-			//console.log('this.mounts');
-			//console.log(this.mounts);
-			//console.log(this.list_blk_dev());
+			////console.log('this.mounts');
+			////console.log(this.mounts);
+			////console.log(this.list_blk_dev());
 			
 			var mounts = [];
 			Array.each(this.mounts, function(mount){
@@ -509,13 +351,13 @@ var OSModel = new Class({
 					info.fs = mount.fs();
 					info.size = '?';
 					
-					//console.log(info.fs);
+					////console.log(info.fs);
 					
 					Array.each(this.list_blk_dev(), function(dev){
 						var name = Object.keys(dev)[0];
 						Array.each(dev.partitions, function(part){
-							////console.log('PART');
-							////console.log(part);
+							//////console.log('PART');
+							//////console.log(part);
 							
 							if(new RegExp(part.name).test(info.fs)){//if mount point is on listed partitions, we can get szie in bytes
 								info.size = (part.size / this[this.options.current_size_base]).toFixed(0)+ "GB";
@@ -528,7 +370,7 @@ var OSModel = new Class({
 				}
 			}.bind(this));
 			
-			//console.log(mounts);
+			////console.log(mounts);
 			return mounts;
 			
 		}.bind(this));
@@ -538,22 +380,22 @@ var OSModel = new Class({
 			init: function(element, valueAccessor) {
 					var name = ko.unwrap(valueAccessor()); // Get the current value of the current property we're bound to
 					
-					console.log('load_chart');
-					console.log(element);
-					console.log(name);
+					//console.log('load_chart');
+					//console.log(element);
+					//console.log(name);
 					//$(element).toggle(value); // jQuery will hide/show the element depending on whether "value" or true or false
 					
 					var dev = self.blockdevices[name];
 					
-					////console.log('DEVICE');
-					//console.log(name);
-					//console.log(dev.partitions());
+					//////console.log('DEVICE');
+					////console.log(name);
+					////console.log(dev.partitions());
 					
 					//var id = Object.keys(dev)[0];
 					var size = dev.size();
 					
-					////console.log("blockdevice_");
-					////console.log(dev[id].partitions());
+					//////console.log("blockdevice_");
+					//////console.log(dev[id].partitions());
 					var blockdevice_chart = Object.clone(self.options.blockdevice_chart);
 					
 					blockdevice_chart.data.labels = Object.keys(dev.partitions());
@@ -573,18 +415,18 @@ var OSModel = new Class({
 		};
 		
 		//head.ready("flot_curvedLines", function(){
-			////console.log('_load_plot');
+			//////console.log('_load_plot');
 			//this._load_plot();
 		//}.bind(this));
-		ko.tasks.schedule(function () {
+		var handle = ko.tasks.schedule(function () {
 				console.log('my microtask');
 				
 				this._load_plot();
 				
-				//console.log(ko.isObservable(this.blockdevices.sda.stats));
+				////console.log(ko.isObservable(this.blockdevices.sda.stats));
 				
 				this.user_friendly_cpus_usage.subscribe( function(value){
-					console.log('this.user_friendly_cpus_usage.subscribe');
+					//console.log('this.user_friendly_cpus_usage.subscribe');
 					this._update_plot_data('cpus', value['usage'].toFloat());
 				}.bind(this) );
 				
@@ -600,41 +442,43 @@ var OSModel = new Class({
 				}.bind(this));
 			
 				this.blockdevices.sda.stats.subscribe(function(oldValue) {
-						console.log('this.blockdevices().sda.stats() suscribe OLD VALUE');
+						//console.log('this.blockdevices().sda.stats() suscribe OLD VALUE');
 						this.blockdevices.sda._prev_stats = oldValue;
 						
 				}.bind(this), null, "beforeChange");
 
 				this.blockdevices.sda.stats.subscribe( function(value){
-					console.log('this.blockdevices().sda.stats() suscribe');
+					//console.log('this.blockdevices().sda.stats() suscribe');
 					
-					//milliseconds between last update and this one
-					var time_in_queue = value.time_in_queue - this.blockdevices.sda._prev_stats.time_in_queue;
+					////milliseconds between last update and this one
+					//var time_in_queue = value.time_in_queue - this.blockdevices.sda._prev_stats.time_in_queue;
 					
-					//console.log('TIME IN QUEUE: '+time_in_queue);
+					//////console.log('TIME IN QUEUE: '+time_in_queue);
 					
-					//var percentage_in_queue = [];
-					data = [];
+					////var percentage_in_queue = [];
+					//data = [];
 					/**
 					 * each messure spent on IO, is 100% of the disk at full IO speed (at least, available for the procs),
 					 * so, as we are graphing on 1 second X, milliseconds spent on IO, would be % of that second (eg: 500ms = 50% IO)
 					 * 
 					 * */
-					if(time_in_queue < 1000){//should always enter this if, as we messure on 1 second updates (1000+)
-						//console.log('LESS THAN A SECOND');
-						data.push((time_in_queue * 100) / 1000);
-					}
-					else{//updates may not get as fast as 1 second, so we split the messure for as many as seconds it takes
-						//console.log('MORE THAN A SECOND');
+					//if(time_in_queue < 1000){//should always enter this if, as we messure on 1 second updates (1000+)
+						//////console.log('LESS THAN A SECOND');
+						//data.push((time_in_queue * 100) / 1000);
+					//}
+					//else{//updates may not get as fast as 1 second, so we split the messure for as many as seconds it takes
+						//////console.log('MORE THAN A SECOND');
 						
-						for(var i = 1; i < (time_in_queue / 1000); i++){
-							//console.log('----SECOND: '+i);
+						////for(var i = 1; i < (time_in_queue / 1000); i++){
+							////////console.log('----SECOND: '+i);
 							
-							data.push( 100 ); //each of this seconds was at 100%
-						}
+							////data.push( 100 ); //each of this seconds was at 100%
+						////}
 						
-						data.push(( (time_in_queue % 1000) * 100) / 1000);
-					}
+						//data.push(( (time_in_queue % 1000) * 100) / 1000);
+					//}
+					
+					var data = this._blockdevice_percentage_data(this.blockdevices.sda._prev_stats.time_in_queue, value.time_in_queue);
 					
 					for(var i = 0; i < data.length; i++ ){
 						this._update_plot_data('sda_stats', data[i]);
@@ -643,56 +487,38 @@ var OSModel = new Class({
 				}.bind(this) );
 				
 		}.bind(this));
-	},
-	_load_plot: function(){
-					
-		/**
-		 * load initial data
-		 * 
-		 * */
-		var now = new Date();
-		var cpu = [];
-		var load = [];
-		var used_mem_percentage = [];
-		var sda_io_percentage = [];
 		
-		//for(var i = 0; i <= 59; i++){
-			////data.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - i).getTime(), Math.floor((Math.random() * 100) + 1)]);
-			
-			////cpu.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.floor((Math.random() * 10) + 1)]);
-			
-			//load.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.random().toFixed(2)]);
-			
-			//used_mem_percentage.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.floor((Math.random() * 50) + 1)]);
-			
-			//sda_io_percentage.push([new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 1, i).getTime(), Math.floor((Math.random() * 10) + 1)]);
-		//}
-		this.plot_data.push(cpu);
-		this.plot_data.push(load);
-		this.plot_data.push(used_mem_percentage);
-		this.plot_data.push(sda_io_percentage);
-		
-		console.log(this.options.timed_plot._defaults);
-		
-		this.plot = $.plot($("#canvas_dahs"), this.plot_data, this.options.timed_plot._defaults);
-		
-		
-		var update_plot = function(){
+		this.periodical_functions['plot_update']['fn'] = function(){
 			console.log('update_plot');
 			
+			var last_minutes = Date.now() - 120000;
 			var old_data = this.plot.getData();
-			var raw_data = [];
+			
 			
 			Array.each(old_data, function(data, index){
-				//raw_data = old_data[index].data;
-				raw_data = data.data;
-				if(raw_data.length >= 120){
-					for(var i = 0; i < (raw_data.length - 120); i++){
-						raw_data.shift();
-					}
-				}
 				
-				this.plot_data[index] = raw_data;
+				var new_data = [];
+				//raw_data = old_data[index].data;
+				var raw_data = data.data;
+				////console.log('raw_data');
+				////console.log(typeOf(raw_data));
+				////console.log(raw_data);
+				////console.log(raw_data.length);
+				
+				//if(raw_data.length >= 60){
+					//for(var i = 0; i < (raw_data.length - 60); i++){
+					for(var i = 0; i < raw_data.length; i++){
+						////console.log('raw_data '+i);
+						////console.log(raw_data[i]);
+						
+						if(raw_data[i][0] >= last_minutes){//if timestamp >= max time window to show
+							new_data.push(raw_data[i]);
+						}
+						//raw_data.shift();
+					}
+				//}
+				
+				this.plot_data[index] = new_data;
 			}.bind(this));
 			
 			
@@ -701,17 +527,60 @@ var OSModel = new Class({
 				this.plot_data,
 				this.options.timed_plot._defaults
 			);
-		}.periodical(this.options.timed_plot.update_interval, this);
+		}.bind(this);
+		
+		this.periodical_functions['plot_update']['interval'] = this.options.timed_plot.update_interval;
+		//.periodical(this.options.timed_plot.update_interval, this);
+		
+	},
+	_blockdevice_percentage_data(oldValue, newValue){
+		var time_in_queue = newValue - oldValue;
+					
+		////console.log('TIME IN QUEUE: '+time_in_queue);
+		
+		//var percentage_in_queue = [];
+		var data = [];
+		/**
+		 * each messure spent on IO, is 100% of the disk at full IO speed (at least, available for the procs),
+		 * so, as we are graphing on 1 second X, milliseconds spent on IO, would be % of that second (eg: 500ms = 50% IO)
+		 * 
+		 * */
+		if(time_in_queue < 1000){//should always enter this if, as we messure on 1 second updates (1000+)
+			////console.log('LESS THAN A SECOND');
+			data.push((time_in_queue * 100) / 1000);
+		}
+		else{//updates may not get as fast as 1 second, so we split the messure for as many as seconds it takes
+			////console.log('MORE THAN A SECOND');
+			
+			//for(var i = 1; i < (time_in_queue / 1000); i++){
+				//////console.log('----SECOND: '+i);
+				
+				//data.push( 100 ); //each of this seconds was at 100%
+			//}
+			
+			data.push(( (time_in_queue % 1000) * 100) / 1000);
+		}
+					
+		return data;
+	},
+	_load_plot: function(){
+					
+		Array.each(this.plot_data_order, function(type){//add an empty array for each data type to plot
+				this.plot_data.push([]);
+		}.bind(this));
+		
+		this.plot = $.plot($("#canvas_dahs"), this.plot_data, this.options.timed_plot._defaults);
+		
 		
 	},
 	_update_plot_data: function(type, new_data, timestamp){
 		timestamp = timestamp || Date.now().getTime();
 		
-		console.log('_update_plot_data: '+type);
-		if(type == 'sda_stats'){
-			console.log('_update_plot_data timestamp: '+timestamp);
-			console.log('_update_plot_data data: '+new_data);
-		}
+		////console.log('_update_plot_data: '+type);
+		//if(type == 'sda_stats'){
+			////console.log('_update_plot_data timestamp: '+timestamp);
+			////console.log('_update_plot_data data: '+new_data);
+		//}
 		
 		var index = this.plot_data_order.indexOf(type);
 		
@@ -722,67 +591,6 @@ var OSModel = new Class({
 			var raw_data = [];
 			
 			raw_data = old_data[index].data;
-			//if(raw_data.length >= 60){
-				//for(var i = 0; i < (raw_data.length - 60); i++){
-					//raw_data.shift();
-				//}
-			//}
-			
-			//data = null;
-			
-			//switch (type){
-				//case 'freemem': data = (((this.model.totalmem() - this.model.freemem()) * 100) / this.model.totalmem()).toFixed(2);
-					//break;
-				
-				//case 'cpus': data = this.model.user_friendly_cpus_usage()['usage'].toFloat();
-					//break;
-					
-				//case 'loadavg': data = this.model.user_friendly_loadavg()[0].toFloat();
-					//break;
-					
-				//case 'sda_stats': 
-					////milliseconds between last update and this one
-					//var time_in_queue = this.model.blockdevices.sda.stats().time_in_queue - this.model.blockdevices.sda._prev_stats.time_in_queue;
-					
-					////console.log('TIME IN QUEUE: '+time_in_queue);
-					
-					////var percentage_in_queue = [];
-					//data = [];
-					///**
-					 //* each messure spent on IO, is 100% of the disk at full IO speed (at least, available for the procs),
-					 //* so, as we are graphing on 1 second X, milliseconds spent on IO, would be % of that second (eg: 500ms = 50% IO)
-					 //* 
-					 //* */
-					//if(time_in_queue < 1000){//should always enter this if, as we messure on 1 second updates (1000+)
-						////console.log('LESS THAN A SECOND');
-						//data.push((time_in_queue * 100) / 1000);
-					//}
-					//else{//updates may not get as fast as 1 second, so we split the messure for as many as seconds it takes
-						////console.log('MORE THAN A SECOND');
-						
-						//for(var i = 1; i < (time_in_queue / 1000); i++){
-							////console.log('----SECOND: '+i);
-							
-							//data.push( 100 ); //each of this seconds was at 100%
-						//}
-						
-						//data.push(( (time_in_queue % 1000) * 100) / 1000);
-					//}
-					
-					//break;
-			//}
-			
-			//push data
-			//switch (type){
-				//case 'sda_stats':
-					//for(var i = 0; i < new_data.length; i++ ){
-						//raw_data.push([timestamp, new_data[i] ]);
-					//}
-					//break;
-					
-				//default: 
-					//raw_data.push([timestamp, new_data ]);
-			//}
 			
 			if(typeOf(new_data) == 'array'){
 				for(var i = 0; i < new_data.length; i++ ){
