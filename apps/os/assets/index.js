@@ -101,13 +101,15 @@ function getURLParameter(name, URI) {
 									return '/os/api/blockdevices/sda/stats';
 								}.bind(this),
 								onSuccess: function(doc){
-									//console.log('myRequests.sda_stats: ');
-									//console.log(doc);
+									console.log('myRequests.sda_stats: ');
+									console.log(doc);
 									
 									/**
 									 * save previous stats, needed to calculate times (updated stats - prev_stats)
 									 * */
 									//os_page.model.blockdevices.sda._prev_stats = os_page.model.blockdevices.sda.stats();
+									
+									doc.data.timestamp = doc.metadata.timestamp;
 									
 									os_page.model.blockdevices.sda.stats(doc.data);
 									
@@ -207,8 +209,9 @@ function getURLParameter(name, URI) {
 							});
 							
 							
-							if(all_success)
-								self.fireEvent(self.STARTED);	
+							if(all_success){
+								self.fireEvent(self.STARTED);
+							}
 								
 						},
 						onEnd: function(){
@@ -225,7 +228,8 @@ function getURLParameter(name, URI) {
 					
 					delete server_data._id;
 					delete server_data._rev;
-					delete server_data.metadata;
+					var timestamp = server_data.metadata.timestamp;
+					//delete server_data.metadata;
 					
 					if(server_data.data)
 						server_data = server_data.data;
@@ -240,16 +244,23 @@ function getURLParameter(name, URI) {
 						
 						Array.each(server_data, function(value, key){
 							//////console.log(this._implementable_model_object(value, key)[key]);
-							obj[id].push(this._implementable_model_object(value, key)[key]);
+							obj[id].push( Object.merge({ timestamp: timestamp}, this._implementable_model_object(value, key)[key]));
 							
 							if(obj[id].length == Object.getLength(server_data)){
-										
+								
+								//console.log('IMPLEMENTING...');
+								//console.log(obj);
+								
 								OSModel.implement(obj);
 							}
 							
 						}.bind(this));
 						
-						//////console.log(obj);
+						//var updated_timestamp = {}
+						//updated_timestamp[id+'_updated'] = timestamp;
+							
+						//OSModel.implement(updated_timestamp);
+						////////console.log(obj);
 					}
 					else{
 						obj[id] = {};
@@ -275,12 +286,19 @@ function getURLParameter(name, URI) {
 									//console.log(obj);
 								}
 								//if(obj[id].length == Object.getLength(server_data)){
+								
 								if(Object.getLength(obj[id]) == Object.getLength(server_data)){
-									
+									obj[id]['timestamp'] = timestamp;
 									OSModel.implement(obj);
 								}
+								
+								//var updated_timestamp = {}
+								//updated_timestamp[id+'_updated'] = timestamp;
+									
+								//OSModel.implement(updated_timestamp);
 							}
 							else{
+								OSModel.implement({timestamp : timestamp});
 								
 								OSModel.implement(this._implementable_model_object(value, key));
 							}
@@ -314,7 +332,7 @@ function getURLParameter(name, URI) {
 						
 					}
 					else{
-						var obj = {};
+						//var obj = {};
 						obj[key] = ko.observable(value);
 						//OSModel.implement(obj);
 					}
@@ -564,24 +582,30 @@ function getURLParameter(name, URI) {
 						//delay: 2000,
 						//limit: 10000,
 						onSuccess: function(docs){
-							//console.log('myRequests.sda_stats: ');
+							console.log('myRequests.sda_stats: ');
 							//console.log(docs);
 							
-							var last_time_in_queue = 0;
+							//var io_ticks = 0;
+							var last_doc = null;
 							
-							/** docs come from lastes [0] to oldest [N-1] */
+							///** docs come from lastes [0] to oldest [N-1] */
 							for(var i = docs.length - 1; i >= 0; i--){
 								var doc = docs[i];
+								doc.data.timestamp = docs[i].metadata.timestamp;
 								
-								var time_in_queue = doc.data.time_in_queue;
+								//var io_ticks = doc.data.io_ticks;
 								
-								var percentage = self.model._blockdevice_percentage_data(last_time_in_queue, time_in_queue);
+								if(last_doc){
+									var percentage = self.model._blockdevice_percentage_data(last_doc, doc.data);
+									self.model._update_plot_data('sda_stats', percentage, doc.metadata.timestamp);
+								}
 								
-								last_time_in_queue = time_in_queue;
+								last_doc = doc.data;
+								//last_time_in_queue = time_in_queue;
 								
 								////console.log(percentage);
 								
-								self.model._update_plot_data('sda_stats', percentage, doc.metadata.timestamp);
+								
 								
 							}
 								
@@ -606,6 +630,7 @@ function getURLParameter(name, URI) {
 					
 					if(!self.model){
 						self.model = new OSModel();
+						//self.model.started = Date.now().getTime();//save the timestamp where all the update model request has finish
 						mainBodyModel.os(self.model);
 					}
 					else{

@@ -29,9 +29,13 @@ var OSModel = new Class({
 		}
 	],
 	
+	//started: 0, //timestamp updated on index.js
+	
 	plot: null,
 	plot_data: [],
 	plot_data_order: ['cpus', 'loadavg', 'freemem', 'sda_stats'],
+	//plot_data_last_update: 0,
+	//plot_data_update: 0,
 	
 	periodical_functions: {
 		'plot_update':{
@@ -442,13 +446,31 @@ var OSModel = new Class({
 				}.bind(this));
 			
 				this.blockdevices.sda.stats.subscribe(function(oldValue) {
-						//console.log('this.blockdevices().sda.stats() suscribe OLD VALUE');
+						console.log('this.blockdevices().sda.stats() suscribe OLD VALUE');
+						console.log(this.blockdevices.timestamp);
+						
+						if(!oldValue.timestamp)
+							oldValue.timestamp = this.blockdevices.timestamp;
+						
+						
+						//var timestamp = this.blockdevices.sda._prev_stats.timestamp || 0;
 						this.blockdevices.sda._prev_stats = oldValue;
+						
+						
 						
 				}.bind(this), null, "beforeChange");
 
 				this.blockdevices.sda.stats.subscribe( function(value){
-					//console.log('this.blockdevices().sda.stats() suscribe');
+					
+					////when the blkdev stats are updated for first time, we save the timestamp of the '_prev_stats', for next iteration
+					//if(!this.blockdevices.sda._prev_stats){
+						//console.log('saving prev timestamp');
+						//this.blockdevices.sda._prev_stats = {};
+						//this.blockdevices.sda._prev_stats.timestamp = Date.now();
+					//}
+						
+					
+					console.log('this.blockdevices().sda.stats() suscribe');
 					
 					////milliseconds between last update and this one
 					//var time_in_queue = value.time_in_queue - this.blockdevices.sda._prev_stats.time_in_queue;
@@ -478,11 +500,14 @@ var OSModel = new Class({
 						//data.push(( (time_in_queue % 1000) * 100) / 1000);
 					//}
 					
-					var data = this._blockdevice_percentage_data(this.blockdevices.sda._prev_stats.time_in_queue, value.time_in_queue);
+					//var data = this._blockdevice_percentage_data(this.blockdevices.sda._prev_stats.time_in_queue, value.time_in_queue);
+					var data = this._blockdevice_percentage_data(this.blockdevices.sda._prev_stats, value);
 					
-					for(var i = 0; i < data.length; i++ ){
-						this._update_plot_data('sda_stats', data[i]);
-					}
+					this._update_plot_data('sda_stats', data, value.timestamp);
+					
+					//for(var i = 0; i < data.length; i++ ){
+						//this._update_plot_data('sda_stats', data[i]);
+					//}
 					
 				}.bind(this) );
 				
@@ -533,33 +558,64 @@ var OSModel = new Class({
 		//.periodical(this.options.timed_plot.update_interval, this);
 		
 	},
-	_blockdevice_percentage_data(oldValue, newValue){
-		var time_in_queue = newValue - oldValue;
+	//_blockdevice_percentage_data(oldValue, newValue){
+		//var time_in_queue = newValue - oldValue;
 					
-		////console.log('TIME IN QUEUE: '+time_in_queue);
+		//////console.log('TIME IN QUEUE: '+time_in_queue);
 		
-		//var percentage_in_queue = [];
-		var data = [];
-		/**
-		 * each messure spent on IO, is 100% of the disk at full IO speed (at least, available for the procs),
-		 * so, as we are graphing on 1 second X, milliseconds spent on IO, would be % of that second (eg: 500ms = 50% IO)
-		 * 
-		 * */
-		if(time_in_queue < 1000){//should always enter this if, as we messure on 1 second updates (1000+)
-			////console.log('LESS THAN A SECOND');
-			data.push((time_in_queue * 100) / 1000);
-		}
-		else{//updates may not get as fast as 1 second, so we split the messure for as many as seconds it takes
-			////console.log('MORE THAN A SECOND');
+		////var percentage_in_queue = [];
+		//var data = [];
+		///**
+		 //* each messure spent on IO, is 100% of the disk at full IO speed (at least, available for the procs),
+		 //* so, as we are graphing on 1 second X, milliseconds spent on IO, would be % of that second (eg: 500ms = 50% IO)
+		 //* 
+		 //* */
+		//if(time_in_queue < 1000){//should always enter this if, as we messure on 1 second updates (1000+)
+			//////console.log('LESS THAN A SECOND');
+			//data.push((time_in_queue * 100) / 1000);
+		//}
+		//else{//updates may not get as fast as 1 second, so we split the messure for as many as seconds it takes
+			//////console.log('MORE THAN A SECOND');
 			
-			//for(var i = 1; i < (time_in_queue / 1000); i++){
-				//////console.log('----SECOND: '+i);
+			////for(var i = 1; i < (time_in_queue / 1000); i++){
+				////////console.log('----SECOND: '+i);
 				
-				//data.push( 100 ); //each of this seconds was at 100%
-			//}
+				////data.push( 100 ); //each of this seconds was at 100%
+			////}
 			
-			data.push(( (time_in_queue % 1000) * 100) / 1000);
+			//data.push(( (time_in_queue % 1000) * 100) / 1000);
+		//}
+					
+		//return data;
+	//},
+	_blockdevice_percentage_data(oldValue, newValue){
+		//oldValue.timestamp = oldValue.timestamp || newValue.timestamp - 5000; //last doc.timestamp - prev.doc.timestamp (aproximate value, polling time)
+		
+		var time_diff = newValue.timestamp - oldValue.timestamp;
+		var io_ticks = newValue.io_ticks - oldValue.io_ticks;//milliseconds, can't be greater than time_diff
+		
+		console.log('io_ticks');
+		console.log(io_ticks);
+		console.log('time_diff');
+		console.log(time_diff);
+		console.log(oldValue);
+		console.log(newValue);
+		
+		
+		var data = 0;
+		
+		if(io_ticks == 0 && time_diff == 0){
+			data = 0;
 		}
+		else if(io_ticks >= time_diff){
+			data = 100; //busy all the time, 100%
+		}
+		else{
+			data = ((io_ticks * 100) / time_diff).toFloat().toFixed(2);
+		}
+		
+		console.log('sda_stats percentage');
+		console.log(data);
 					
 		return data;
 	},
@@ -574,7 +630,10 @@ var OSModel = new Class({
 		
 	},
 	_update_plot_data: function(type, new_data, timestamp){
-		timestamp = timestamp || Date.now().getTime();
+		//this.plot_data_last_update = this.plot_data_update;
+		var now = Date.now().getTime();
+		//this.plot_data_update = now;
+		timestamp = timestamp || now;
 		
 		////console.log('_update_plot_data: '+type);
 		//if(type == 'sda_stats'){
