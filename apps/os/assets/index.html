@@ -116,23 +116,18 @@
 					</div>
 
 					<div class="col-md-12 col-sm-12 col-xs-6">
+						<!-- ko foreach: { data: plot_resources, as: 'resource' }  -->
 						<div>
-							<p>Facebook Campaign</p>
-							<div class="">
-								<div class="progress progress_sm" style="width: 76%;">
-									<div class="progress-bar bg-green" role="progressbar" data-transitiongoal="80"></div>
-								</div>
-							</div>
+							
+							<p>
+								<i class= 'fa fa-square ' data-bind="attr: {style: 'color: '+resource.rgba+';'}"></i>
+								<!-- ko text: resource.name --><!-- /ko -->
+							</p>
+							
 						</div>
-						<div>
-							<p>Twitter Campaign</p>
-							<div class="">
-								<div class="progress progress_sm" style="width: 76%;">
-									<div class="progress-bar bg-green" role="progressbar" data-transitiongoal="60"></div>
-								</div>
-							</div>
-						</div>
+						<!-- /ko -->
 					</div>
+<!--
 					<div class="col-md-12 col-sm-12 col-xs-6">
 						<div>
 							<p>Conventional Media</p>
@@ -151,6 +146,7 @@
 							</div>
 						</div>
 					</div>
+-->
 
 				</div>
 

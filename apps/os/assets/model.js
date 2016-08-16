@@ -218,6 +218,17 @@ var OSModel = new Class({
 		////////console.log('this.networkInterfaces');
 		////////console.log(this.primary_iface());
 		
+		this.plot_resources = ko.pureComputed(function(){
+			var resources = [];
+			Array.each(this.plot_data_order, function(name, index){
+				var resource = {};
+				resource.name = name;
+				resource.rgba = this.options.timed_plot._defaults.colors[index];
+				resources.push(resource);
+			}.bind(this));
+			return resources;
+		}.bind(this));
+		
 		this.header = ko.pureComputed(function(){
 			return this.hostname()+' ['+this.type() +' '+this.release()+' '+this.arch()+']';
 		}.bind(this));

@@ -197,7 +197,9 @@ function getURLParameter(name, URI) {
 					
 					var myQueue = new Request.Queue({
 						requests: requests,
+						concurrent: 10,
 						onSuccess: function(name, instance, data){
+							console.log('queue.onSuccess');
 							
 							success_request.push(name);
 							/**
@@ -210,12 +212,13 @@ function getURLParameter(name, URI) {
 							
 							
 							if(all_success){
+								console.log('queue.ALLonSuccess');
 								self.fireEvent(self.STARTED);
 							}
 								
 						},
 						onEnd: function(){
-							//////console.log('queue.onEnd');
+							console.log('queue.onEnd');
 						}
 					});
 					
