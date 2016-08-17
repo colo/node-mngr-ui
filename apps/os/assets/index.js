@@ -125,6 +125,107 @@ function getURLParameter(name, URI) {
 				
 				initialize: function(options){
 					
+					//PouchDB.debug.enable('*');
+					PouchDB.debug.disable('*');
+					
+					this.db = new PouchDB('dashboard');
+					//window.PouchDB = this.db;
+					
+					
+					//this.db.info().then(function (info) {
+						//console.log(info);
+					//})
+					var self = this;
+					/** check if views are in the DB */
+					this.db.get('_design/info')
+					.catch(function (err) {
+						console.log(err);
+						if (err.status == 404) {//if not found, load and insert
+							
+							self.addEvent(self.JS_LOADED+'_InfoView', function(){
+								self.db.put(InfoView);
+							});
+							
+							self.load_js({ InfoView : '/public/apps/os/_views/InfoView.js'});
+						}
+						// ignore if doc already exists
+					})
+					.then(function (doc) {
+						
+						//self.db.query('info/by_path_host', {
+							//descending: true,
+							//inclusive_end: true,
+							//include_docs: true,
+							//limit: 1,
+							//startkey: [ 'os', 'localhost.colo￰' ],
+							//endkey: [ 'os', 'localhost.colo' ] 
+						//})
+						//.then(function (response) {
+							//console.log('info/by_path_host/os');
+							//console.log(response);
+							
+						//}).catch(function (err) {
+							//console.log('err');
+							//console.log(err);
+							
+						//});
+						
+						//self.db.query('info/by_path_host', {
+							//descending: true,
+							//inclusive_end: true,
+							//include_docs: true,
+							//limit: 1,
+							//startkey: [ 'os.blockdevices', 'localhost.colo￰' ],
+							//endkey: [ 'os.blockdevices', 'localhost.colo' ] 
+						//})
+						//.then(function (response) {
+							//console.log('info/by_path_host/os.blockdevices');
+							//console.log(response);
+							
+						//}).catch(function (err) {
+							//console.log('err');
+							//console.log(err);
+							
+						//});
+						
+						//self.db.query('info/by_path_host', {
+							//descending: true,
+							//inclusive_end: true,
+							//include_docs: true,
+							//limit: 1,
+							//startkey: [ 'os.mounts', 'localhost.colo￰' ],
+							//endkey: [ 'os.mounts', 'localhost.colo' ] 
+						//})
+						//.then(function (response) {
+							//console.log('info/by_path_host/os.mounts');
+							//console.log(response);
+							
+						//}).catch(function (err) {
+							//console.log('err');
+							//console.log(err);
+							
+						//});
+					});
+					
+					this.db.get('_design/status')
+					.catch(function (err) {
+						console.log(err);
+						if (err.status == 404) {//if not found, load and insert
+							
+							self.addEvent(self.JS_LOADED+'_StatusView', function(){
+								self.db.put(StatusView);
+							});
+							
+							self.load_js({ StatusView : '/public/apps/os/_views/StatusView.js'});
+						}
+						// ignore if doc already exists
+					})
+					.then(function (doc) {
+						//console.log(doc);
+						
+					});
+					/** ---------------- */
+					
 					root_page.addEvent('beforeHide_os', function(){
 						
 						this.stop_timed_requests();
@@ -152,7 +253,7 @@ function getURLParameter(name, URI) {
 					this.addEvent(this.JSONP_LOADED+'_update_server', function(data){
 						this.server = data;
 						
-						this._request_update_model(this.options.requests.update_model);
+						this._update_model(this.options.requests.update_model);
 						
 					}.bind(this));
 					
@@ -168,7 +269,7 @@ function getURLParameter(name, URI) {
 					var current_uri = new URI(window.location.pathname);
 					
 				},
-				_request_update_model(urls){
+				_update_model(urls){
 					var self = this;
 					urls = (typeOf(urls) == 'array') ? urls : [urls];
 					
@@ -176,14 +277,60 @@ function getURLParameter(name, URI) {
 					
 					Array.each(urls, function(url){
 						var id = url.replace('/api', '');
-						id = id.split('/');//split to get last portion (ex: 'os', 'blockdevices'....)
-						id = id[id.length - 1]; //last part would be "/api"
+						id = id.replace(/\//g, '.');
+						
+						var doc_key = id.replace('.', '');
+						console.log('DOCS');
+						console.log(doc_key);
+						
+						id = id.split('.');//split to get last portion (ex: 'os', 'blockdevices'....)
+						id = id[id.length - 1];
+						
+						console.log('REQUESTS');
+						console.log(id);
+						
+						self.db.query('info/by_path_host', {
+							descending: true,
+							inclusive_end: true,
+							include_docs: true,
+							limit: 1,
+							startkey: [ doc_key+'something', 'localhost.colo￰' ],
+							endkey: [ doc_key+'something', 'localhost.colo' ] 
+						})
+						.then(function (response) {
+							console.log('info/by_path_host/'+doc_key);
+							//console.log(response);
+							//console.log(response.rows[0].doc);
+							if(response.rows[0]){//there is a doc, update model with this data
+							}
+							
+							throw new Error('continue...');
+							
+						})
+						//.catch(function (err) {
+							//console.log('err');
+							//console.log(err);
+							
+						//});
+						
+						
+						
 						
 						requests[id] = new Request.JSON({
 							method: 'get',
 							secure: true,
 							url: this.server+url+'?type=info',
 							onSuccess: function(server_data){
+								console.log('onSuccess to apply');
+								console.log(server_data);
+								
+								doc = Object.clone(server_data);
+								
+								/** insert on local db, so we can avoid this request next time */
+								self.db.put(doc).catch(function (err) {
+									//console.log('err');
+									//console.log(err);
+								});
 								
 								this._apply_data_model(server_data, id);
 								
@@ -200,6 +347,7 @@ function getURLParameter(name, URI) {
 						concurrent: 10,
 						onSuccess: function(name, instance, data){
 							console.log('queue.onSuccess');
+							//console.log(data);
 							
 							success_request.push(name);
 							/**

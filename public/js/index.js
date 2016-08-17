@@ -221,6 +221,7 @@ head.ready('mootools-more', function(){
 		options: {
 			assets: {
 				js: [
+					{ pouchdb: "/public/bower/pouchdb/dist/pouchdb.min.js"} ,
 					////ko: "/public/bower/knockoutjs/dist/knockout.js",
 					////jQuery: "/public/bower/jquery/dist/jquery.min.js",
 					//////pager: "/public/bower/pagerjs/dist/pager.min.js",
