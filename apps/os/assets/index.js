@@ -28,15 +28,17 @@ function getURLParameter(name, URI) {
 				ON_PERIODICAL_REQUEST_TIMEOUT: 'onPeriodicalRequestTimeout',
 				ON_PERIODICAL_REQUEST_FAILURE: 'onPeriodicalRequestFailure',
 				
+				ON_HISTORICAL_REQUEST_TIMEOUT: 'onHistoricalRequestTimeout',
+				ON_HISTORICAL_REQUEST_FAILURE: 'onHistoricalRequestFailure',
+				
 				server: null,
 				timed_request: {},
 				
-				//plot: null,
-				//plot_data: [],
-				//plot_data_order: ['cpus', 'loadavg', 'freemem', 'sda_stats'],
-				
 				timed_request: {},
 				timed_request_queue: null,
+				
+				historical_request: {},
+				historical_request_queue: null,
 				
 				periodical_functions: {},
 				periodical_functions_timers : {
@@ -44,10 +46,12 @@ function getURLParameter(name, URI) {
 					'model':{}
 				},
 				
+				update_model_success: [],
+				
 				options: {
 					assets: {
 						js: [
-							//{ sprintf: '/public/bower/sprintf/dist/sprintf.min.js' },
+							//{ pouchdb: "/public/bower/pouchdb/dist/pouchdb.min.js"} ,
 							{ gentelella_deps: [
 									{ bootstrap: "/public/bower/gentelella/vendors/bootstrap/dist/js/bootstrap.min.js" },
 									{ Chart: "/public/bower/gentelella/vendors/Chart.js/dist/Chart.min.js" },
@@ -69,9 +73,9 @@ function getURLParameter(name, URI) {
 								url: '?type=status&limit=1&range[start]=%d&range[end]=%d',
 								//url: '?type=status&limit=1',
 								method: 'get',
-								initialDelay: 5000,
-								delay: 5000,
-								limit: 5000,
+								initialDelay: 2000,
+								delay: 2000,
+								limit: 4000,
 								noCache: true
 							},
 							
@@ -117,14 +121,215 @@ function getURLParameter(name, URI) {
 								}
 							}
 						},
-						update_model: ['/os/api', '/os/api/blockdevices', '/os/api/mounts']
+						
+						historical: {
+							_defaults: {
+								url: '?type=status&range[start]=%d&range[end]=%d',
+								method: 'get',
+							},
+							loadavg : {
+								url: '/os/api/loadavg',
+								onSuccess: function(docs){
+									var cpu = [];
+									console.log('historical.loadavg: ');
+									////console.log(docs);
+									/** docs come from lastes [0] to oldest [N-1] */
+									for(var i = docs.length - 1; i >= 0; i--){
+										var doc = docs[i];
+										////console.log(doc.data[0].toFloat())
+										os_page.model._update_plot_data('loadavg', doc.data[0].toFloat(), doc.metadata.timestamp);
+										
+									}
+										
+								}
+							},
+							freemem: {
+								url: '/os/api/freemem',
+								onSuccess: function(docs){
+									var cpu = [];
+									console.log('historical.freemem: ');
+									////console.log(docs);
+									/** docs come from lastes [0] to oldest [N-1] */
+									for(var i = docs.length - 1; i >= 0; i--){
+										var doc = docs[i];
+										
+										os_page.model._update_plot_data('freemem', (((os_page.model.totalmem() - doc.data) * 100) / os_page.model.totalmem()).toFixed(2), doc.metadata.timestamp);
+										
+									}
+										
+								}
+							},
+							cpus: {
+								url: '/os/api/cpus',
+								onSuccess: function(docs){
+									var cpu = [];
+									console.log('historical.cpus: ');
+									////console.log(docs);
+									
+									var last = {
+										user: 0,
+										nice: 0,
+										sys: 0,
+										idle: 0
+									};
+									/** docs come from lastes [0] to oldest [N-1] */
+									for(var i = docs.length - 1; i >= 0; i--){
+										var doc = docs[i];
+										
+										var cpu_usage = {
+											user: 0,
+											nice: 0,
+											sys: 0,
+											idle: 0
+										};
+										Array.each(doc.data, function(cpu){
+						
+											cpu_usage.user += cpu.times.user;
+											cpu_usage.nice += cpu.times.nice;
+											cpu_usage.sys += cpu.times.sys;
+											cpu_usage.idle += cpu.times.idle;
+
+										});
+										
+										var percentage = os_page.model.cpu_usage_percentage(last, cpu_usage);
+										
+										last = Object.clone(cpu_usage);
+										
+										////console.log(percentage);
+										
+										os_page.model._update_plot_data('cpus', percentage['usage'].toFloat(), doc.metadata.timestamp);
+										
+										
+									}
+									
+								}
+							},
+							sda_stats: {
+								url: function(){ 
+									/** return chosen blkdev */
+									return '/os/api/blockdevices/sda/stats';
+								}.bind(this),
+								onSuccess: function(docs){
+									console.log('historical.sda_stats: ');
+									//console.log(docs);
+									
+									//var io_ticks = 0;
+									var last_doc = null;
+									
+									///** docs come from lastes [0] to oldest [N-1] */
+									for(var i = docs.length - 1; i >= 0; i--){
+										var doc = docs[i];
+										doc.data.timestamp = docs[i].metadata.timestamp;
+										
+										//var io_ticks = doc.data.io_ticks;
+										
+										if(last_doc){
+											var percentage = os_page.model._blockdevice_percentage_data(last_doc, doc.data);
+											os_page.model._update_plot_data('sda_stats', percentage, doc.metadata.timestamp);
+										}
+										
+										last_doc = doc.data;
+										//last_time_in_queue = time_in_queue;
+										
+										////console.log(percentage);
+										
+										
+										
+									}
+										
+								}
+								
+							}
+						},
+						update_model: ['/os/api', '/os/api/blockdevices', '/os/api/mounts'],
+						
+						
 					},
 					
-					
+					docs:{
+						buffer_size: 5,
+						timer: 5, //seconds
+					}
 				},
-				
-				initialize: function(options){
+				_define_historical_requests: function(){
+					var now = new Date();
 					
+					var self = this;
+					
+					Object.each(this.options.requests.historical, function(req, key){
+						if(key.charAt(0) != '_'){
+							var default_req = Object.append(
+								{
+									onSuccess: function(docs){
+										console.log('DEFAULT REQ onSuccess');
+										console.log(docs);
+										if(docs.length > 0){
+											Array.each(docs, function(doc){
+												delete doc._rev;
+											});
+											
+											self.db.bulkDocs(docs)
+											.catch(function (err) {
+												console.log(err);
+											});
+											
+										}
+									},
+									onFailure: function(){
+										self.fireEvent(self.ON_HISTORICAL_REQUEST_FAILURE);
+									},
+									onTimeout: function(){
+										self.fireEvent(self.ON_HISTORICAL_REQUEST_TIMEOUT);
+									}
+								},
+								this.options.requests.historical._defaults
+							);
+							
+							default_req.url = sprintf(default_req.url, (now.getTime() - 120000), now.getTime());
+					
+							if(typeOf(req.url) == 'function')
+								req.url = req.url();
+								
+							req.url = this.server + req.url + default_req.url;
+							
+							//console.log(Object.merge(
+								//Object.clone(default_req),
+								//req
+							//));
+							
+							//var onSuccess = function(docs){
+								//default_req.onSuccess(docs);
+								//req.onSuccess(docs);
+							//};
+							
+							/** 'attemp' method needs [] for passing and array, or it will take 'docs' as multiple params */
+							var onSuccess = function(docs){
+								//default_req.onSuccess(doc);
+								default_req.onSuccess.attempt([docs], this);
+								if(req.onSuccess)
+									req.onSuccess.attempt([docs], this);
+									//req.onSuccess(doc);
+							};
+							
+							this.historical_request[key] = new Request.JSON(
+								Object.merge(
+									Object.clone(default_req),
+									req,
+									{'onSuccess': onSuccess.bind(this)}
+								)
+							);
+						}
+					}.bind(this));
+				},
+				_load_plots: function(){
+					Object.each(this.historical_request, function(req, key){
+						req.send();
+					});
+				},
+				initialize: function(options){
+					//var self = this;
+					
+							
 					//PouchDB.debug.enable('*');
 					PouchDB.debug.disable('*');
 					
@@ -152,59 +357,6 @@ function getURLParameter(name, URI) {
 					})
 					.then(function (doc) {
 						
-						//self.db.query('info/by_path_host', {
-							//descending: true,
-							//inclusive_end: true,
-							//include_docs: true,
-							//limit: 1,
-							//startkey: [ 'os', 'localhost.colo￰' ],
-							//endkey: [ 'os', 'localhost.colo' ] 
-						//})
-						//.then(function (response) {
-							//console.log('info/by_path_host/os');
-							//console.log(response);
-							
-						//}).catch(function (err) {
-							//console.log('err');
-							//console.log(err);
-							
-						//});
-						
-						//self.db.query('info/by_path_host', {
-							//descending: true,
-							//inclusive_end: true,
-							//include_docs: true,
-							//limit: 1,
-							//startkey: [ 'os.blockdevices', 'localhost.colo￰' ],
-							//endkey: [ 'os.blockdevices', 'localhost.colo' ] 
-						//})
-						//.then(function (response) {
-							//console.log('info/by_path_host/os.blockdevices');
-							//console.log(response);
-							
-						//}).catch(function (err) {
-							//console.log('err');
-							//console.log(err);
-							
-						//});
-						
-						//self.db.query('info/by_path_host', {
-							//descending: true,
-							//inclusive_end: true,
-							//include_docs: true,
-							//limit: 1,
-							//startkey: [ 'os.mounts', 'localhost.colo￰' ],
-							//endkey: [ 'os.mounts', 'localhost.colo' ] 
-						//})
-						//.then(function (response) {
-							//console.log('info/by_path_host/os.mounts');
-							//console.log(response);
-							
-						//}).catch(function (err) {
-							//console.log('err');
-							//console.log(err);
-							
-						//});
 					});
 					
 					this.db.get('_design/status')
@@ -265,6 +417,10 @@ function getURLParameter(name, URI) {
 					
 					this.parent(options);
 					
+					this.docs = {
+						'buffer': [],
+						'timer': (Date.now().getTime() + (self.options.docs.timer * 1000)),
+					};
 					
 					var current_uri = new URI(window.location.pathname);
 					
@@ -289,91 +445,94 @@ function getURLParameter(name, URI) {
 						console.log('REQUESTS');
 						console.log(id);
 						
+						requests[id] = null;//store id to use it to check wich doc/request has updated the model
+						
 						self.db.query('info/by_path_host', {
 							descending: true,
 							inclusive_end: true,
 							include_docs: true,
 							limit: 1,
-							startkey: [ doc_key+'something', 'localhost.colo￰' ],
-							endkey: [ doc_key+'something', 'localhost.colo' ] 
+							startkey: [ doc_key, 'localhost.colo￰' ],
+							endkey: [ doc_key, 'localhost.colo' ] 
 						})
 						.then(function (response) {
 							console.log('info/by_path_host/'+doc_key);
-							//console.log(response);
+							console.log(response);
+							
 							//console.log(response.rows[0].doc);
 							if(response.rows[0]){//there is a doc, update model with this data
-							}
-							
-							throw new Error('continue...');
-							
-						})
-						//.catch(function (err) {
-							//console.log('err');
-							//console.log(err);
-							
-						//});
-						
-						
-						
-						
-						requests[id] = new Request.JSON({
-							method: 'get',
-							secure: true,
-							url: this.server+url+'?type=info',
-							onSuccess: function(server_data){
-								console.log('onSuccess to apply');
-								console.log(server_data);
+								self._apply_data_model(response.rows[0].doc, id);
 								
-								doc = Object.clone(server_data);
-								
-								/** insert on local db, so we can avoid this request next time */
-								self.db.put(doc).catch(function (err) {
-									//console.log('err');
-									//console.log(err);
+								self.update_model_success.push(id);
+								/**
+								 * compare the every key of "request" with "success_request", return true when all keys (request) are found
+								 * 
+								 * */
+								var all_success = Object.keys(requests).every(function(req){
+									return (self.update_model_success.indexOf(req) >= 0) ? true : false;
 								});
 								
-								this._apply_data_model(server_data, id);
 								
-							}.bind(this)
+								if(all_success){
+									console.log('doc.ALLonSuccess');
+									self.fireEvent(self.STARTED);
+								}
+							}
+							else{
+								throw new Error('no doc');
+							}
+							
+						})
+						.catch(function (err) {
+							console.log('err');
+							console.log(err);
+							
+							requests[id] = new Request.JSON({
+								method: 'get',
+								secure: true,
+								url: self.server+url+'?type=info',
+								onSuccess: function(server_data){
+									console.log('onSuccess to apply');
+									console.log(server_data);
+									
+									doc = Object.clone(server_data);
+									delete doc._rev;
+									
+									/** insert on local db, so we can avoid this request next time */
+									self.db.put(doc).catch(function (err) {
+										console.log('err');
+										console.log(err);
+									});
+									
+									self._apply_data_model(server_data, id);
+									
+									self.update_model_success.push(id);
+									/**
+									 * compare the every key of "request" with "success_request", return true when all keys (request) are found
+									 * 
+									 * */
+									var all_success = Object.keys(requests).every(function(req){
+										//return (success_request.indexOf(req) >= 0) ? true : false;
+										return (self.update_model_success.indexOf(req) >= 0) ? true : false;
+									});
+									
+									
+									if(all_success){
+										console.log('req.ALLonSuccess');
+										self.fireEvent(self.STARTED);
+									}
+									
+								}.bind(this)
+							});
+							
+							requests[id].send();
+							
 						});
+						
+						
 						
 					}.bind(this));
 					
-						
-					var success_request = [];
-					
-					var myQueue = new Request.Queue({
-						requests: requests,
-						concurrent: 10,
-						onSuccess: function(name, instance, data){
-							console.log('queue.onSuccess');
-							//console.log(data);
-							
-							success_request.push(name);
-							/**
-							 * compare the every key of "request" with "success_request", return tru when all keys (request) are found
-							 * 
-							 * */
-							var all_success = Object.keys(requests).every(function(req){
-								return (success_request.indexOf(req) >= 0) ? true : false;
-							});
-							
-							
-							if(all_success){
-								console.log('queue.ALLonSuccess');
-								self.fireEvent(self.STARTED);
-							}
-								
-						},
-						onEnd: function(){
-							console.log('queue.onEnd');
-						}
-					});
-					
-					Object.each(requests, function(req){
-						req.send();
-					});
-					//requests.jsonRequest.send();
 				},
 				_apply_data_model: function(server_data, id){
 					
@@ -406,19 +565,10 @@ function getURLParameter(name, URI) {
 							}
 							
 						}.bind(this));
-						
-						//var updated_timestamp = {}
-						//updated_timestamp[id+'_updated'] = timestamp;
-							
-						//OSModel.implement(updated_timestamp);
-						////////console.log(obj);
+
 					}
 					else{
 						obj[id] = {};
-						//if(id == 'blockdevices'){
-						////console.log('server_data: ');
-						////console.log(server_data);
-						//}
 										
 						Object.each(server_data, function(value, key){
 							
@@ -428,14 +578,6 @@ function getURLParameter(name, URI) {
 								//obj[id][key] = {};
 								obj[id] = Object.merge(obj[id], this._implementable_model_object(value, key));
 								
-								if(id == 'blockdevices'){
-									//console.log('server_data: '+id+':'+key);
-									//console.log(obj);
-								}
-								else if(id == 'mounts'){
-									//console.log('server_data: '+id+':'+key);
-									//console.log(obj);
-								}
 								//if(obj[id].length == Object.getLength(server_data)){
 								
 								if(Object.getLength(obj[id]) == Object.getLength(server_data)){
@@ -443,10 +585,6 @@ function getURLParameter(name, URI) {
 									OSModel.implement(obj);
 								}
 								
-								//var updated_timestamp = {}
-								//updated_timestamp[id+'_updated'] = timestamp;
-									
-								//OSModel.implement(updated_timestamp);
 							}
 							else{
 								OSModel.implement({timestamp : timestamp});
@@ -473,10 +611,7 @@ function getURLParameter(name, URI) {
 							Object.each(value, function(item, internal_key){
 								obj[key][internal_key] = ko.observable(item);
 							});
-							
-							//////console.log('_implementable_model_object: '+key);
-							////////console.log(typeof(value));
-							//////console.log(obj);
+
 						}
 						
 						
@@ -490,7 +625,6 @@ function getURLParameter(name, URI) {
 					
 					return obj;
 				},
-				
 				_define_timed_requests: function(){
 					var self = this;
 					
@@ -503,11 +637,38 @@ function getURLParameter(name, URI) {
 								{
 									onSuccess: function(doc){
 										//console.log('myRequests.'+key);
-										////console.log(doc);
+										//console.log(doc);
+										
+										delete doc._rev;
 
 										self.model[key](doc.data);
 										
-										//self._update_plot_data(key, doc.metadata.timestamp);
+										if((self['docs']['buffer'].length < self.options.docs.buffer_size) &&
+										 (self['docs']['timer'] > Date.now().getTime()))
+										{
+											self['docs']['buffer'].push(doc);
+										}
+										else{
+											console.log('bulkDocs');
+											console.log(self['docs']['buffer'].length);
+											console.log(Date.now().getTime());
+											
+											self.db.bulkDocs(self['docs']['buffer'])
+											.catch(function (err) {
+												console.log('DB PUT ERR myRequests.'+key);
+												console.log(err);
+											});
+											
+											self['docs'] = {
+												'buffer': [],
+												'timer': (Date.now().getTime() + (self.options.docs.timer * 1000)),
+											};
+										}
+										//seld.db.put(doc)
+										//.catch(function(err){
+											//console.log('DB PUT ERR myRequests.'+key);
+											//console.log(err);
+										//});
 									},
 									onFailure: function(){
 										//console.log('onFailure');
@@ -521,7 +682,7 @@ function getURLParameter(name, URI) {
 								this.options.requests.periodical._defaults
 							);
 							
-							default_req.url = sprintf(default_req.url, -10000, -0);
+							default_req.url = sprintf(default_req.url, -10000, -1);
 					
 							//console.log('KEY '+key);
 							
@@ -534,11 +695,19 @@ function getURLParameter(name, URI) {
 								//Object.clone(default_req),
 								//req
 							//));
+							var onSuccess = function(doc){
+								//default_req.onSuccess(doc);
+								default_req.onSuccess.attempt(doc, this);
+								if(req.onSuccess)
+									req.onSuccess.attempt(doc, this);
+									//req.onSuccess(doc);
+							};
 								
 							this.timed_request[key] = new Request.JSON(
 								Object.merge(
 									Object.clone(default_req),
-									req
+									req,
+									{'onSuccess': onSuccess.bind(this)}
 								)
 							);
 						}
@@ -548,17 +717,27 @@ function getURLParameter(name, URI) {
 				}.protect(),
 				_define_queued_requests: function(){
 					
-					var requests = {};
-					requests = Object.merge(requests, this.timed_request);
+					//var requests = {};
+					//requests = Object.merge(requests, this.timed_request);
 					
 					this.timed_request_queue = new Request.Queue({
 						requests: this.timed_request,
+						stopOnFailure: false,
+						//concurrent: 10,
+						onComplete: function(name, instance, text, xml){
+								////////console.log('queue: ' + name + ' response: ', text, xml);
+						}
+					});
+					
+					this.historical_request_queue = new Request.Queue({
+						requests: this.historical_request,
 						stopOnFailure: false,
 						concurrent: 10,
 						onComplete: function(name, instance, text, xml){
 								////////console.log('queue: ' + name + ' response: ', text, xml);
 						}
 					});
+					
 				}.protect(),
 				start_timed_requests: function(){
 					//console.log('start_timed_requests');
@@ -623,148 +802,6 @@ function getURLParameter(name, URI) {
 					}.bind(this));
 					
 				},
-				_load_plots: function(){
-					var now = new Date();
-					//console.log('LOAD PLOTS')
-					
-					var self = this;
-					////console.log(self.model);
-					
-					new Request.JSON({
-						url: this.server+'/os/api/cpus?type=status&range[start]='+(now.getTime() - 120000) +'&range[end]='+(now.getTime()),
-						method: 'get',
-						//initialDelay: 1000,
-						//delay: 2000,
-						//limit: 10000,
-						onSuccess: function(docs){
-							var cpu = [];
-							//console.log('myRequests.cpus: ');
-							////console.log(docs);
-							
-							var last = {
-								user: 0,
-								nice: 0,
-								sys: 0,
-								idle: 0
-							};
-							/** docs come from lastes [0] to oldest [N-1] */
-							for(var i = docs.length - 1; i >= 0; i--){
-								var doc = docs[i];
-								
-								var cpu_usage = {
-									user: 0,
-									nice: 0,
-									sys: 0,
-									idle: 0
-								};
-								Array.each(doc.data, function(cpu){
-				
-									cpu_usage.user += cpu.times.user;
-									cpu_usage.nice += cpu.times.nice;
-									cpu_usage.sys += cpu.times.sys;
-									cpu_usage.idle += cpu.times.idle;
-
-								});
-								
-								var percentage = self.model.cpu_usage_percentage(last, cpu_usage);
-								
-								last = Object.clone(cpu_usage);
-								
-								////console.log(percentage);
-								
-								self.model._update_plot_data('cpus', percentage['usage'].toFloat(), doc.metadata.timestamp);
-								
-								
-							}
-							
-						}
-					}).send();
-					
-					new Request.JSON({
-						url: this.server+'/os/api/freemem?type=status&range[start]='+(now.getTime() - 120000) +'&range[end]='+(now.getTime()),
-						method: 'get',
-						//initialDelay: 1000,
-						//delay: 2000,
-						//limit: 10000,
-						onSuccess: function(docs){
-							var cpu = [];
-							//console.log('myRequests.freemem: ');
-							////console.log(docs);
-							/** docs come from lastes [0] to oldest [N-1] */
-							for(var i = docs.length - 1; i >= 0; i--){
-								var doc = docs[i];
-								
-								self.model._update_plot_data('freemem', (((self.model.totalmem() - doc.data) * 100) / self.model.totalmem()).toFixed(2), doc.metadata.timestamp);
-								
-							}
-								
-						}
-							
-						
-					}).send();
-					
-					new Request.JSON({
-						url: this.server+'/os/api/loadavg?type=status&range[start]='+(now.getTime() - 120000) +'&range[end]='+(now.getTime()),
-						method: 'get',
-						//initialDelay: 1000,
-						//delay: 2000,
-						//limit: 10000,
-						onSuccess: function(docs){
-							var cpu = [];
-							//console.log('myRequests.loadavg: ');
-							////console.log(docs);
-							/** docs come from lastes [0] to oldest [N-1] */
-							for(var i = docs.length - 1; i >= 0; i--){
-								var doc = docs[i];
-								////console.log(doc.data[0].toFloat())
-								self.model._update_plot_data('loadavg', doc.data[0].toFloat(), doc.metadata.timestamp);
-								
-							}
-								
-						}
-							
-						
-					}).send();
-					
-					new Request.JSON({
-						url: this.server+'/os/api/blockdevices/sda/stats?type=status&range[start]='+(now.getTime() - 120000) +'&range[end]='+(now.getTime()),
-						method: 'get',
-						//initialDelay: 1000,
-						//delay: 2000,
-						//limit: 10000,
-						onSuccess: function(docs){
-							console.log('myRequests.sda_stats: ');
-							//console.log(docs);
-							
-							//var io_ticks = 0;
-							var last_doc = null;
-							
-							///** docs come from lastes [0] to oldest [N-1] */
-							for(var i = docs.length - 1; i >= 0; i--){
-								var doc = docs[i];
-								doc.data.timestamp = docs[i].metadata.timestamp;
-								
-								//var io_ticks = doc.data.io_ticks;
-								
-								if(last_doc){
-									var percentage = self.model._blockdevice_percentage_data(last_doc, doc.data);
-									self.model._update_plot_data('sda_stats', percentage, doc.metadata.timestamp);
-								}
-								
-								last_doc = doc.data;
-								//last_time_in_queue = time_in_queue;
-								
-								////console.log(percentage);
-								
-								
-								
-							}
-								
-						}
-							
-						
-					}).send();
-				},
 				
 				
 			});	
@@ -781,55 +818,26 @@ function getURLParameter(name, URI) {
 					
 					if(!self.model){
 						self.model = new OSModel();
-						//self.model.started = Date.now().getTime();//save the timestamp where all the update model request has finish
-						mainBodyModel.os(self.model);
-					}
-					else{
-						self.model = mainBodyModel.os();
-					}
 						
-					////////console.log(os_page.model['networkInterfaces']);
+					}
 					
-					//////console.log('os binding applied');
-					
-					
-					
-					
+					mainBodyModel.os(self.model);
 					
 					this._define_timed_requests();
 				
+					this._define_historical_requests();
+					
 					this._define_queued_requests();
 					
 					this.start_timed_requests();
 					
-					
-					//this._load_plots();
-					
 					ko.tasks.schedule(this._load_plots.bind(this));
 				
-					//if(Object.getLength(this.periodical_functions_timers['page']) == 0 && 
-						//Object.getLength(this.periodical_functions_timers['model']) == 0){
-							
 					ko.tasks.schedule(this.start_periodical_functions.bind(this));
 				}
-				
-				//this._load_charts();
-				
-				
-				//}
-				//ko.tasks.schedule(function () {
-					//////console.log('my microtask');
-					//this._load_plots();
-					
-					//this.start_periodical_functions();
-				//}.bind(this));
-		
-				//head.ready("flot_curvedLines", function(){
-					//////console.log('_load_plots');
-					//this._load_plots();
-				//}.bind(this));
-				
-				
+				else{
+					self.model = mainBodyModel.os();
+				}
 				
 				
 			});	

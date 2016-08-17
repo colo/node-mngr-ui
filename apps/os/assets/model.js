@@ -527,7 +527,7 @@ var OSModel = new Class({
 		this.periodical_functions['plot_update']['fn'] = function(){
 			console.log('update_plot');
 			
-			var last_minutes = Date.now() - 120000;
+			var last_minutes = Date.now().getTime() - 120000;
 			var old_data = this.plot.getData();
 			
 			
