@@ -332,6 +332,7 @@ function getURLParameter(name, URI) {
 							
 					//PouchDB.debug.enable('*');
 					PouchDB.debug.disable('*');
+					window.PouchDB = PouchDB;
 					
 					this.db = new PouchDB('dashboard');
 					//window.PouchDB = this.db;
@@ -417,9 +418,11 @@ function getURLParameter(name, URI) {
 					
 					this.parent(options);
 					
+					var now = new Date().getTime();
+					
 					this.docs = {
 						'buffer': [],
-						'timer': (Date.now().getTime() + (self.options.docs.timer * 1000)),
+						'timer': (now + (self.options.docs.timer * 1000)),
 					};
 					
 					var current_uri = new URI(window.location.pathname);
@@ -829,7 +832,8 @@ function getURLParameter(name, URI) {
 					
 					this._define_queued_requests();
 					
-					this.start_timed_requests();
+					//this.start_timed_requests();
+					ko.tasks.schedule(this.start_timed_requests.bind(this));
 					
 					ko.tasks.schedule(this._load_plots.bind(this));
 				
