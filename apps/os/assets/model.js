@@ -646,11 +646,11 @@ var OSModel = new Class({
 		//this.plot_data_update = now;
 		timestamp = timestamp || now;
 		
-		//////console.log('_update_plot_data: '+type);
-		//if(type == 'sda_stats'){
-			//////console.log('_update_plot_data timestamp: '+timestamp);
-			//////console.log('_update_plot_data data: '+new_data);
-		//}
+		//console.log('_update_plot_data: '+type);
+		////if(type == 'freemem'){
+			//console.log('_update_plot_data timestamp: '+new Date(timestamp).toString());
+			//console.log('_update_plot_data data: '+new_data);
+		////}
 		
 		var index = this.plot_data_order.indexOf(type);
 		

@@ -22,6 +22,10 @@ function getURLParameter(name, URI) {
 		//})})})})})})})})});
 		head.js({ sprintf: '/public/bower/sprintf/dist/sprintf.min.js' });
 		
+		head.ready('PouchDB', function(){
+	
+
+
 		head.js({ model: "/public/apps/os/model.js" }, function(){
 			var OSPage = new Class({
 				Extends: Page,
@@ -137,11 +141,13 @@ function getURLParameter(name, URI) {
 								onSuccess: function(docs){
 									var cpu = [];
 									//console.log('historical.loadavg: ');
-									//////console.log(docs);
+									//console.log(docs);
+									
 									/** docs come from lastes [0] to oldest [N-1] */
 									for(var i = docs.length - 1; i >= 0; i--){
 										var doc = docs[i];
-										//////console.log(doc.data[0].toFloat())
+										//console.log(doc.data[0].toFloat())
+										
 										os_page.model._update_plot_data('loadavg', doc.data[0].toFloat(), doc.metadata.timestamp);
 										
 									}
@@ -153,10 +159,13 @@ function getURLParameter(name, URI) {
 								onSuccess: function(docs){
 									var cpu = [];
 									//console.log('historical.freemem: ');
-									//////console.log(docs);
+									//console.log(docs);
 									/** docs come from lastes [0] to oldest [N-1] */
 									for(var i = docs.length - 1; i >= 0; i--){
 										var doc = docs[i];
+										
+										//console.log((((os_page.model.totalmem() - doc.data) * 100) / os_page.model.totalmem()).toFixed(2));
+										
 										
 										os_page.model._update_plot_data('freemem', (((os_page.model.totalmem() - doc.data) * 100) / os_page.model.totalmem()).toFixed(2), doc.metadata.timestamp);
 										
@@ -216,7 +225,7 @@ function getURLParameter(name, URI) {
 								}.bind(this),
 								onSuccess: function(docs){
 									//console.log('historical.sda_stats: ');
-									////console.log(docs);
+									//console.log(docs);
 									
 									//var io_ticks = 0;
 									var last_doc = null;
@@ -230,6 +239,9 @@ function getURLParameter(name, URI) {
 										
 										if(last_doc){
 											var percentage = os_page.model._blockdevice_percentage_data(last_doc, doc.data);
+											
+											//console.log(percentage);
+											
 											os_page.model._update_plot_data('sda_stats', percentage, doc.metadata.timestamp);
 										}
 										
@@ -268,14 +280,14 @@ function getURLParameter(name, URI) {
 						if(key.charAt(0) != '_'){//defaults
 							
 							var prepare_requests = function(){
-								console.log('preparing requests....');
+								//console.log('preparing requests....');
 								/**
 							 * */
 								var default_req = Object.append(
 									{
 										onSuccess: function(docs){
-											console.log('DEFAULT REQ onSuccess');
-											console.log(docs);
+											//console.log('DEFAULT REQ onSuccess');
+											//console.log(docs);
 											
 											if(docs.length > 0){
 												Array.each(docs, function(doc){
@@ -284,7 +296,7 @@ function getURLParameter(name, URI) {
 												
 												self.db.bulkDocs(docs)
 												.catch(function (err) {
-													//console.log(err);
+													console.log(err);
 												});
 												
 											}
@@ -348,8 +360,8 @@ function getURLParameter(name, URI) {
 							doc_key = doc_key.replace(/\//g, '.');
 							doc_key = doc_key.replace('.', '');
 							
-							console.log('HISTORICAL doc_key');
-							console.log(doc_key);
+							//console.log('HISTORICAL doc_key');
+							//console.log(doc_key);
 							
 							self.db.query('status/by_path_host', {
 								descending: true,
@@ -358,9 +370,11 @@ function getURLParameter(name, URI) {
 								//limit: 1,
 								startkey: [ doc_key, 'localhost.colo￰', end_range],
 								endkey: [ doc_key, 'localhost.colo', start_range] 
+								//startkey: [ doc_key, 'localhost.colo￰'],
+								//endkey: [ doc_key, 'localhost.colo'] 
 							})
 							.then(function (response) {
-								console.log('status/by_path_host/'+doc_key);
+								//console.log('status/by_path_host/'+doc_key);
 								//console.log(response);
 								
 								
@@ -378,7 +392,7 @@ function getURLParameter(name, URI) {
 										docs.push(row.doc);
 									});
 									
-									console.log(docs);
+									//console.log(docs);
 									
 									req.onSuccess.attempt([docs], self);
 									
@@ -402,7 +416,7 @@ function getURLParameter(name, URI) {
 					}.bind(this));
 				},
 				_load_plots: function(key){
-					console.log('loading plot...'+key);
+					//console.log('loading plot...'+key);
 					
 					if(!key || !this.historical_request[key]){
 						Object.each(this.historical_request, function(req, key){
@@ -419,7 +433,7 @@ function getURLParameter(name, URI) {
 							
 					//PouchDB.debug.enable('*');
 					PouchDB.debug.disable('*');
-					window.PouchDB = PouchDB;
+					//window.PouchDB = PouchDB;
 					
 					this.db = new PouchDB('dashboard');
 					//window.PouchDB = this.db;
@@ -741,7 +755,7 @@ function getURLParameter(name, URI) {
 							var default_req = Object.merge(
 								{
 									onSuccess: function(doc){
-										//console.log('myRequests.'+key);
+										console.log('myRequests.'+key);
 										////console.log(doc);
 										
 										
@@ -751,14 +765,16 @@ function getURLParameter(name, URI) {
 											self.model[key](doc.data);
 										}
 										catch(e){
-											//console.log(e);
+											console.log(e);
 											//console.log(key);
 										}
 										
+										var old_path = doc.metadata.path;
 										doc.metadata.path = doc_path;
+										doc._id = doc._id.replace(old_path+'@', doc_path+'@');
 											
-										//console.log('DOC TO SAVE....');
-										//console.log(doc_path);
+										console.log('DOC TO SAVE....');
+										console.log(doc_path);
 										//console.log(doc.metadata.path);
 										
 										if((self['docs']['buffer'].length < self.options.docs.buffer_size) &&
@@ -767,14 +783,18 @@ function getURLParameter(name, URI) {
 											self['docs']['buffer'].push(doc);
 										}
 										else{
-											//console.log('bulkDocs');
-											//console.log(self['docs']['buffer'].length);
-											//console.log(Date.now().getTime());
+											console.log('bulkDocs');
+											console.log(self['docs']['buffer'].length);
+											console.log(self['docs']['buffer']);
 											
 											self.db.bulkDocs(self['docs']['buffer'])
+											.then(function(response){
+												console.log('bulkDocs resp...');
+												console.log(response);
+											})
 											.catch(function (err) {
-												//console.log('DB PUT ERR myRequests.'+key);
-												//console.log(err);
+												console.log('DB PUT ERR myRequests.'+key);
+												console.log(err);
 											});
 											
 											self['docs'] = {
@@ -859,7 +879,7 @@ function getURLParameter(name, URI) {
 					this.historical_request_queue = new Request.Queue({
 						requests: this.historical_request,
 						stopOnFailure: false,
-						concurrent: 10,
+						//concurrent: 10,
 						onComplete: function(name, instance, text, xml){
 								//////////console.log('queue: ' + name + ' response: ', text, xml);
 						}
@@ -954,7 +974,7 @@ function getURLParameter(name, URI) {
 				
 					this._define_historical_requests();
 					
-					this._define_queued_requests();
+					//this._define_queued_requests();
 					
 					//this.start_timed_requests();
 					ko.tasks.schedule(this.start_timed_requests.bind(this));
@@ -971,6 +991,9 @@ function getURLParameter(name, URI) {
 			});	
 			
 		});
+		
+		});//PouchDB
+		
 	});
 //});
 

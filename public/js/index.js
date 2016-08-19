@@ -8,12 +8,19 @@ var root_page = {
 
 var Page = null;
 
+head.js({ PouchDB: "/public/bower/pouchdb/dist/pouchdb.min.js" }); //no dependencies
+
+head.ready('PouchDB', function(){
+	window.PouchDB = PouchDB;//for Chrome Fauxton
+});
+
 head.js({ resilient: "/public/apps/login/bower/resilient/resilient.min.js" }); //no dependencies
 //head.js({ mootools: "/public/bower/mootools/dist/mootools-core.min.js" }); //no dependencies
 
 head.js({ mootools: "/public/bower/mootools/dist/mootools-core.min.js" }, function(){
 		head.js({ 'mootools-more': "/public/js/MooTools-More-1.6.0-compressed.js" }); //no dependencies
 }); //no dependencies
+
 
 
 head.ready('mootools-more', function(){ 
@@ -171,46 +178,7 @@ head.ready('mootools-more', function(){
 			 });
 			}
 			
-			//Array.each(assets, function(jsObj){
-			//console.log(jsObj);
 			
-				//Object.each(jsObj, function(js, id){
-					
-					////console.log(id);
-					////console.log(js[0]);
-					
-					//if(typeof(js) == 'array' || js[0]){//js[0] typeof Object, but is an array
-						
-						//Array.each(js, function(file){
-							//self.load_js(file);
-						//});
-					//}
-					//else if(typeof(js) == 'object'){
-						
-						//Object.each(js, function(file, key){
-							//var load = {};
-							//if(key == '_js'){
-								//load[id] = file;
-								//self.load_js(load);
-							//}
-							//else{
-								//load[key] = file;
-								//self.load_js(load);
-							//}
-						//});
-					//}
-					//else{
-					 //var js = Asset.javascript(js, {
-						 //id: id,
-						 //onLoad: function(){
-							 //self.fireEvent(self.JS_LOADED+'_'+id, js);
-							 //self.fireEvent(self.JS_LOADED, {id: id, js: js});
-						 //},
-					 //});
-				 //}
-				 
-				//});
-			//});
 		}
 		
 	});
@@ -221,7 +189,7 @@ head.ready('mootools-more', function(){
 		options: {
 			assets: {
 				js: [
-					{ pouchdb: "/public/bower/pouchdb/dist/pouchdb.min.js"} ,
+					//{ pouchdb: "/public/bower/pouchdb/dist/pouchdb.min.js"} ,
 					////ko: "/public/bower/knockoutjs/dist/knockout.js",
 					////jQuery: "/public/bower/jquery/dist/jquery.min.js",
 					//////pager: "/public/bower/pagerjs/dist/pager.min.js",
