@@ -272,7 +272,7 @@ module.exports = new Class({
 		}).catch(function (err) {
 			console.log('err');
 			console.log(err);
-			res.status(err.status).json({error: err.message});
+			res.status(500).json({error: err.message});
 		});
 		
 	},
@@ -358,9 +358,9 @@ module.exports = new Class({
 		
 		this.db = new PouchDB(this.options.db.path, {db: require('sqldown')});
 		
-		this.db.info().then(function (info) {
-			console.log(info);
-		})
+		//this.db.info().then(function (info) {
+			//console.log(info);
+		//})
 		
 		//dynamically create routes based on OS module (ex: /os/hostname|/os/cpus|...)
 		//Object.each(os, function(item, key){

@@ -79,9 +79,9 @@ function getURLParameter(name, URI) {
 								url: '?type=status&limit=1&range[start]=%d&range[end]=%d',
 								//url: '?type=status&limit=1',
 								method: 'get',
-								initialDelay: 2000,
-								delay: 2000,
-								limit: 4000,
+								initialDelay: 5000,
+								delay: 5000,
+								limit: 10000,
 								noCache: true
 							},
 							
@@ -260,18 +260,20 @@ function getURLParameter(name, URI) {
 						},
 						update_model: ['/os/api', '/os/api/blockdevices', '/os/api/mounts'],
 						
-						
 					},
 					
+					OFFSET: 0, 
+					DEFAULT_HISTORICAL_START: 120, //seconds in the past
+						
 					docs:{
-						buffer_size: 5,
+						buffer_size: 10,
 						timer: 5, //seconds
 					}
 				},
 				_define_historical_requests: function(){
 					var now = new Date();
-					var start_range = now.getTime() - 120000;
-					var end_range = now.getTime();
+					var start_range = now.getTime() - ((this.options.DEFAULT_HISTORICAL_START * 1000) + (this.options.OFFSET * 1000));
+					var end_range = now.getTime() - (this.options.OFFSET * 1000);
 					
 					var self = this;
 					
@@ -360,22 +362,30 @@ function getURLParameter(name, URI) {
 							doc_key = doc_key.replace(/\//g, '.');
 							doc_key = doc_key.replace('.', '');
 							
-							//console.log('HISTORICAL doc_key');
-							//console.log(doc_key);
+							console.log('HISTORICAL doc_key');
+							console.log(doc_key);
 							
-							self.db.query('status/by_path_host', {
+							//self.db.query('status/by_path_host', {
+								//descending: true,
+								//inclusive_end: true,
+								//include_docs: true,
+								////limit: 1,
+								//startkey: [ doc_key, 'localhost.colo￰', end_range],
+								//endkey: [ doc_key, 'localhost.colo', start_range] 
+								////startkey: [ doc_key, 'localhost.colo￰'],
+								////endkey: [ doc_key, 'localhost.colo'] 
+							//})
+							self.db.allDocs({//it's suppose to be faster than query
 								descending: true,
 								inclusive_end: true,
 								include_docs: true,
 								//limit: 1,
-								startkey: [ doc_key, 'localhost.colo￰', end_range],
-								endkey: [ doc_key, 'localhost.colo', start_range] 
-								//startkey: [ doc_key, 'localhost.colo￰'],
-								//endkey: [ doc_key, 'localhost.colo'] 
+								startkey: 'localhost.colo.'+doc_key+'@'+end_range+'\uffff',
+								endkey: 'localhost.colo.'+doc_key+'@'+start_range
 							})
 							.then(function (response) {
-								//console.log('status/by_path_host/'+doc_key);
-								//console.log(response);
+								console.log('status/by_path_host/'+doc_key);
+								console.log(response);
 								
 								
 								if(response.rows[0]){//there is a doc
@@ -822,7 +832,7 @@ function getURLParameter(name, URI) {
 								this.options.requests.periodical._defaults
 							);
 							
-							default_req.url = sprintf(default_req.url, -10000, -1);
+							default_req.url = sprintf(default_req.url, -(10000 + (this.options.OFFSET * 1000)), 0 - (this.options.OFFSET * 1000));
 					
 							////console.log('KEY '+key);
 							
