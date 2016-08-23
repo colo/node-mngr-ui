@@ -7,7 +7,7 @@ var App = require('node-express-app'),
 	PouchDB = require('pouchdb');
 	//websql = require('pouchdb/extras/websql');
 	
-
+var cradle = require('cradle-pouchdb-server');
 
 module.exports = new Class({
   Extends: App,
@@ -19,7 +19,8 @@ module.exports = new Class({
   
   options: {
 	  
-	  db: { path : path.join(__dirname,'../../../pouchdb/dashboard_read') },
+	  //db: { path : path.join(__dirname,'../../../pouchdb/dashboard_read') },
+	  db: 'dashboard',
 	  
 		id: 'os',
 		path: '/os',
@@ -174,107 +175,208 @@ module.exports = new Class({
 		
 		console.log(query);
 		
-		this.db.query(doc_type+'/by_path_host', query)
-		.then(function (response) {
-			//console.log(response);
-			
-			
-			
-			if(response.rows.length == 0){
-				res.status(404).json({});
+		this.db.view(doc_type+'/by_path_host', query, function (err, response) {
+			if (err) {
+				console.log(err);
+				
 			}
 			else{
-				var result = [];
-				
-				Array.each(response.rows, function(row, index){
-					var value = null;
-					
-					if(row.doc.data){
-						value = row.doc.data;
-						////console.log(response.rows[0].doc.data);
-					}
-					else{
-						
-						//delete row.doc.metadata;
-						//delete row.doc._id;
-						//delete row.doc._rev;
-						
-						value = Object.clone(row.doc);
-					}
-					
-					delete value.metadata;
-					delete value._id;
-					delete value._rev;
-						
-					
-					if(module){
-						if(is_os_func){
-							//result.push(value[module]);
-							result[index] = value[module];
-							
-						}
-						else{
-							if(property){
-								if(info){
-									if(value[property][info]){
-										//result.push(value[property][info]);
-										result[index] = value[property][info];
-									}
-									else{
-										//res.status(500).json({error: 'No ['+info+'] at property ['+property+'] on module '+module});
-										throw new Error('No ['+info+'] at property ['+property+'] on module '+module);
-									}
-								}
-								else if(value[property]){
-									//result.push(value[property]);
-									result[index] = value[property];
-								}
-								else{
-									//res.status(500).json({error: 'Bad property ['+property+'] on module '+module});
-									throw new Error('Bad property ['+property+'] on module '+module);
-								}
-							}
-							else{
-								//result.push(value);
-								result[index] = value;
-							}
-							
-						}
-					}
-					else{
-						//result.push(value);
-						result[index] = value;
-					}
-					
-					//if(typeOf(result[index]) != 'object'){
-					var data = result[index];
-					delete result[index];
-					result[index] = {};
-					result[index]['data'] = data;
-					//}
-					
-					result[index]['_rev'] = row.doc._rev;
-					result[index]['_id'] = row.doc._id;
-					result[index]['metadata'] = row.doc.metadata;
-				});
-				
-				console.log(result);
-				
-				if(result.length == 1){
-					res.json(result[0]);
+				//console.log('DOCS');
+				////console.log(response);
+			
+			
+				if(response.rows.length == 0){
+					res.status(404).json({});
 				}
 				else{
-					res.json(result);
+					var result = [];
+					
+					Array.each(response.rows, function(row, index){
+						var value = null;
+						
+						if(row.doc.data){
+							value = row.doc.data;
+							////console.log(response.rows[0].doc.data);
+						}
+						else{
+							
+							//delete row.doc.metadata;
+							//delete row.doc._id;
+							//delete row.doc._rev;
+							
+							value = Object.clone(row.doc);
+						}
+						
+						delete value.metadata;
+						delete value._id;
+						delete value._rev;
+							
+						
+						if(module){
+							if(is_os_func){
+								//result.push(value[module]);
+								result[index] = value[module];
+								
+							}
+							else{
+								if(property){
+									if(info){
+										if(value[property][info]){
+											//result.push(value[property][info]);
+											result[index] = value[property][info];
+										}
+										else{
+											//res.status(500).json({error: 'No ['+info+'] at property ['+property+'] on module '+module});
+											throw new Error('No ['+info+'] at property ['+property+'] on module '+module);
+										}
+									}
+									else if(value[property]){
+										//result.push(value[property]);
+										result[index] = value[property];
+									}
+									else{
+										//res.status(500).json({error: 'Bad property ['+property+'] on module '+module});
+										throw new Error('Bad property ['+property+'] on module '+module);
+									}
+								}
+								else{
+									//result.push(value);
+									result[index] = value;
+								}
+								
+							}
+						}
+						else{
+							//result.push(value);
+							result[index] = value;
+						}
+						
+						//if(typeOf(result[index]) != 'object'){
+						var data = result[index];
+						delete result[index];
+						result[index] = {};
+						result[index]['data'] = data;
+						//}
+						
+						result[index]['_rev'] = row.doc._rev;
+						result[index]['_id'] = row.doc._id;
+						result[index]['metadata'] = row.doc.metadata;
+					});
+					
+					console.log(result);
+					
+					if(result.length == 1){
+						res.json(result[0]);
+					}
+					else{
+						res.json(result);
+					}
+					
 				}
-				
 			}
-			
-		}).catch(function (err) {
-			console.log('err');
-			console.log(err);
-			res.status(500).json({error: err.message});
 		});
 		
+		//this.db.query(doc_type+'/by_path_host', query)
+		//.then(function (response) {
+			////console.log(response);
+			
+			
+			
+			//if(response.rows.length == 0){
+				//res.status(404).json({});
+			//}
+			//else{
+				//var result = [];
+				
+				//Array.each(response.rows, function(row, index){
+					//var value = null;
+					
+					//if(row.doc.data){
+						//value = row.doc.data;
+						//////console.log(response.rows[0].doc.data);
+					//}
+					//else{
+						
+						////delete row.doc.metadata;
+						////delete row.doc._id;
+						////delete row.doc._rev;
+						
+						//value = Object.clone(row.doc);
+					//}
+					
+					//delete value.metadata;
+					//delete value._id;
+					//delete value._rev;
+						
+					
+					//if(module){
+						//if(is_os_func){
+							////result.push(value[module]);
+							//result[index] = value[module];
+							
+						//}
+						//else{
+							//if(property){
+								//if(info){
+									//if(value[property][info]){
+										////result.push(value[property][info]);
+										//result[index] = value[property][info];
+									//}
+									//else{
+										////res.status(500).json({error: 'No ['+info+'] at property ['+property+'] on module '+module});
+										//throw new Error('No ['+info+'] at property ['+property+'] on module '+module);
+									//}
+								//}
+								//else if(value[property]){
+									////result.push(value[property]);
+									//result[index] = value[property];
+								//}
+								//else{
+									////res.status(500).json({error: 'Bad property ['+property+'] on module '+module});
+									//throw new Error('Bad property ['+property+'] on module '+module);
+								//}
+							//}
+							//else{
+								////result.push(value);
+								//result[index] = value;
+							//}
+							
+						//}
+					//}
+					//else{
+						////result.push(value);
+						//result[index] = value;
+					//}
+					
+					////if(typeOf(result[index]) != 'object'){
+					//var data = result[index];
+					//delete result[index];
+					//result[index] = {};
+					//result[index]['data'] = data;
+					////}
+					
+					//result[index]['_rev'] = row.doc._rev;
+					//result[index]['_id'] = row.doc._id;
+					//result[index]['metadata'] = row.doc.metadata;
+				//});
+				
+				//console.log(result);
+				
+				//if(result.length == 1){
+					//res.json(result[0]);
+				//}
+				//else{
+					//res.json(result);
+				//}
+				
+			//}
+			
+		//}).catch(function (err) {
+			//console.log('err');
+			//console.log(err);
+			//res.status(500).json({error: err.message});
+		//});
+		//res.json({});
 	},
   primary_iface: function(req, res, next){
 		res.set('Content-Type', 'application/javascript').jsonp(this.options.networkInterfaces.primary);
@@ -356,7 +458,19 @@ module.exports = new Class({
 			}.bind(this));
 		}
 		
-		this.db = new PouchDB(this.options.db.path, {db: require('sqldown')});
+		//this.db = new PouchDB(this.options.db.path, {db: require('sqldown')});
+		this.db = new(cradle.Connection)().database(this.options.db);
+		this.db.exists(function (err, exists) {
+			if (err) {
+				console.log('error', err);
+			} else if (exists) {
+				console.log('the force is with you.');
+			} else {
+				console.log('database does not exists.');
+				this.db.create();
+				/* populate design documents */
+			}
+		}.bind(this));
 		
 		//this.db.info().then(function (info) {
 			//console.log(info);

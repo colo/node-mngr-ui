@@ -779,12 +779,14 @@ function getURLParameter(name, URI) {
 										
 										delete doc._rev;
 										
-										try{
-											self.model[key](doc.data);
-										}
-										catch(e){
-											console.log(e);
-											//console.log(key);
+										if(typeOf(self.model[key]) == 'function'){
+											try{
+												self.model[key](doc.data);
+											}
+											catch(e){
+												console.log(e);
+												console.log(key);
+											}
 										}
 										
 										var old_path = doc.metadata.path;
