@@ -79,7 +79,7 @@ function getURLParameter(name, URI) {
 								url: '?type=status&limit=1&range[start]=%d&range[end]=%d',
 								//url: '?type=status&limit=1',
 								method: 'get',
-								initialDelay: 5000,
+								initialDelay: 1000,
 								delay: 5000,
 								limit: 10000,
 								noCache: true
@@ -262,7 +262,7 @@ function getURLParameter(name, URI) {
 						
 					},
 					
-					OFFSET: 0, 
+					OFFSET: 1, 
 					DEFAULT_HISTORICAL_START: 120, //seconds in the past
 						
 					docs:{
@@ -281,6 +281,15 @@ function getURLParameter(name, URI) {
 					Object.each(this.options.requests.historical, function(req, key){
 						if(key.charAt(0) != '_'){//defaults
 							
+							/** calculate real path base on the req.url */
+							var url = (typeOf(req.url) == 'function') ? req.url() : req.url;
+							var doc_key = url.replace('/api', '');
+							doc_key = doc_key.replace(/\//g, '.');
+							doc_key = doc_key.replace('.', '');
+							
+							console.log('HISTORICAL doc_key');
+							console.log(doc_key);
+							
 							var prepare_requests = function(){
 								//console.log('preparing requests....');
 								/**
@@ -288,12 +297,16 @@ function getURLParameter(name, URI) {
 								var default_req = Object.append(
 									{
 										onSuccess: function(docs){
-											//console.log('DEFAULT REQ onSuccess');
+											console.log('DEFAULT REQ onSuccess');
+											console.log(doc_key);
 											//console.log(docs);
 											
 											if(docs.length > 0){
 												Array.each(docs, function(doc){
 													delete doc._rev;
+													var old_path = doc.metadata.path;
+													doc.metadata.path = doc_key;
+													doc._id = doc._id.replace(old_path+'@', doc_key+'@');
 												});
 												
 												self.db.bulkDocs(docs)
@@ -356,14 +369,7 @@ function getURLParameter(name, URI) {
 								self.fireEvent(self.ON_HISTORICAL_REQUEST_DEFINED, key);
 							}.bind(this);
 							
-							/** calculate real path base on the req.url */
-							var url = (typeOf(req.url) == 'function') ? req.url() : req.url;
-							var doc_key = url.replace('/api', '');
-							doc_key = doc_key.replace(/\//g, '.');
-							doc_key = doc_key.replace('.', '');
 							
-							console.log('HISTORICAL doc_key');
-							console.log(doc_key);
 							
 							//self.db.query('status/by_path_host', {
 								//descending: true,
@@ -382,6 +388,8 @@ function getURLParameter(name, URI) {
 								//limit: 1,
 								startkey: 'localhost.colo.'+doc_key+'@'+end_range+'\uffff',
 								endkey: 'localhost.colo.'+doc_key+'@'+start_range
+								//startkey: 'localhost.colo.'+doc_key+'\uffff',
+								//endkey: 'localhost.colo.'+doc_key
 							})
 							.then(function (response) {
 								console.log('status/by_path_host/'+doc_key);
@@ -812,10 +820,10 @@ function getURLParameter(name, URI) {
 												'timer': (Date.now().getTime() + (self.options.docs.timer * 1000)),
 											};
 										}
-										//seld.db.put(doc)
+										//self.db.put(doc)
 										//.catch(function(err){
-											////console.log('DB PUT ERR myRequests.'+key);
-											////console.log(err);
+											//console.log('DB PUT ERR myRequests.'+key);
+											//console.log(err);
 										//});
 										
 										return true;

@@ -6,7 +6,8 @@ var PouchDB = require('pouchdb'),
 		//websql = require('pouchdb/extras/websql');
 
 //var db = new PouchDB(path.join(__dirname,'../../../pouchdb/dashboard'), {adapter: 'websql'});
-var db = new PouchDB(path.join(__dirname,'../../../pouchdb/dashboard'), {db: require('sqldown')});
+//var db = new PouchDB(path.join(__dirname,'../../../pouchdb/dashboard'), {db: require('sqldown')});
+var db = new PouchDB(path.join(__dirname,'../../../pouchdb/dashboard_read'), {db: require('sqldown')});
 
 		
 db.info().then(function (info) {

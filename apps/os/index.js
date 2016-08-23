@@ -19,7 +19,7 @@ module.exports = new Class({
   
   options: {
 	  
-	  db: { path : path.join(__dirname,'../../../pouchdb/dashboard') },
+	  db: { path : path.join(__dirname,'../../../pouchdb/dashboard_read') },
 	  
 		id: 'os',
 		path: '/os',
