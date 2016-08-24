@@ -270,169 +270,6 @@ function getURLParameter(name, URI) {
 						timer: 5, //seconds
 					}
 				},
-				_define_historical_requests: function(){
-					var now = new Date();
-					var start_range = now.getTime() - ((this.options.DEFAULT_HISTORICAL_START * 1000) + (this.options.OFFSET * 1000));
-					var end_range = now.getTime() - (this.options.OFFSET * 1000);
-					
-					var self = this;
-					
-					
-					Object.each(this.options.requests.historical, function(req, key){
-						if(key.charAt(0) != '_'){//defaults
-							
-							/** calculate real path base on the req.url */
-							var url = (typeOf(req.url) == 'function') ? req.url() : req.url;
-							var doc_key = url.replace('/api', '');
-							doc_key = doc_key.replace(/\//g, '.');
-							doc_key = doc_key.replace('.', '');
-							
-							console.log('HISTORICAL doc_key');
-							console.log(doc_key);
-							
-							var prepare_requests = function(){
-								//console.log('preparing requests....');
-								/**
-							 * */
-								var default_req = Object.append(
-									{
-										onSuccess: function(docs){
-											console.log('DEFAULT REQ onSuccess');
-											console.log(doc_key);
-											//console.log(docs);
-											
-											if(docs.length > 0){
-												Array.each(docs, function(doc){
-													delete doc._rev;
-													var old_path = doc.metadata.path;
-													doc.metadata.path = doc_key;
-													doc._id = doc._id.replace(old_path+'@', doc_key+'@');
-												});
-												
-												self.db.bulkDocs(docs)
-												.catch(function (err) {
-													console.log(err);
-												});
-												
-											}
-										},
-										onFailure: function(){
-											self.fireEvent(self.ON_HISTORICAL_REQUEST_FAILURE);
-										},
-										onTimeout: function(){
-											self.fireEvent(self.ON_HISTORICAL_REQUEST_TIMEOUT);
-										}
-									},
-									self.options.requests.historical._defaults
-								);
-								
-								default_req.url = sprintf(default_req.url, start_range, end_range);
-								
-								console.log('REQUEST RANGE');
-								console.log(default_req.url);
-								
-								
-								if(typeOf(req.url) == 'function')
-									req.url = req.url();
-									
-								req.url = self.server + req.url + default_req.url;
-								
-								////console.log(Object.merge(
-									//Object.clone(default_req),
-									//req
-								//));
-								
-								//var onSuccess = function(docs){
-									//default_req.onSuccess(docs);
-									//req.onSuccess(docs);
-								//};
-								
-								/** 'attemp' method needs [] for passing and array, or it will take 'docs' as multiple params */
-								var onSuccess = function(docs){
-									//default_req.onSuccess(doc);
-									default_req.onSuccess.attempt([docs], self);
-									if(req.onSuccess)
-										req.onSuccess.attempt([docs], self);
-										//req.onSuccess(doc);
-								};
-								
-								self.historical_request[key] = new Request.JSON(
-									Object.merge(
-										Object.clone(default_req),
-										req,
-										{'onSuccess': onSuccess.bind(self)}
-									)
-								);
-								/**
-								 * */
-								 
-								self.fireEvent(self.ON_HISTORICAL_REQUEST_DEFINED, key);
-							}.bind(this);
-							
-							
-							
-							//self.db.query('status/by_path_host', {
-								//descending: true,
-								//inclusive_end: true,
-								//include_docs: true,
-								////limit: 1,
-								//startkey: [ doc_key, 'localhost.colo￰', end_range],
-								//endkey: [ doc_key, 'localhost.colo', start_range] 
-								////startkey: [ doc_key, 'localhost.colo￰'],
-								////endkey: [ doc_key, 'localhost.colo'] 
-							//})
-							self.db.allDocs({//it's suppose to be faster than query
-								descending: true,
-								inclusive_end: true,
-								include_docs: true,
-								//limit: 1,
-								startkey: 'localhost.colo.'+doc_key+'@'+end_range+'\uffff',
-								endkey: 'localhost.colo.'+doc_key+'@'+start_range
-								//startkey: 'localhost.colo.'+doc_key+'\uffff',
-								//endkey: 'localhost.colo.'+doc_key
-							})
-							.then(function (response) {
-								console.log('status/by_path_host/'+doc_key);
-								console.log(response);
-								
-								
-								if(response.rows[0]){//there is a doc
-									/**
-									 * first doc, always has the bigest timestamp, so the Request will start from here
-									 * */
-									start_range = response.rows[0].doc.metadata.timestamp;
-									
-									var docs = [];
-									//for(var i = response.rows.length - 1; i>= 0; i--){
-										//docs.push(response.rows[i].doc);
-									//}
-									Array.each(response.rows, function(row){
-										docs.push(row.doc);
-									});
-									
-									//console.log(docs);
-									
-									req.onSuccess.attempt([docs], self);
-									
-								}
-								
-								prepare_requests();
-								//else{
-									//throw new Error('no doc');
-								//}
-								
-							})
-							.catch(function (err) {
-								console.log(err);
-								prepare_requests();
-								
-							}.bind(this));
-							
-							
-						}
-						
-					}.bind(this));
-				},
 				_load_plots: function(key){
 					//console.log('loading plot...'+key);
 					
@@ -558,18 +395,18 @@ function getURLParameter(name, URI) {
 					var requests = {}
 					
 					Array.each(urls, function(url){
-						var id = url.replace('/api', '');
-						id = id.replace(/\//g, '.');
+						var doc_key = this._url_to_doc_path(url);
 						
-						var doc_key = id.replace('.', '');
 						//console.log('DOCS');
 						//console.log(doc_key);
 						
-						id = id.split('.');//split to get last portion (ex: 'os', 'blockdevices'....)
+						var id = doc_key.split('.');//split to get last portion (ex: 'os', 'blockdevices'....)
 						id = id[id.length - 1];
 						
 						//console.log('REQUESTS');
 						//console.log(id);
+						
+						
 						
 						requests[id] = null;//store id to use it to check wich doc/request has updated the model
 						
@@ -751,6 +588,14 @@ function getURLParameter(name, URI) {
 					
 					return obj;
 				},
+				/** 
+				 * calculate real path based on the req.url 
+				 * */
+				_url_to_doc_path: function(url){
+					var doc_path = url.replace('/api', '');
+					doc_path = doc_path.replace(/\//g, '.');
+					return doc_path.replace('.', '');
+				},
 				_define_timed_requests: function(){
 					var self = this;
 					
@@ -760,22 +605,14 @@ function getURLParameter(name, URI) {
 					Object.each(this.options.requests.periodical, function(req, key){
 						if(key.charAt(0) != '_'){//defaults
 							
-							/** calculate real path base on the req.url */
-							var url = (typeOf(req.url) == 'function') ? req.url() : req.url;
-							var doc_path = url.replace('/api', '');
-							doc_path = doc_path.replace(/\//g, '.');
-							doc_path = doc_path.replace('.', '');
-							
-							//console.log('DOCS');
-							//console.log(doc_path);
+							/** calculate real path based on the req.url */
+							var doc_path = this._url_to_doc_path( (typeOf(req.url) == 'function') ? req.url() : req.url );
 							
 										
 							var default_req = Object.merge(
 								{
 									onSuccess: function(doc){
 										console.log('myRequests.'+key);
-										////console.log(doc);
-										
 										
 										delete doc._rev;
 										
@@ -822,11 +659,6 @@ function getURLParameter(name, URI) {
 												'timer': (Date.now().getTime() + (self.options.docs.timer * 1000)),
 											};
 										}
-										//self.db.put(doc)
-										//.catch(function(err){
-											//console.log('DB PUT ERR myRequests.'+key);
-											//console.log(err);
-										//});
 										
 										return true;
 									},
@@ -852,24 +684,12 @@ function getURLParameter(name, URI) {
 							req.url = this.server + req.url + default_req.url;
 							
 							var onSuccess = function(doc){
-								//console.log('onSuccess...');
-								//default_req.onSuccess(doc);
 								default_req.onSuccess.attempt(doc, this);
 								if(req.onSuccess){
-									//console.log('req.onSuccess...');
 									req.onSuccess.attempt(doc, this);
-									//req.onSuccess(doc);
 								}
 							};
 							
-							//console.log(
-								//Object.merge(
-									//Object.clone(default_req),
-									//req,
-									//{'onSuccess': onSuccess.bind(this)}
-								//)
-							//);
-								
 							this.timed_request[key] = new Request.JSON(
 								Object.merge(
 									Object.clone(default_req),
@@ -882,6 +702,151 @@ function getURLParameter(name, URI) {
 					
 
 				}.protect(),
+				_define_historical_requests: function(){
+					var now = new Date();
+					var start_range = now.getTime() - ((this.options.DEFAULT_HISTORICAL_START * 1000) + (this.options.OFFSET * 1000));
+					var end_range = now.getTime() - (this.options.OFFSET * 1000);
+					
+					var self = this;
+					
+					
+					Object.each(this.options.requests.historical, function(req, key){
+						if(key.charAt(0) != '_'){//defaults
+							
+							/** calculate real path based on the req.url */
+							var doc_key = this._url_to_doc_path( (typeOf(req.url) == 'function') ? req.url() : req.url );
+							
+							var prepare_requests = function(){
+								//console.log('preparing requests....');
+								/**
+							 * */
+								var default_req = Object.append(
+									{
+										onSuccess: function(docs){
+											console.log('DEFAULT REQ onSuccess');
+											console.log(doc_key);
+											//console.log(docs);
+											
+											if(docs.length > 0){
+												Array.each(docs, function(doc){
+													delete doc._rev;
+													var old_path = doc.metadata.path;
+													doc.metadata.path = doc_key;
+													doc._id = doc._id.replace(old_path+'@', doc_key+'@');
+												});
+												
+												self.db.bulkDocs(docs)
+												.catch(function (err) {
+													console.log(err);
+												});
+												
+											}
+										},
+										onFailure: function(){
+											self.fireEvent(self.ON_HISTORICAL_REQUEST_FAILURE);
+										},
+										onTimeout: function(){
+											self.fireEvent(self.ON_HISTORICAL_REQUEST_TIMEOUT);
+										}
+									},
+									self.options.requests.historical._defaults
+								);
+								
+								default_req.url = sprintf(default_req.url, start_range, end_range);
+								
+								console.log('REQUEST RANGE');
+								console.log(default_req.url);
+								
+								
+								if(typeOf(req.url) == 'function')
+									req.url = req.url();
+									
+								req.url = self.server + req.url + default_req.url;
+								
+								/** 'attemp' method needs [] for passing and array, or it will take 'docs' as multiple params */
+								var onSuccess = function(docs){
+									default_req.onSuccess.attempt([docs], self);
+									if(req.onSuccess)
+										req.onSuccess.attempt([docs], self);
+								};
+								
+								self.historical_request[key] = new Request.JSON(
+									Object.merge(
+										Object.clone(default_req),
+										req,
+										{'onSuccess': onSuccess.bind(self)}
+									)
+								);
+								/**
+								 * */
+								 
+								self.fireEvent(self.ON_HISTORICAL_REQUEST_DEFINED, key);
+							}.bind(this);
+							
+							
+							
+							//self.db.query('status/by_path_host', {
+								//descending: true,
+								//inclusive_end: true,
+								//include_docs: true,
+								////limit: 1,
+								//startkey: [ doc_key, 'localhost.colo￰', end_range],
+								//endkey: [ doc_key, 'localhost.colo', start_range] 
+								////startkey: [ doc_key, 'localhost.colo￰'],
+								////endkey: [ doc_key, 'localhost.colo'] 
+							//})
+							self.db.allDocs({//it's suppose to be faster than query
+								descending: true,
+								inclusive_end: true,
+								include_docs: true,
+								//limit: 1,
+								startkey: 'localhost.colo.'+doc_key+'@'+end_range+'\uffff',
+								endkey: 'localhost.colo.'+doc_key+'@'+start_range
+								//startkey: 'localhost.colo.'+doc_key+'\uffff',
+								//endkey: 'localhost.colo.'+doc_key
+							})
+							.then(function (response) {
+								console.log('status/by_path_host/'+doc_key);
+								console.log(response);
+								
+								
+								if(response.rows[0]){//there is a doc
+									/**
+									 * first doc, always has the bigest timestamp, so the Request will start from here
+									 * */
+									start_range = response.rows[0].doc.metadata.timestamp;
+									
+									var docs = [];
+									//for(var i = response.rows.length - 1; i>= 0; i--){
+										//docs.push(response.rows[i].doc);
+									//}
+									Array.each(response.rows, function(row){
+										docs.push(row.doc);
+									});
+									
+									//console.log(docs);
+									
+									req.onSuccess.attempt([docs], self);
+									
+								}
+								
+								prepare_requests();
+								//else{
+									//throw new Error('no doc');
+								//}
+								
+							})
+							.catch(function (err) {
+								console.log(err);
+								prepare_requests();
+								
+							}.bind(this));
+							
+							
+						}
+						
+					}.bind(this));
+				},
 				_define_queued_requests: function(){
 					
 					//var requests = {};
