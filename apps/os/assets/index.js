@@ -102,34 +102,61 @@ function getURLParameter(name, URI) {
 							primary_iface: {
 								url: function(){ return '/os/api/networkInterfaces/' +os_page.primary_iface; }.bind(this),
 								onSuccess: function(doc){
-									////console.log('myRequests.'+os_page.model.primary_iface());
-									////console.log(doc);
+									//////console.log('myRequests.'+os_page.model.primary_iface());
+									//////console.log(doc);
 									os_page.model.networkInterfaces[os_page.model.primary_iface()](doc.data[os_page.model.primary_iface()]);
 									
 									return true;
 								}.bind(this)
 							},
-							sda_stats: {
-								url: function(){ 
-									/** return chosen blkdev */
-									return '/os/api/blockdevices/sda/stats';
-								}.bind(this),
-								onSuccess: function(doc){
-									//console.log('myRequests.sda_stats: ');
-									//console.log(doc);
+							//sda_stats: {
+								//url: function(){ 
+									///** return chosen blkdev */
+									//return '/os/api/blockdevices/sda/stats';
+								//}.bind(this),
+								//onSuccess: function(doc){
+									//////console.log('myRequests.sda_stats: ');
+									//////console.log(doc);
 									
-									/**
-									 * save previous stats, needed to calculate times (updated stats - prev_stats)
-									 * */
-									//os_page.model.blockdevices.sda._prev_stats = os_page.model.blockdevices.sda.stats();
+									///**
+									 //* save previous stats, needed to calculate times (updated stats - prev_stats)
+									 //* */
+									////os_page.model.blockdevices.sda._prev_stats = os_page.model.blockdevices.sda.stats();
 									
-									doc.data.timestamp = doc.metadata.timestamp;
+									//doc.data.timestamp = doc.metadata.timestamp;
 									
-									os_page.model.blockdevices.sda.stats(doc.data);
+									//os_page.model.blockdevices.sda.stats(doc.data);
 									
-									//os_page._update_plot_data('sda_stats', doc.metadata.timestamp);
-									return true;
-								}.bind(this)
+									////os_page._update_plot_data('sda_stats', doc.metadata.timestamp);
+									//return true;
+								//}.bind(this)
+							//}
+							blockdevices_stats: function(){
+								var blks = {};
+								
+								Object.each(os_page.model.blockdevices, function(dev, name){
+									blks[name] = {
+										url: '/os/api/blockdevices/'+name+'/stats',
+										onSuccess: function(doc){
+											//console.log('myRequests.'+name+'_stats: ');
+											////console.log(doc);
+											
+											/**
+											 * save previous stats, needed to calculate times (updated stats - prev_stats)
+											 * */
+											//os_page.model.blockdevices.sda._prev_stats = os_page.model.blockdevices.sda.stats();
+											
+											doc.data.timestamp = doc.metadata.timestamp;
+											
+											os_page.model.blockdevices[name].stats(doc.data);
+											
+											return true;
+										}.bind(this)
+									}
+										
+								}.bind(this));
+								
+								return blks;
 							}
 						},
 						
@@ -142,13 +169,13 @@ function getURLParameter(name, URI) {
 								url: '/os/api/loadavg',
 								onSuccess: function(docs){
 									var cpu = [];
-									//console.log('historical.loadavg: ');
-									//console.log(docs);
+									////console.log('historical.loadavg: ');
+									////console.log(docs);
 									
 									/** docs come from lastes [0] to oldest [N-1] */
 									for(var i = docs.length - 1; i >= 0; i--){
 										var doc = docs[i];
-										//console.log(doc.data[0].toFloat())
+										////console.log(doc.data[0].toFloat())
 										
 										os_page.model._update_plot_data('loadavg', doc.data[0].toFloat(), doc.metadata.timestamp);
 										
@@ -160,13 +187,13 @@ function getURLParameter(name, URI) {
 								url: '/os/api/freemem',
 								onSuccess: function(docs){
 									var cpu = [];
-									//console.log('historical.freemem: ');
-									//console.log(docs);
+									////console.log('historical.freemem: ');
+									////console.log(docs);
 									/** docs come from lastes [0] to oldest [N-1] */
 									for(var i = docs.length - 1; i >= 0; i--){
 										var doc = docs[i];
 										
-										//console.log((((os_page.model.totalmem() - doc.data) * 100) / os_page.model.totalmem()).toFixed(2));
+										////console.log((((os_page.model.totalmem() - doc.data) * 100) / os_page.model.totalmem()).toFixed(2));
 										
 										
 										os_page.model._update_plot_data('freemem', (((os_page.model.totalmem() - doc.data) * 100) / os_page.model.totalmem()).toFixed(2), doc.metadata.timestamp);
@@ -179,8 +206,8 @@ function getURLParameter(name, URI) {
 								url: '/os/api/cpus',
 								onSuccess: function(docs){
 									var cpu = [];
-									//console.log('historical.cpus: ');
-									//////console.log(docs);
+									////console.log('historical.cpus: ');
+									////////console.log(docs);
 									
 									var last = {
 										user: 0,
@@ -211,7 +238,7 @@ function getURLParameter(name, URI) {
 										
 										last = Object.clone(cpu_usage);
 										
-										//////console.log(percentage);
+										////////console.log(percentage);
 										
 										os_page.model._update_plot_data('cpus', percentage['usage'].toFloat(), doc.metadata.timestamp);
 										
@@ -220,44 +247,97 @@ function getURLParameter(name, URI) {
 									
 								}
 							},
-							sda_stats: {
-								url: function(){ 
-									/** return chosen blkdev */
-									return '/os/api/blockdevices/sda/stats';
-								}.bind(this),
-								onSuccess: function(docs){
-									//console.log('historical.sda_stats: ');
-									//console.log(docs);
+							//sda_stats: {
+								//url: function(){ 
+									///** return chosen blkdev */
+									//return '/os/api/blockdevices/sda/stats';
+								//}.bind(this),
+								//onSuccess: function(docs){
+									//////console.log('historical.sda_stats: ');
+									//////console.log(docs);
 									
-									//var io_ticks = 0;
-									var last_doc = null;
+									////var io_ticks = 0;
+									//var last_doc = null;
 									
-									///** docs come from lastes [0] to oldest [N-1] */
-									for(var i = docs.length - 1; i >= 0; i--){
-										var doc = docs[i];
-										doc.data.timestamp = docs[i].metadata.timestamp;
+									/////** docs come from lastes [0] to oldest [N-1] */
+									//for(var i = docs.length - 1; i >= 0; i--){
+										//var doc = docs[i];
+										//doc.data.timestamp = docs[i].metadata.timestamp;
 										
-										//var io_ticks = doc.data.io_ticks;
+										////var io_ticks = doc.data.io_ticks;
 										
-										if(last_doc){
-											var percentage = os_page.model._blockdevice_percentage_data(last_doc, doc.data);
+										//if(last_doc){
+											//var percentage = os_page.model._blockdevice_percentage_data(last_doc, doc.data);
 											
-											//console.log(percentage);
+											//////console.log(percentage);
 											
-											os_page.model._update_plot_data('sda_stats', percentage, doc.metadata.timestamp);
+											//os_page.model._update_plot_data('sda_stats', percentage, doc.metadata.timestamp);
+										//}
+										
+										//last_doc = doc.data;
+										////last_time_in_queue = time_in_queue;
+										
+										//////////console.log(percentage);
+										
+										
+										
+									//}
+										
+								//}
+								
+							//}
+							blockdevices_stats: function(){
+								var blks = {};
+								
+								Object.each(os_page.model.blockdevices, function(dev, name){
+									blks[name] = {
+										url: '/os/api/blockdevices/'+name+'/stats',
+										onSuccess: function(docs){
+											console.log('historical.'+name+'_stats: ');
+											////console.log(docs);
+											
+											//console.log(os_page.model.plot_data_order().indexOf(name+'_stats'));
+											
+											//var index = os_page.model.plot_data_order().indexOf(name+'_stats');
+		
+											//if(!(index >= 0)){
+												//console.log('key to push... '+name);
+												//os_page.model.plot_data_order().push(name+'_stats');
+												//console.log(os_page.model.plot_data_order());
+											//}
+											
+											var last_doc = null;
+											
+											///** docs come from lastes [0] to oldest [N-1] */
+											for(var i = docs.length - 1; i >= 0; i--){
+												var doc = docs[i];
+												doc.data.timestamp = docs[i].metadata.timestamp;
+												
+												//var io_ticks = doc.data.io_ticks;
+												
+												if(last_doc){
+													var percentage = os_page.model._blockdevice_percentage_data(last_doc, doc.data);
+													
+													////console.log(percentage);
+													
+													os_page.model._update_plot_data(name+'_stats', percentage, doc.metadata.timestamp);
+												}
+												
+												last_doc = doc.data;
+												//last_time_in_queue = time_in_queue;
+												
+												////////console.log(percentage);
+												
+												
+												
+											}
+												
 										}
-										
-										last_doc = doc.data;
-										//last_time_in_queue = time_in_queue;
-										
-										//////console.log(percentage);
-										
-										
-										
 									}
 										
-								}
+								}.bind(this));
 								
+								return blks;
 							}
 						},
 						update_model: ['/os/api', '/os/api/blockdevices', '/os/api/mounts'],
@@ -273,7 +353,7 @@ function getURLParameter(name, URI) {
 					}
 				},
 				_load_plots: function(key){
-					//console.log('loading plot...'+key);
+					////console.log('loading plot...'+key);
 					
 					if(!key || !this.historical_request[key]){
 						Object.each(this.historical_request, function(req, key){
@@ -297,13 +377,13 @@ function getURLParameter(name, URI) {
 					
 					
 					//this.db.info().then(function (info) {
-						////console.log(info);
+						//////console.log(info);
 					//})
 					var self = this;
 					/** check if views are in the DB */
 					this.db.get('_design/info')
 					.catch(function (err) {
-						//console.log(err);
+						////console.log(err);
 						if (err.status == 404) {//if not found, load and insert
 							
 							self.addEvent(self.JS_LOADED+'_InfoView', function(){
@@ -320,7 +400,7 @@ function getURLParameter(name, URI) {
 					
 					this.db.get('_design/status')
 					.catch(function (err) {
-						//console.log(err);
+						////console.log(err);
 						if (err.status == 404) {//if not found, load and insert
 							
 							self.addEvent(self.JS_LOADED+'_StatusView', function(){
@@ -332,7 +412,7 @@ function getURLParameter(name, URI) {
 						// ignore if doc already exists
 					})
 					.then(function (doc) {
-						////console.log(doc);
+						//////console.log(doc);
 						
 					});
 					/** ---------------- */
@@ -352,7 +432,7 @@ function getURLParameter(name, URI) {
 					}.bind(this));
 					
 					//var stop_start_periodical_requests = function(){
-						//////console.log('stop_start_periodical_requests');
+						////////console.log('stop_start_periodical_requests');
 						
 						//this.stop_timed_requests();
 						//this.start_timed_requests();
@@ -378,6 +458,9 @@ function getURLParameter(name, URI) {
 						OSModel.implement({'primary_iface': ko.observable(data)});
 					});
 					
+					this.addEvent(this.ON_PERIODICAL_REQUEST_SUCCESS, this._onPeriodicalSuccess.bind(this));
+					this.addEvent(this.ON_HISTORICAL_REQUEST_SUCCESS, this._onHistoricalSuccess.bind(this));
+					
 					this.parent(options);
 					
 					var now = new Date().getTime();
@@ -399,14 +482,14 @@ function getURLParameter(name, URI) {
 					Array.each(urls, function(url){
 						var doc_key = this._url_to_doc_path(url);
 						
-						//console.log('DOCS');
-						//console.log(doc_key);
+						////console.log('DOCS');
+						////console.log(doc_key);
 						
 						var id = doc_key.split('.');//split to get last portion (ex: 'os', 'blockdevices'....)
 						id = id[id.length - 1];
 						
-						//console.log('REQUESTS');
-						//console.log(id);
+						////console.log('REQUESTS');
+						////console.log(id);
 						
 						
 						
@@ -421,10 +504,10 @@ function getURLParameter(name, URI) {
 							endkey: [ doc_key, 'localhost.colo' ] 
 						})
 						.then(function (response) {
-							//console.log('info/by_path_host/'+doc_key);
-							//console.log(response);
+							////console.log('info/by_path_host/'+doc_key);
+							////console.log(response);
 							
-							////console.log(response.rows[0].doc);
+							//////console.log(response.rows[0].doc);
 							if(response.rows[0]){//there is a doc, update model with this data
 								self._apply_data_model(response.rows[0].doc, id);
 								
@@ -439,7 +522,7 @@ function getURLParameter(name, URI) {
 								
 								
 								if(all_success){
-									//console.log('doc.ALLonSuccess');
+									////console.log('doc.ALLonSuccess');
 									self.fireEvent(self.STARTED);
 								}
 							}
@@ -449,24 +532,24 @@ function getURLParameter(name, URI) {
 							
 						})
 						.catch(function (err) {
-							//console.log('err');
-							//console.log(err);
+							////console.log('err');
+							////console.log(err);
 							
 							requests[id] = new Request.JSON({
 								method: 'get',
 								secure: true,
 								url: self.server+url+'?type=info',
 								onSuccess: function(server_data){
-									//console.log('onSuccess to apply');
-									//console.log(server_data);
+									////console.log('onSuccess to apply');
+									////console.log(server_data);
 									
 									doc = Object.clone(server_data);
 									delete doc._rev;
 									
 									/** insert on local db, so we can avoid this request next time */
 									self.db.put(doc).catch(function (err) {
-										//console.log('err');
-										//console.log(err);
+										////console.log('err');
+										////console.log(err);
 									});
 									
 									self._apply_data_model(server_data, id);
@@ -483,7 +566,7 @@ function getURLParameter(name, URI) {
 									
 									
 									if(all_success){
-										//console.log('req.ALLonSuccess');
+										////console.log('req.ALLonSuccess');
 										self.fireEvent(self.STARTED);
 									}
 									
@@ -518,13 +601,13 @@ function getURLParameter(name, URI) {
 						obj[id] = [];
 						
 						Array.each(server_data, function(value, key){
-							////////console.log(this._implementable_model_object(value, key)[key]);
+							//////////console.log(this._implementable_model_object(value, key)[key]);
 							obj[id].push( Object.merge({ timestamp: timestamp}, this._implementable_model_object(value, key)[key]));
 							
 							if(obj[id].length == Object.getLength(server_data)){
 								
-								////console.log('IMPLEMENTING...');
-								////console.log(obj);
+								//////console.log('IMPLEMENTING...');
+								//////console.log(obj);
 								
 								OSModel.implement(obj);
 							}
@@ -598,67 +681,84 @@ function getURLParameter(name, URI) {
 					doc_path = doc_path.replace(/\//g, '.');
 					return doc_path.replace('.', '');
 				},
-				_define_timed_requests: function(){
+				_onPeriodicalSuccess: function(doc, doc_path, key){
+					console.log('PERIODICAL myRequests.'+key);
+					
+					var self = this;
+					//console.log(doc);
+					
+					delete doc._rev;
+					
+					doc.data.timestamp = doc.metadata.timestamp;
+					
+					if(typeOf(self.model[key]) == 'function'){
+						try{
+							self.model[key](doc.data);
+						}
+						catch(e){
+							//console.log(e);
+							//console.log(key);
+						}
+					}
+					
+					var old_path = doc.metadata.path;
+					doc.metadata.path = doc_path;
+					doc._id = doc._id.replace(old_path+'@', doc_path+'@');
+						
+					//console.log('DOC TO SAVE....');
+					//console.log(doc_path);
+					////console.log(doc.metadata.path);
+					
+					if((self['docs']['buffer'].length < self.options.docs.buffer_size) &&
+					 (self['docs']['timer'] > Date.now().getTime()))
+					{
+						self['docs']['buffer'].push(doc);
+					}
+					else{
+						//console.log('bulkDocs');
+						//console.log(self['docs']['buffer'].length);
+						//console.log(self['docs']['buffer']);
+						
+						self.db.bulkDocs(self['docs']['buffer'])
+						.then(function(response){
+							//console.log('bulkDocs resp...');
+							//console.log(response);
+						})
+						.catch(function (err) {
+							//console.log('DB PUT ERR myRequests.'+key);
+							//console.log(err);
+						});
+						
+						self['docs'] = {
+							'buffer': [],
+							'timer': (Date.now().getTime() + (self.options.docs.timer * 1000)),
+						};
+					}
+					
+					return true;
+				},
+				_define_timed_requests: function(requests){
 					var self = this;
 					
-					////console.log('_define_timed_requests');
+					//////console.log('_define_timed_requests');
 					
-					var onSuccess = function(doc, doc_path, key){
-						console.log('myRequests.'+key);
+					Object.each(requests, function(req, key){
 						
-						delete doc._rev;
-						
-						if(typeOf(self.model[key]) == 'function'){
-							try{
-								self.model[key](doc.data);
-							}
-							catch(e){
-								console.log(e);
-								console.log(key);
-							}
-						}
-						
-						var old_path = doc.metadata.path;
-						doc.metadata.path = doc_path;
-						doc._id = doc._id.replace(old_path+'@', doc_path+'@');
-							
-						console.log('DOC TO SAVE....');
-						console.log(doc_path);
-						//console.log(doc.metadata.path);
-						
-						if((self['docs']['buffer'].length < self.options.docs.buffer_size) &&
-						 (self['docs']['timer'] > Date.now().getTime()))
-						{
-							self['docs']['buffer'].push(doc);
-						}
-						else{
-							console.log('bulkDocs');
-							console.log(self['docs']['buffer'].length);
-							console.log(self['docs']['buffer']);
-							
-							self.db.bulkDocs(self['docs']['buffer'])
-							.then(function(response){
-								console.log('bulkDocs resp...');
-								console.log(response);
-							})
-							.catch(function (err) {
-								console.log('DB PUT ERR myRequests.'+key);
-								console.log(err);
+						if(typeOf(req) == 'function'){
+							////console.log('FUNCTION....');
+							////console.log(key);
+							//////console.log(req());
+							var new_requests = req();
+							Object.each(new_requests, function(req, name){
+								new_requests[key+'_'+name] = req;
+								delete new_requests[name];
 							});
 							
-							self['docs'] = {
-								'buffer': [],
-								'timer': (Date.now().getTime() + (self.options.docs.timer * 1000)),
-							};
+							////console.log(new_requests);
+							this._define_timed_requests(new_requests);
+							
 						}
-						
-						return true;
-					};
-					
-					this.addEvent(this.ON_PERIODICAL_REQUEST_SUCCESS, onSuccess.bind(this));
-					
-					Object.each(this.options.requests.periodical, function(req, key){
-						if(key.charAt(0) != '_'){//defaults
+						else if(key.charAt(0) != '_'){//defaults
 							
 							/** calculate real path based on the req.url */
 							var doc_path = this._url_to_doc_path( (typeOf(req.url) == 'function') ? req.url() : req.url );
@@ -667,14 +767,15 @@ function getURLParameter(name, URI) {
 							var default_req = Object.merge(
 								{
 									onSuccess: function(doc){
+										//console.log('PERIODICAL myRequests.'+key);
 										self.fireEvent(self.ON_PERIODICAL_REQUEST_SUCCESS, [doc, doc_path, key]);
 									},
 									onFailure: function(){
-										////console.log('onFailure');
+										//////console.log('onFailure');
 										self.fireEvent(self.ON_PERIODICAL_REQUEST_FAILURE);
 									},
 									onTimeout: function(){
-										////console.log('onTimeout');
+										//////console.log('onTimeout');
 										self.fireEvent(self.ON_PERIODICAL_REQUEST_TIMEOUT);
 									}
 								},
@@ -683,7 +784,7 @@ function getURLParameter(name, URI) {
 							
 							default_req.url = sprintf(default_req.url, -(10000 + (this.options.OFFSET * 1000)), 0 - (this.options.OFFSET * 1000));
 					
-							////console.log('KEY '+key);
+							//////console.log('KEY '+key);
 							
 							if(typeOf(req.url) == 'function')
 								req.url = req.url();
@@ -709,44 +810,57 @@ function getURLParameter(name, URI) {
 					
 
 				}.protect(),
-				_define_historical_requests: function(){
+				_onHistoricalSuccess: function(docs, doc_key, key){
+					console.log('DEFAULT REQ onSuccess');
+					console.log(doc_key);
+					////console.log(docs);
+					
+					var self = this;
+					
+					if(docs.length > 0){
+						Array.each(docs, function(doc){
+							delete doc._rev;
+							var old_path = doc.metadata.path;
+							doc.metadata.path = doc_key;
+							doc._id = doc._id.replace(old_path+'@', doc_key+'@');
+						});
+						
+						self.db.bulkDocs(docs)
+						.catch(function (err) {
+							//console.log(err);
+						});
+						
+					}
+				},
+				_define_historical_requests: function(requests){
 					var now = new Date();
 					var start_range = now.getTime() - ((this.options.DEFAULT_HISTORICAL_START * 1000) + (this.options.OFFSET * 1000));
 					var end_range = now.getTime() - (this.options.OFFSET * 1000);
 					
 					var self = this;
 					
-					var onSuccess = function(docs, doc_key, key){
-						console.log('DEFAULT REQ onSuccess');
-						console.log(doc_key);
-						//console.log(docs);
-						
-						if(docs.length > 0){
-							Array.each(docs, function(doc){
-								delete doc._rev;
-								var old_path = doc.metadata.path;
-								doc.metadata.path = doc_key;
-								doc._id = doc._id.replace(old_path+'@', doc_key+'@');
+					Object.each(requests, function(req, key){
+						if(typeOf(req) == 'function'){
+							//console.log('FUNCTION....');
+							//console.log(key);
+							////console.log(req());
+							var new_requests = req();
+							Object.each(new_requests, function(req, name){
+								new_requests[key+'_'+name] = req;
+								delete new_requests[name];
 							});
 							
-							self.db.bulkDocs(docs)
-							.catch(function (err) {
-								console.log(err);
-							});
+							//console.log(new_requests);
+							this._define_historical_requests(new_requests);
 							
 						}
-					};
-					
-					this.addEvent(this.ON_HISTORICAL_REQUEST_SUCCESS, onSuccess.bind(this));
-					
-					Object.each(this.options.requests.historical, function(req, key){
-						if(key.charAt(0) != '_'){//defaults
+						else if(key.charAt(0) != '_'){//defaults
 							
 							/** calculate real path based on the req.url */
 							var doc_key = this._url_to_doc_path( (typeOf(req.url) == 'function') ? req.url() : req.url );
 							
 							var prepare_requests = function(){
-								//console.log('preparing requests....');
+								////console.log('preparing requests....');
 								/**
 							 * */
 								var default_req = Object.append(
@@ -766,8 +880,8 @@ function getURLParameter(name, URI) {
 								
 								default_req.url = sprintf(default_req.url, start_range, end_range);
 								
-								console.log('REQUEST RANGE');
-								console.log(default_req.url);
+								//console.log('REQUEST RANGE');
+								//console.log(default_req.url);
 								
 								
 								if(typeOf(req.url) == 'function')
@@ -818,8 +932,8 @@ function getURLParameter(name, URI) {
 								//endkey: 'localhost.colo.'+doc_key
 							})
 							.then(function (response) {
-								console.log('status/by_path_host/'+doc_key);
-								console.log(response);
+								//console.log('status/by_path_host/'+doc_key);
+								//console.log(response);
 								
 								
 								if(response.rows[0]){//there is a doc
@@ -836,7 +950,7 @@ function getURLParameter(name, URI) {
 										docs.push(row.doc);
 									});
 									
-									//console.log(docs);
+									////console.log(docs);
 									
 									req.onSuccess.attempt([docs], self);
 									
@@ -849,7 +963,7 @@ function getURLParameter(name, URI) {
 								
 							})
 							.catch(function (err) {
-								console.log(err);
+								//console.log(err);
 								prepare_requests();
 								
 							}.bind(this));
@@ -869,7 +983,7 @@ function getURLParameter(name, URI) {
 						//stopOnFailure: false,
 						////concurrent: 10,
 						//onComplete: function(name, instance, text, xml){
-								////////////console.log('queue: ' + name + ' response: ', text, xml);
+								//////////////console.log('queue: ' + name + ' response: ', text, xml);
 						//}
 					//});
 					
@@ -878,18 +992,18 @@ function getURLParameter(name, URI) {
 						//stopOnFailure: false,
 						////concurrent: 10,
 						//onComplete: function(name, instance, text, xml){
-								////////////console.log('queue: ' + name + ' response: ', text, xml);
+								//////////////console.log('queue: ' + name + ' response: ', text, xml);
 						//}
 					//});
 					
 				//}.protect(),
 				start_timed_requests: function(){
-					////console.log('start_timed_requests');
+					//////console.log('start_timed_requests');
 					
 					
 					
 					Object.each(this.timed_request, function(req, key){
-						////console.log('starting.... '+key);
+						//////console.log('starting.... '+key);
 						
 						req.startTimer();
 					});
@@ -897,16 +1011,16 @@ function getURLParameter(name, URI) {
 					//this.timed_request_queue.resume();
 				},
 				stop_timed_requests: function(){
-					////////console.log('stop_timed_requests');
+					//////////console.log('stop_timed_requests');
 					Object.each(this.timed_request, function(req){
 						req.stopTimer();
 					});
 				},
 				start_periodical_functions: function(){
-					//console.log('start_periodical_functions');
+					////console.log('start_periodical_functions');
 					
 					Object.each(this.periodical_functions, function(data, key){
-						//console.log('starting.... '+key);
+						////console.log('starting.... '+key);
 						
 						if(!this.periodical_functions_timers['page'][key])
 							this.periodical_functions_timers['page'][key] = data.fn.periodical(data.interval);
@@ -914,11 +1028,11 @@ function getURLParameter(name, URI) {
 					}.bind(this));
 					
 					Object.each(this.model.periodical_functions, function(data, key){
-						//console.log('model starting.... '+key);
+						////console.log('model starting.... '+key);
 						
 						if(!this.periodical_functions_timers['model'][key]){
 							this.periodical_functions_timers['model'][key] = data.fn.periodical(data.interval);
-							//console.log('...STARTED!!!');
+							////console.log('...STARTED!!!');
 						}
 							
 					}.bind(this));
@@ -926,10 +1040,10 @@ function getURLParameter(name, URI) {
 					
 				},
 				stop_periodical_functions: function(){
-					//console.log('stop_periodical_functions');
+					////console.log('stop_periodical_functions');
 					
 					Object.each(this.periodical_functions_timers['page'], function(timer, key){
-						//console.log('stoping.... '+key);
+						////console.log('stoping.... '+key);
 						
 						clearInterval(timer);
 						delete this.periodical_functions_timers['page'][key];
@@ -937,8 +1051,8 @@ function getURLParameter(name, URI) {
 					}.bind(this));
 					
 					Object.each(this.periodical_functions_timers['model'], function(timer, key){
-						//console.log('model stoping.... '+key);
-						////console.log(timer);
+						////console.log('model stoping.... '+key);
+						//////console.log(timer);
 						
 						clearInterval(timer);
 						delete this.periodical_functions_timers['model'][key];
@@ -956,7 +1070,7 @@ function getURLParameter(name, URI) {
 				
 				var self = this;
 				
-				//console.log('page started');
+				////console.log('page started');
 				
 				if(mainBodyModel.os() == null){
 					
@@ -967,9 +1081,9 @@ function getURLParameter(name, URI) {
 					
 					mainBodyModel.os(self.model);
 					
-					this._define_timed_requests();
+					this._define_timed_requests(this.options.requests.periodical);
 				
-					this._define_historical_requests();
+					this._define_historical_requests(this.options.requests.historical);
 					
 					//this._define_queued_requests();
 					

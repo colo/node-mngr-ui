@@ -441,7 +441,7 @@ var OSModel = new Class({
 				//////console.log(ko.isObservable(this.blockdevices.sda.stats));
 				
 				this.user_friendly_cpus_usage.subscribe( function(value){
-					////console.log('this.user_friendly_cpus_usage.subscribe');
+					console.log('this.user_friendly_cpus_usage.subscribe');
 					this._update_plot_data('cpus', value['usage'].toFloat());
 				}.bind(this) );
 				
@@ -456,71 +456,37 @@ var OSModel = new Class({
 					this._update_plot_data('loadavg', value[0].toFloat());
 				}.bind(this));
 			
-				this.blockdevices.sda.stats.subscribe(function(oldValue) {
-						//console.log('this.blockdevices().sda.stats() suscribe OLD VALUE');
-						//console.log(this.blockdevices.timestamp);
-						
-						if(!oldValue.timestamp)
-							oldValue.timestamp = this.blockdevices.timestamp;
-						
-						
-						//var timestamp = this.blockdevices.sda._prev_stats.timestamp || 0;
-						this.blockdevices.sda._prev_stats = oldValue;
-						
-						
-						
-				}.bind(this), null, "beforeChange");
-
-				this.blockdevices.sda.stats.subscribe( function(value){
-					
-					////when the blkdev stats are updated for first time, we save the timestamp of the '_prev_stats', for next iteration
-					//if(!this.blockdevices.sda._prev_stats){
-						////console.log('saving prev timestamp');
-						//this.blockdevices.sda._prev_stats = {};
-						//this.blockdevices.sda._prev_stats.timestamp = Date.now();
-					//}
-						
-					
-					//console.log('this.blockdevices().sda.stats() suscribe');
-					
-					////milliseconds between last update and this one
-					//var time_in_queue = value.time_in_queue - this.blockdevices.sda._prev_stats.time_in_queue;
-					
-					////////console.log('TIME IN QUEUE: '+time_in_queue);
-					
-					////var percentage_in_queue = [];
-					//data = [];
-					/**
-					 * each messure spent on IO, is 100% of the disk at full IO speed (at least, available for the procs),
-					 * so, as we are graphing on 1 second X, milliseconds spent on IO, would be % of that second (eg: 500ms = 50% IO)
-					 * 
-					 * */
-					//if(time_in_queue < 1000){//should always enter this if, as we messure on 1 second updates (1000+)
-						////////console.log('LESS THAN A SECOND');
-						//data.push((time_in_queue * 100) / 1000);
-					//}
-					//else{//updates may not get as fast as 1 second, so we split the messure for as many as seconds it takes
-						////////console.log('MORE THAN A SECOND');
-						
-						////for(var i = 1; i < (time_in_queue / 1000); i++){
-							//////////console.log('----SECOND: '+i);
+				Object.each(this.blockdevices, function(dev, name){
+					//console.log(dev);
+					//console.log(name);
+					this.blockdevices[name].stats.subscribe(function(oldValue) {
 							
-							////data.push( 100 ); //each of this seconds was at 100%
-						////}
+							if(!oldValue.timestamp)
+								oldValue.timestamp = this.blockdevices.timestamp;
+							
+							this.blockdevices.sda._prev_stats = oldValue;
+							
+					}.bind(this), null, "beforeChange");
+					
+					this.blockdevices[name].stats.subscribe( function(value){
+					
+						/**
+						 * each messure spent on IO, is 100% of the disk at full IO speed (at least, available for the procs),
+						 * so, as we are graphing on 1 second X, milliseconds spent on IO, would be % of that second (eg: 500ms = 50% IO)
+						 * 
+						 * */
+						var data = this._blockdevice_percentage_data(this.blockdevices[name]._prev_stats, value);
 						
-						//data.push(( (time_in_queue % 1000) * 100) / 1000);
-					//}
-					
-					//var data = this._blockdevice_percentage_data(this.blockdevices.sda._prev_stats.time_in_queue, value.time_in_queue);
-					var data = this._blockdevice_percentage_data(this.blockdevices.sda._prev_stats, value);
-					
-					this._update_plot_data('sda_stats', data, value.timestamp);
-					
-					//for(var i = 0; i < data.length; i++ ){
-						//this._update_plot_data('sda_stats', data[i]);
-					//}
-					
-				}.bind(this) );
+						this._update_plot_data(name+'_stats', data, value.timestamp);
+						
+						
+					}.bind(this) );
+				
+				}.bind(this));
+			
+				
+
+
 				
 		}.bind(this));
 		
