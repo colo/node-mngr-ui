@@ -32,10 +32,12 @@ function getURLParameter(name, URI) {
 				
 				ON_PERIODICAL_REQUEST_TIMEOUT: 'onPeriodicalRequestTimeout',
 				ON_PERIODICAL_REQUEST_FAILURE: 'onPeriodicalRequestFailure',
+				ON_PERIODICAL_REQUEST_SUCCESS: 'onPeriodicalRequestSuccess',
 				
 				ON_HISTORICAL_REQUEST_DEFINED: 'onHistoricalRequestDefined',
 				ON_HISTORICAL_REQUEST_TIMEOUT: 'onHistoricalRequestTimeout',
 				ON_HISTORICAL_REQUEST_FAILURE: 'onHistoricalRequestFailure',
+				ON_HISTORICAL_REQUEST_SUCCESS: 'onHistoricalRequesSuccess',
 				
 				server: null,
 				timed_request: {},
@@ -601,6 +603,59 @@ function getURLParameter(name, URI) {
 					
 					////console.log('_define_timed_requests');
 					
+					var onSuccess = function(doc, doc_path, key){
+						console.log('myRequests.'+key);
+						
+						delete doc._rev;
+						
+						if(typeOf(self.model[key]) == 'function'){
+							try{
+								self.model[key](doc.data);
+							}
+							catch(e){
+								console.log(e);
+								console.log(key);
+							}
+						}
+						
+						var old_path = doc.metadata.path;
+						doc.metadata.path = doc_path;
+						doc._id = doc._id.replace(old_path+'@', doc_path+'@');
+							
+						console.log('DOC TO SAVE....');
+						console.log(doc_path);
+						//console.log(doc.metadata.path);
+						
+						if((self['docs']['buffer'].length < self.options.docs.buffer_size) &&
+						 (self['docs']['timer'] > Date.now().getTime()))
+						{
+							self['docs']['buffer'].push(doc);
+						}
+						else{
+							console.log('bulkDocs');
+							console.log(self['docs']['buffer'].length);
+							console.log(self['docs']['buffer']);
+							
+							self.db.bulkDocs(self['docs']['buffer'])
+							.then(function(response){
+								console.log('bulkDocs resp...');
+								console.log(response);
+							})
+							.catch(function (err) {
+								console.log('DB PUT ERR myRequests.'+key);
+								console.log(err);
+							});
+							
+							self['docs'] = {
+								'buffer': [],
+								'timer': (Date.now().getTime() + (self.options.docs.timer * 1000)),
+							};
+						}
+						
+						return true;
+					};
+					
+					this.addEvent(this.ON_PERIODICAL_REQUEST_SUCCESS, onSuccess.bind(this));
 					
 					Object.each(this.options.requests.periodical, function(req, key){
 						if(key.charAt(0) != '_'){//defaults
@@ -612,55 +667,7 @@ function getURLParameter(name, URI) {
 							var default_req = Object.merge(
 								{
 									onSuccess: function(doc){
-										console.log('myRequests.'+key);
-										
-										delete doc._rev;
-										
-										if(typeOf(self.model[key]) == 'function'){
-											try{
-												self.model[key](doc.data);
-											}
-											catch(e){
-												console.log(e);
-												console.log(key);
-											}
-										}
-										
-										var old_path = doc.metadata.path;
-										doc.metadata.path = doc_path;
-										doc._id = doc._id.replace(old_path+'@', doc_path+'@');
-											
-										console.log('DOC TO SAVE....');
-										console.log(doc_path);
-										//console.log(doc.metadata.path);
-										
-										if((self['docs']['buffer'].length < self.options.docs.buffer_size) &&
-										 (self['docs']['timer'] > Date.now().getTime()))
-										{
-											self['docs']['buffer'].push(doc);
-										}
-										else{
-											console.log('bulkDocs');
-											console.log(self['docs']['buffer'].length);
-											console.log(self['docs']['buffer']);
-											
-											self.db.bulkDocs(self['docs']['buffer'])
-											.then(function(response){
-												console.log('bulkDocs resp...');
-												console.log(response);
-											})
-											.catch(function (err) {
-												console.log('DB PUT ERR myRequests.'+key);
-												console.log(err);
-											});
-											
-											self['docs'] = {
-												'buffer': [],
-												'timer': (Date.now().getTime() + (self.options.docs.timer * 1000)),
-											};
-										}
-										
-										return true;
+										self.fireEvent(self.ON_PERIODICAL_REQUEST_SUCCESS, [doc, doc_path, key]);
 									},
 									onFailure: function(){
 										////console.log('onFailure');
@@ -709,6 +716,28 @@ function getURLParameter(name, URI) {
 					
 					var self = this;
 					
+					var onSuccess = function(docs, doc_key, key){
+						console.log('DEFAULT REQ onSuccess');
+						console.log(doc_key);
+						//console.log(docs);
+						
+						if(docs.length > 0){
+							Array.each(docs, function(doc){
+								delete doc._rev;
+								var old_path = doc.metadata.path;
+								doc.metadata.path = doc_key;
+								doc._id = doc._id.replace(old_path+'@', doc_key+'@');
+							});
+							
+							self.db.bulkDocs(docs)
+							.catch(function (err) {
+								console.log(err);
+							});
+							
+						}
+					};
+					
+					this.addEvent(this.ON_HISTORICAL_REQUEST_SUCCESS, onSuccess.bind(this));
 					
 					Object.each(this.options.requests.historical, function(req, key){
 						if(key.charAt(0) != '_'){//defaults
@@ -723,24 +752,7 @@ function getURLParameter(name, URI) {
 								var default_req = Object.append(
 									{
 										onSuccess: function(docs){
-											console.log('DEFAULT REQ onSuccess');
-											console.log(doc_key);
-											//console.log(docs);
-											
-											if(docs.length > 0){
-												Array.each(docs, function(doc){
-													delete doc._rev;
-													var old_path = doc.metadata.path;
-													doc.metadata.path = doc_key;
-													doc._id = doc._id.replace(old_path+'@', doc_key+'@');
-												});
-												
-												self.db.bulkDocs(docs)
-												.catch(function (err) {
-													console.log(err);
-												});
-												
-											}
+											self.fireEvent(self.ON_HISTORICAL_REQUEST_SUCCESS, [docs, doc_key, key]);
 										},
 										onFailure: function(){
 											self.fireEvent(self.ON_HISTORICAL_REQUEST_FAILURE);
@@ -847,30 +859,30 @@ function getURLParameter(name, URI) {
 						
 					}.bind(this));
 				},
-				_define_queued_requests: function(){
+				//_define_queued_requests: function(){
 					
-					//var requests = {};
-					//requests = Object.merge(requests, this.timed_request);
+					////var requests = {};
+					////requests = Object.merge(requests, this.timed_request);
 					
-					this.timed_request_queue = new Request.Queue({
-						requests: this.timed_request,
-						stopOnFailure: false,
-						//concurrent: 10,
-						onComplete: function(name, instance, text, xml){
-								//////////console.log('queue: ' + name + ' response: ', text, xml);
-						}
-					});
+					//this.timed_request_queue = new Request.Queue({
+						//requests: this.timed_request,
+						//stopOnFailure: false,
+						////concurrent: 10,
+						//onComplete: function(name, instance, text, xml){
+								////////////console.log('queue: ' + name + ' response: ', text, xml);
+						//}
+					//});
 					
-					this.historical_request_queue = new Request.Queue({
-						requests: this.historical_request,
-						stopOnFailure: false,
-						//concurrent: 10,
-						onComplete: function(name, instance, text, xml){
-								//////////console.log('queue: ' + name + ' response: ', text, xml);
-						}
-					});
+					//this.historical_request_queue = new Request.Queue({
+						//requests: this.historical_request,
+						//stopOnFailure: false,
+						////concurrent: 10,
+						//onComplete: function(name, instance, text, xml){
+								////////////console.log('queue: ' + name + ' response: ', text, xml);
+						//}
+					//});
 					
-				}.protect(),
+				//}.protect(),
 				start_timed_requests: function(){
 					////console.log('start_timed_requests');
 					
