@@ -303,8 +303,11 @@ function getURLParameter(name, URI) {
 											//if(!(index >= 0)){
 												//console.log('key to push... '+name);
 												//os_page.model.plot_data_order().push(name+'_stats');
-												//console.log(os_page.model.plot_data_order());
+												////console.log(os_page.model.plot_data_order());
+												//os_page.model.add_resource_to_plot(name+'_stats');
 											//}
+											
+											
 											
 											var last_doc = null;
 											

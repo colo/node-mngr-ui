@@ -34,6 +34,7 @@ var OSModel = new Class({
 	plot: null,
 	plot_data: [],
 	plot_data_order: ['cpus', 'loadavg', 'freemem', 'sda_stats'],
+	//plot_data_order: ko.observableArray(['cpus', 'loadavg', 'freemem']),
 	//plot_data_last_update: 0,
 	//plot_data_update: 0,
 	
@@ -122,7 +123,7 @@ var OSModel = new Class({
 					borderWidth: 1,
 					color: '#fff'
 				},
-				colors: ["rgba(38, 185, 154, 0.38)", "rgba(3, 88, 106, 0.38)", "rgba(215, 96, 139, 0.2)", "rgba(223, 129, 46, 0.4)"],
+				colors: ["rgba(38, 185, 154, 0.38)", "rgba(3, 88, 106, 0.38)", "rgba(215, 96, 139, 0.2)", "rgba(223, 129, 46, 0.4)", "rgba(223, 129, 46, 0.4)", "rgba(223, 129, 46, 0.4)", "rgba(223, 129, 46, 0.4)"],
 				xaxis: {
 					tickColor: "rgba(51, 51, 51, 0.06)",
 					mode: "time",
@@ -211,6 +212,18 @@ var OSModel = new Class({
 		
 		return percentage;
 	},
+	//add_resource_to_plot: function(name){
+		
+		//var resource = {};
+		//index = this.plot_resources().length;
+		//resource.name = name;
+		//resource.rgba = this.options.timed_plot._defaults.colors[index];
+		
+		//this.plot_resources().push(resource);
+		//console.log('add resource to plot');
+		//console.log(resource);
+		//console.log(this.plot_resources());
+	//},
 	initialize: function(options){
 		
 		this.setOptions(options);
@@ -218,16 +231,27 @@ var OSModel = new Class({
 		//////////console.log('this.networkInterfaces');
 		//////////console.log(this.primary_iface());
 		
-		this.plot_resources = ko.pureComputed(function(){
+		//this.plot_resources = ko.observableArray();
+		
+		//Array.each(this.plot_data_order(), function(name, index){
+			//this.add_resource_to_plot(name);
+		//}.bind(this));
+		
+		this.plot_resources = ko.computed(function(){
+			console.log('this.plot_resources');
 			var resources = [];
+			
 			Array.each(this.plot_data_order, function(name, index){
 				var resource = {};
 				resource.name = name;
 				resource.rgba = this.options.timed_plot._defaults.colors[index];
 				resources.push(resource);
+				//this.plot_resources().push(resource);
 			}.bind(this));
+			
+			
 			return resources;
-		}.bind(this));
+		}, this).extend({ notify: 'always' });
 		
 		this.header = ko.pureComputed(function(){
 			return this.hostname()+' ['+this.type() +' '+this.release()+' '+this.arch()+']';
