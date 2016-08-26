@@ -109,28 +109,6 @@ function getURLParameter(name, URI) {
 									return true;
 								}.bind(this)
 							},
-							//sda_stats: {
-								//url: function(){ 
-									///** return chosen blkdev */
-									//return '/os/api/blockdevices/sda/stats';
-								//}.bind(this),
-								//onSuccess: function(doc){
-									//////console.log('myRequests.sda_stats: ');
-									//////console.log(doc);
-									
-									///**
-									 //* save previous stats, needed to calculate times (updated stats - prev_stats)
-									 //* */
-									////os_page.model.blockdevices.sda._prev_stats = os_page.model.blockdevices.sda.stats();
-									
-									//doc.data.timestamp = doc.metadata.timestamp;
-									
-									//os_page.model.blockdevices.sda.stats(doc.data);
-									
-									////os_page._update_plot_data('sda_stats', doc.metadata.timestamp);
-									//return true;
-								//}.bind(this)
-							//}
 							blockdevices_stats: function(){
 								var blks = {};
 								
@@ -157,7 +135,34 @@ function getURLParameter(name, URI) {
 								}.bind(this));
 								
 								return blks;
-							}
+							},
+							//blockdevices: function(){
+								//var blks = {};
+								
+								//Object.each(os_page.model.blockdevices, function(dev, name){
+									//blks[name] = {
+										//url: '/os/api/blockdevices/'+name+'/partitions',
+										//onSuccess: function(doc){
+											//console.log('myRequests.blockdevices.'+name+'/partitions');
+											//console.log(doc);
+											
+											/////**
+											 ////* save previous stats, needed to calculate times (updated stats - prev_stats)
+											 ////* */
+											//////os_page.model.blockdevices.sda._prev_stats = os_page.model.blockdevices.sda.stats();
+											
+											////doc.data.timestamp = doc.metadata.timestamp;
+											
+											////os_page.model.blockdevices[name].stats(doc.data);
+											
+											//return true;
+										//}.bind(this)
+									//}
+										
+								//}.bind(this));
+								
+								//return blks;
+							//}
 						},
 						
 						historical: {
@@ -209,36 +214,15 @@ function getURLParameter(name, URI) {
 									////console.log('historical.cpus: ');
 									////////console.log(docs);
 									
-									var last = {
-										user: 0,
-										nice: 0,
-										sys: 0,
-										idle: 0
-									};
+									
 									/** docs come from lastes [0] to oldest [N-1] */
 									for(var i = docs.length - 1; i >= 0; i--){
 										var doc = docs[i];
 										
-										var cpu_usage = {
-											user: 0,
-											nice: 0,
-											sys: 0,
-											idle: 0
-										};
-										Array.each(doc.data, function(cpu){
-						
-											cpu_usage.user += cpu.times.user;
-											cpu_usage.nice += cpu.times.nice;
-											cpu_usage.sys += cpu.times.sys;
-											cpu_usage.idle += cpu.times.idle;
-
-										});
+										var cpu_usage = os_page.model._process_cpu_usage(doc.data);
+										var percentage = os_page.model.cpu_usage_percentage(os_page.model.cpu_usage, cpu_usage);
 										
-										var percentage = os_page.model.cpu_usage_percentage(last, cpu_usage);
-										
-										last = Object.clone(cpu_usage);
-										
-										////////console.log(percentage);
+										os_page.model.cpu_usage = cpu_usage;
 										
 										os_page.model._update_plot_data('cpus', percentage['usage'].toFloat(), doc.metadata.timestamp);
 										
@@ -247,45 +231,6 @@ function getURLParameter(name, URI) {
 									
 								}
 							},
-							//sda_stats: {
-								//url: function(){ 
-									///** return chosen blkdev */
-									//return '/os/api/blockdevices/sda/stats';
-								//}.bind(this),
-								//onSuccess: function(docs){
-									//////console.log('historical.sda_stats: ');
-									//////console.log(docs);
-									
-									////var io_ticks = 0;
-									//var last_doc = null;
-									
-									/////** docs come from lastes [0] to oldest [N-1] */
-									//for(var i = docs.length - 1; i >= 0; i--){
-										//var doc = docs[i];
-										//doc.data.timestamp = docs[i].metadata.timestamp;
-										
-										////var io_ticks = doc.data.io_ticks;
-										
-										//if(last_doc){
-											//var percentage = os_page.model._blockdevice_percentage_data(last_doc, doc.data);
-											
-											//////console.log(percentage);
-											
-											//os_page.model._update_plot_data('sda_stats', percentage, doc.metadata.timestamp);
-										//}
-										
-										//last_doc = doc.data;
-										////last_time_in_queue = time_in_queue;
-										
-										//////////console.log(percentage);
-										
-										
-										
-									//}
-										
-								//}
-								
-							//}
 							blockdevices_stats: function(){
 								var blks = {};
 								
@@ -293,21 +238,6 @@ function getURLParameter(name, URI) {
 									blks[name] = {
 										url: '/os/api/blockdevices/'+name+'/stats',
 										onSuccess: function(docs){
-											console.log('historical.'+name+'_stats: ');
-											////console.log(docs);
-											
-											//console.log(os_page.model.plot_data_order().indexOf(name+'_stats'));
-											
-											//var index = os_page.model.plot_data_order().indexOf(name+'_stats');
-		
-											//if(!(index >= 0)){
-												//console.log('key to push... '+name);
-												//os_page.model.plot_data_order().push(name+'_stats');
-												////console.log(os_page.model.plot_data_order());
-												//os_page.model.add_resource_to_plot(name+'_stats');
-											//}
-											
-											
 											
 											var last_doc = null;
 											
@@ -316,20 +246,14 @@ function getURLParameter(name, URI) {
 												var doc = docs[i];
 												doc.data.timestamp = docs[i].metadata.timestamp;
 												
-												//var io_ticks = doc.data.io_ticks;
 												
 												if(last_doc){
 													var percentage = os_page.model._blockdevice_percentage_data(last_doc, doc.data);
-													
-													////console.log(percentage);
 													
 													os_page.model._update_plot_data(name+'_stats', percentage, doc.metadata.timestamp);
 												}
 												
 												last_doc = doc.data;
-												//last_time_in_queue = time_in_queue;
-												
-												////////console.log(percentage);
 												
 												
 												
@@ -692,11 +616,17 @@ function getURLParameter(name, URI) {
 					
 					delete doc._rev;
 					
-					doc.data.timestamp = doc.metadata.timestamp;
+					//doc.data.timestamp = doc.metadata.timestamp;
 					
 					if(typeOf(self.model[key]) == 'function'){
 						try{
+							var timestamp_key = key+'_timestamp';//we may use this property to know when was the last time we updated this key
+							self.model[timestamp_key] = doc.metadata.timestamp;
+							
 							self.model[key](doc.data);
+							
+							//console.log(key);
+							//console.log(self.model[timestamp_key]);
 						}
 						catch(e){
 							//console.log(e);
@@ -815,7 +745,7 @@ function getURLParameter(name, URI) {
 				}.protect(),
 				_onHistoricalSuccess: function(docs, doc_key, key){
 					console.log('DEFAULT REQ onSuccess');
-					console.log(doc_key);
+					console.log(key);
 					////console.log(docs);
 					
 					var self = this;
