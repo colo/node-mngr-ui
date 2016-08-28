@@ -21,6 +21,8 @@ function getURLParameter(name, URI) {
 		//head.js({ flot_curvedLines: "/public/bower/gentelella/production/js/flot/curvedLines.js" }, function(){
 		//})})})})})})})})});
 		head.js({ sprintf: '/public/bower/sprintf/dist/sprintf.min.js' });
+		head.js({ randomcolor: '/public/bower/randomcolor/randomColor.js' });
+		
 		
 		head.ready('PouchDB', function(){
 	
@@ -136,14 +138,61 @@ function getURLParameter(name, URI) {
 								
 								return blks;
 							},
+							mounts: function(){
+								var mounts = {};
+								
+								Array.each(os_page.model.mounts, function(mount, index){
+				
+									if(os_page.model.options.list_partitions_types.test(mount.type())){
+										console.log('mount.fs()');
+										//console.log();
+										
+										mounts[mount.fs().replace(/\//g, '%2F')] = {
+											//url: '/os/api/mounts/'+mount.fs().replace(/\//g, '%2F'),
+											url: '/os/api/mounts/'+index,
+											onSuccess: function(doc){
+												console.log('/os/api/mounts/'+mount.fs().replace(/\//g, '%2F'));
+												console.log(doc);
+												console.log(os_page.model.mounts[index].percentage());
+												
+												doc.data.percentage.timestamp = doc.metadata.timestamp;
+												os_page.model.mounts[index].percentage(doc.data.percentage);
+												
+											}
+										};
+										//var info = {};
+										//info.percentage = mount.percentage();
+										//info.point = mount.mount_point();
+										//info.fs = mount.fs();
+										//info.size = '?';
+										
+										//Array.each(this.list_blk_dev(), function(dev){
+											//var name = Object.keys(dev)[0];
+											//Array.each(dev.partitions, function(part){
+												//////////console.log('PART');
+												//////////console.log(part);
+												
+												//if(new RegExp(part.name).test(info.fs)){//if mount point is on listed partitions, we can get szie in bytes
+													//info.size = (part.size / this[this.options.current_size_base]).toFixed(0)+ "GB";
+												//}
+												
+											//}.bind(this));
+										//}.bind(this));
+										
+										//mounts.push(info);
+									}
+								}.bind(this));
+								
+								return mounts;
+							}
 							//blockdevices: function(){
 								//var blks = {};
 								
 								//Object.each(os_page.model.blockdevices, function(dev, name){
 									//blks[name] = {
-										//url: '/os/api/blockdevices/'+name+'/partitions',
+										//url: '/os/api/blockdevices/'+name,
 										//onSuccess: function(doc){
-											//console.log('myRequests.blockdevices.'+name+'/partitions');
+											//console.log('periodical myRequests.blockdevices.'+name);
 											//console.log(doc);
 											
 											/////**
@@ -152,8 +201,8 @@ function getURLParameter(name, URI) {
 											//////os_page.model.blockdevices.sda._prev_stats = os_page.model.blockdevices.sda.stats();
 											
 											////doc.data.timestamp = doc.metadata.timestamp;
-											
-											////os_page.model.blockdevices[name].stats(doc.data);
+											//doc.data.stats.timestamp = doc.metadata.timestamp;
+											//os_page.model.blockdevices[name].stats(doc.data.stats);
 											
 											//return true;
 										//}.bind(this)
@@ -266,6 +315,43 @@ function getURLParameter(name, URI) {
 								
 								return blks;
 							}
+							//blockdevices: function(){
+								//var blks = {};
+								
+								//Object.each(os_page.model.blockdevices, function(dev, name){
+									//blks[name] = {
+										//url: '/os/api/blockdevices/'+name,
+										//onSuccess: function(docs){
+											//console.log('historical.blockdevices: '+name);
+											//console.log(docs);
+											
+											//var last_doc = null;
+											
+											/////** docs come from lastes [0] to oldest [N-1] */
+											//for(var i = docs.length - 1; i >= 0; i--){
+												//var doc = docs[i];
+												//doc.data.stats.timestamp = docs[i].metadata.timestamp;
+												
+												
+												//if(last_doc){
+													//var percentage = os_page.model._blockdevice_percentage_data(last_doc, doc.data.stats);
+													
+													//os_page.model._update_plot_data(name+'_stats', percentage, doc.metadata.timestamp);
+												//}
+												
+												//last_doc = doc.data.stats;
+												
+												
+												
+											//}
+												
+										//}
+									//}
+										
+								//}.bind(this));
+								
+								//return blks;
+							//}
 						},
 						update_model: ['/os/api', '/os/api/blockdevices', '/os/api/mounts'],
 						

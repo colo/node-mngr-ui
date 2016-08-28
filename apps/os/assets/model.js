@@ -147,7 +147,7 @@ var OSModel = new Class({
 					borderWidth: 1,
 					color: '#fff'
 				},
-				colors: ["rgba(38, 185, 154, 0.38)", "rgba(3, 88, 106, 0.38)", "rgba(215, 96, 139, 0.2)", "rgba(223, 129, 46, 0.4)", "rgba(223, 129, 46, 0.4)", "rgba(223, 129, 46, 0.4)", "rgba(223, 129, 46, 0.4)"],
+				colors: ["rgba(38, 185, 154, 0.38)", "rgba(3, 88, 106, 0.38)", "rgba(215, 96, 139, 0.2)", "rgba(223, 129, 46, 0.4)"],
 				xaxis: {
 					tickColor: "rgba(51, 51, 51, 0.06)",
 					mode: "time",
@@ -177,6 +177,14 @@ var OSModel = new Class({
 		var resource = {};
 		index = this.plot_resources().length;
 		resource.name = name;
+		
+		if(!this.options.timed_plot._defaults.colors[index])
+			this.options.timed_plot._defaults.colors[index] = randomColor({
+				 luminosity: 'dark',
+				  hue: 'orange',
+				 format: 'rgba'
+			});
+				
 		resource.rgba = this.options.timed_plot._defaults.colors[index];//if not rgba, should generate one
 		
 		return resource;
@@ -388,8 +396,8 @@ var OSModel = new Class({
 				//////console.log(ko.isObservable(this.blockdevices.sda.stats));
 				
 				this.user_friendly_cpus_usage.subscribe( function(oldValue){
-					console.log('this.user_friendly_cpus_usage.beforeChange');
-					console.log(oldValue);
+					//console.log('this.user_friendly_cpus_usage.beforeChange');
+					//console.log(oldValue);
 					this.cpu_usage_prev_percentage = oldValue;
 					
 				}.bind(this), null, "beforeChange");
@@ -434,12 +442,13 @@ var OSModel = new Class({
 							if(!oldValue.timestamp)
 								oldValue.timestamp = this.blockdevices.timestamp;
 							
-							this.blockdevices.sda._prev_stats = oldValue;
+							this.blockdevices[name]._prev_stats = oldValue;
 							
 					}.bind(this), null, "beforeChange");
 					
 					this.blockdevices[name].stats.subscribe( function(value){
-					
+						//console.log('this.blockdevices['+name+'].stats.subscribe');
+						//console.log(value);
 						/**
 						 * each messure spent on IO, is 100% of the disk at full IO speed (at least, available for the procs),
 						 * so, as we are graphing on 1 second X, milliseconds spent on IO, would be % of that second (eg: 500ms = 50% IO)
@@ -453,7 +462,20 @@ var OSModel = new Class({
 					}.bind(this) );
 				
 				}.bind(this));
-			
+				
+				Array.each(this.mounts, function(mount, index){
+				
+					if(this.options.list_partitions_types.test(mount.type())){
+						console.log('this.mounts[index].percentage.subscribe');
+						
+						this.mounts[index].percentage.subscribe( function(value){
+							console.log('this.mounts[index].percentage.subscribe');
+							console.lg(mount.mount_point());
+							console.log(value);
+						}.bind(this) );
+						
+					}
+				}.bind(this));
 				
 
 
