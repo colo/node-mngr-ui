@@ -56,6 +56,17 @@ var OSModel = new Class({
 			
 			return stats;
 			//return ['sda_stats'];
+		},
+		function(){
+			var mounts = [];
+			Array.each(this.mounts, function(mount, index){
+				
+				if(this.options.list_partitions_types.test(mount.type())){
+					mounts.push(this.mounts[index].mount_point()+'_used');
+				}
+			}.bind(this));
+			
+			return mounts;
 		}
 	],
 	//plot_data_order: ko.observableArray(['cpus', 'loadavg', 'freemem']),
@@ -463,19 +474,31 @@ var OSModel = new Class({
 				
 				}.bind(this));
 				
-				Array.each(this.mounts, function(mount, index){
+				//Array.each(this.mounts, function(mount, index){
 				
-					if(this.options.list_partitions_types.test(mount.type())){
-						console.log('this.mounts[index].percentage.subscribe');
+					//if(this.options.list_partitions_types.test(mount.type())){
+						////console.log('this.mounts[index].percentage.subscribe');
 						
-						this.mounts[index].percentage.subscribe( function(value){
-							console.log('this.mounts[index].percentage.subscribe');
-							console.lg(mount.mount_point());
-							console.log(value);
-						}.bind(this) );
+						////this.mounts[index].percentage.subscribe( function(oldValue){
+							////console.log('this.mounts[index].percentage.beforeChange');
+							////console.lg(mount.mount_point());
+							////console.log(oldValue);
+							////console.log(this.mounts.timestamp);
+							
+						////}.bind(this), null, "beforeChange");
 						
-					}
-				}.bind(this));
+						//this.mounts[index].percentage.subscribe( function(value){
+							//console.log('this.mounts[index].percentage.subscribe');
+							//console.log(this.mounts[index].mount_point());
+							//console.log(this.mounts[index]);
+							//console.log(value);
+							
+							//this._update_plot_data(this.mounts[index].mount_point()+'_used', value, this.mounts[index].timestamp);
+							
+						//}.bind(this) );
+						
+					//}
+				//}.bind(this));
 				
 
 

@@ -155,31 +155,14 @@ function getURLParameter(name, URI) {
 												console.log(doc);
 												console.log(os_page.model.mounts[index].percentage());
 												
-												doc.data.percentage.timestamp = doc.metadata.timestamp;
+												//doc.data.percentage.timestamp = doc.metadata.timestamp;
+												os_page.model.mounts[index].timestamp = doc.metadata.timestamp;
 												os_page.model.mounts[index].percentage(doc.data.percentage);
 												
+												os_page.model._update_plot_data(mount.mount_point()+'_used', doc.data.percentage, doc.metadata.timestamp);
 											}
 										};
-										//var info = {};
-										//info.percentage = mount.percentage();
-										//info.point = mount.mount_point();
-										//info.fs = mount.fs();
-										//info.size = '?';
 										
-										//Array.each(this.list_blk_dev(), function(dev){
-											//var name = Object.keys(dev)[0];
-											//Array.each(dev.partitions, function(part){
-												//////////console.log('PART');
-												//////////console.log(part);
-												
-												//if(new RegExp(part.name).test(info.fs)){//if mount point is on listed partitions, we can get szie in bytes
-													//info.size = (part.size / this[this.options.current_size_base]).toFixed(0)+ "GB";
-												//}
-												
-											//}.bind(this));
-										//}.bind(this));
-										
-										//mounts.push(info);
 									}
 								}.bind(this));
 								
@@ -314,6 +297,41 @@ function getURLParameter(name, URI) {
 								}.bind(this));
 								
 								return blks;
+							},
+							mounts: function(){
+								var mounts = {};
+								
+								Array.each(os_page.model.mounts, function(mount, index){
+				
+									if(os_page.model.options.list_partitions_types.test(mount.type())){
+										console.log('mount.fs()');
+										//console.log();
+										
+										mounts[mount.fs().replace(/\//g, '%2F')] = {
+											//url: '/os/api/mounts/'+mount.fs().replace(/\//g, '%2F'),
+											url: '/os/api/mounts/'+index,
+											onSuccess: function(docs){
+												//console.log('/os/api/mounts/'+mount.fs().replace(/\//g, '%2F'));
+												//console.log(doc);
+												//console.log(os_page.model.mounts[index].percentage());
+												
+												//doc.data.percentage.timestamp = doc.metadata.timestamp;
+												
+												for(var i = docs.length - 1; i >= 0; i--){
+													var doc = docs[i];
+													
+													os_page.model.mounts[index].timestamp = doc.metadata.timestamp;
+													os_page.model.mounts[index].percentage(doc.data.percentage);
+													
+													os_page.model._update_plot_data(mount.mount_point()+'_used', doc.data.percentage, doc.metadata.timestamp);
+												}
+											}
+										};
+										
+									}
+								}.bind(this));
+								
+								return mounts;
 							}
 							//blockdevices: function(){
 								//var blks = {};
