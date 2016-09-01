@@ -171,9 +171,9 @@ var MyApp = new Class({
 		this.addEvent(this.ON_USE, function(mount, app){
 			var app_info = {};
 			
-			//console.log('loading app...');
-			//console.log(mount);
-			//console.log(path.join(__dirname, 'apps', mount, '/assets'));
+			console.log('loading app...');
+			console.log(mount);
+			console.log(path.join(__dirname, 'apps', mount, '/assets'));
 			
 			this.express().use('/public/apps' + mount, serveIndex(path.join(__dirname, 'apps', mount, '/assets'), {icons: true}));
 			this.express().use('/public/apps' + mount, serveStatic(path.join(__dirname, 'apps', mount, '/assets')));
@@ -181,10 +181,10 @@ var MyApp = new Class({
 			this.express().use('/public/apps' + mount + '/bower', serveIndex(path.join(__dirname, 'apps', mount, '/bower_components'), {icons: true}));
 			this.express().use('/public/apps' + mount + '/bower', serveStatic(path.join(__dirname, 'apps', mount, '/bower_components')));
 			
-			app_info['name'] = (app.name) ? app.name : mount.substr(1); //remove mount '/'
-			app_info['id'] = mount.substr(1); //remove mount '/'
+			app_info['name'] = app.options.name || mount.substr(1); //remove mount '/'
+			app_info['id'] = app.options.id || mount.substr(1); //remove mount '/'
 			app_info['href'] = mount+"/";
-			app_info['icon'] = (app.icon) ? app.icon: 'fa-cog';
+			app_info['icon'] = app.options.icon || 'fa-cog';
 			
 			//var nav_bar = this.express().get('nav_bar');
 			////this.apps.push(app_info);

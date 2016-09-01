@@ -360,7 +360,10 @@ head.ready('mootools-more', function(){
 
 var load_app_resources = function(page) {//apply on pagerjs external resources
 	//console.log('mdl: ');
-	//console.log(page);
+	console.log(page);
+	console.log(page.pageRoute);
+	console.log(page.originalRoute());
+	
 		//head.ready(function() {
     //// push a function to the end of the page for later execution
     //// runs as soon as the document is ready
