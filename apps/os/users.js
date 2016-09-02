@@ -17,12 +17,14 @@ module.exports = new Class({
   authorization:null,
   authentication: null,
   
+  hidden: true,
+  
   options: {
 	  
 	  //db: 'dashboard',
 	  
 	  name: 'Users',
-		//id: 'os\/users',
+		//id: 'users',
 		path: '/os/users',
 		
 		/*authentication: {

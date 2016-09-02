@@ -60,11 +60,22 @@
 						afterShow: root_page.afterShow.bind(root_page)
 						}
 						">
-						
+							<div data-bind="page:
+							{
+							id: '?',
+							sourceLoaded: load_app_resources,
+							deep: true,
+							sourceOnShow: '{{this.href}}{1} #{{this.id}}',
+							beforeHide: root_page.beforeHide.bind(root_page),
+							afterShow: root_page.afterShow.bind(root_page)
+							}
+							">
+								hello
+							</div>
 						</div>
 						{{/if}}
 					{{/each}}
-			
+					
 				</div>
 				<!-- /page content -->
 			
