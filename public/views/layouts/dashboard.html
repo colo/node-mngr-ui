@@ -80,24 +80,37 @@
 							</div>
 						</div>
 -->
-						{{/if}}
-					{{/each}}
-					<div data-bind="page:
+						<div data-bind="page:
 						{
-						id: '?',
-						deep: true,
-						loader: loader,
-						beforeShow: function(page){
-							console.log('beforeShow');
-							console.log(page);
-						},
-						showElement: show,
+						id: '{{this.id}}',
 						sourceLoaded: load_app_resources,
+						sourceOnShow: '{{this.href}} #{{this.id}}',
 						beforeHide: root_page.beforeHide.bind(root_page),
 						afterShow: root_page.afterShow.bind(root_page)
 						}
 						">
-					</div>	
+						</div>
+						{{/if}}
+					{{/each}}
+						<div data-bind="page:
+						{
+						id: 'os',
+						}
+						">
+						hello
+							<div data-bind="page:
+							{
+							id: '?',
+							deep: true,
+							sourceLoaded: load_app_resources,
+							sourceOnShow: '/os/{1}',
+							beforeHide: root_page.beforeHide.bind(root_page),
+							afterShow: root_page.afterShow.bind(root_page)
+							}
+							">
+							</div>
+						</div>
+
 				</div>
 				<!-- /page content -->
 			
@@ -111,9 +124,7 @@
 	{{#each body_script}}
 		{{{this}}}
 	{{/each}}
-	/**
-	* https://github.com/visionmedia/page.js
-	*/
+	
 	var loader = function(page, element) {
 		console.log('loader');
 		console.log(page);

@@ -17,6 +17,8 @@ module.exports = new Class({
   authorization:null,
   authentication: null,
   
+  hidden: true,
+  
   options: {
 	  
 	  //db: { path : path.join(__dirname,'../../../pouchdb/dashboard_read') },

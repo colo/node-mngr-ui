@@ -34,17 +34,21 @@ head.ready('mootools-more', function(){
 			var self = this;
 			
 			self.setOptions(options);
-				
+			
+			/*
+			 * apps[] updated on <body><script>...</script></body>
+			 * each app is an observable of this main model, so we can use the 'with' data-binding (ex: with: login)
+			 * */	
 			apps.each(function(app){
 				//console.log('app');
 				//console.log(app);
 				self[app.id] = ko.observable(null);
 			});
 			
-			self.breadcrumbs = ko.observableArray([
-				{label: 'dashboard', href: '/dashboard'},
-				{label: 'second', href: '/dashboard/more'}
-			]); 
+			//self.breadcrumbs = ko.observableArray([
+				//{label: 'dashboard', href: '/dashboard'},
+				//{label: 'second', href: '/dashboard/more'}
+			//]); 
 			
 		}
 	});
