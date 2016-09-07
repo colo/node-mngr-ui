@@ -51,9 +51,16 @@
 							</div>
 						</div>
 						{{else}}
+<!--
 						<div data-bind="page:
 						{
 						id: '{{this.id}}',
+						loader: loader,
+						beforeShow: function(page){
+							console.log('beforeShow');
+							console.log(page);
+						},
+						showElement: show,
 						sourceLoaded: load_app_resources,
 						sourceOnShow: '{{this.href}} #{{this.id}}',
 						beforeHide: root_page.beforeHide.bind(root_page),
@@ -63,19 +70,34 @@
 							<div data-bind="page:
 							{
 							id: '?',
-							sourceLoaded: load_app_resources,
 							deep: true,
+							sourceLoaded: load_app_resources,
 							sourceOnShow: '{{this.href}}{1} #{{this.id}}',
 							beforeHide: root_page.beforeHide.bind(root_page),
 							afterShow: root_page.afterShow.bind(root_page)
 							}
 							">
-								hello
 							</div>
 						</div>
+-->
 						{{/if}}
 					{{/each}}
-					
+					<div data-bind="page:
+						{
+						id: '?',
+						deep: true,
+						loader: loader,
+						beforeShow: function(page){
+							console.log('beforeShow');
+							console.log(page);
+						},
+						showElement: show,
+						sourceLoaded: load_app_resources,
+						beforeHide: root_page.beforeHide.bind(root_page),
+						afterShow: root_page.afterShow.bind(root_page)
+						}
+						">
+					</div>	
 				</div>
 				<!-- /page content -->
 			
@@ -89,6 +111,41 @@
 	{{#each body_script}}
 		{{{this}}}
 	{{/each}}
+	/**
+	* https://github.com/visionmedia/page.js
+	*/
+	var loader = function(page, element) {
+		console.log('loader');
+		console.log(page);
+		console.log(element);
+		
+    var loader = {};
+		var txt = $('<div>hello</div>');
+		loader.load = function () {
+				$(element).empty();
+				$(element).append(txt);
+		};
+		loader.unload = function () {
+				txt.remove();
+		};
+		return loader;
+	}
+	var callback = function(){
+		console.log('callback');
+		return '<div>hello</div>';
+
+	};
+	
+	var sourceOnShow = function(Page, callback){
+		console.log('sourceOnShow');
+		console.log(Page);
+		
+	};
+	var show = function (page, callback) {
+    //$(page.element).fadeIn(1000, callback);
+    console.log('show');
+		console.log(page);
+	};
 	</script>
 	
 	{{#each body_scripts}}
