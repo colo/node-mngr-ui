@@ -181,11 +181,24 @@ var MyApp = new Class({
   initialize: function(options){
 		
 		this.addEvent(this.ON_USE, function(mount, app){
-			var app_info = {};
+			var app_info = Object.merge(
+			{
+				name: null,
+				description: null,
+				menu : {
+					available: true,
+					icon: 'fa-cog'
+				},
+				content: {
+					available: true,
+				}
+			},
+			app.layout
+			);
 			
-			console.log('loading app...');
-			console.log(mount);
-			console.log(path.join(__dirname, 'apps', mount, '/assets'));
+			//console.log('loading app...');
+			//console.log(mount);
+			//console.log(path.join(__dirname, 'apps', mount, '/assets'));
 			
 			this.express().use('/public/apps' + mount, serveIndex(path.join(__dirname, 'apps', mount, '/assets'), {icons: true}));
 			this.express().use('/public/apps' + mount, serveStatic(path.join(__dirname, 'apps', mount, '/assets')));
@@ -193,21 +206,18 @@ var MyApp = new Class({
 			this.express().use('/public/apps' + mount + '/bower', serveIndex(path.join(__dirname, 'apps', mount, '/bower_components'), {icons: true}));
 			this.express().use('/public/apps' + mount + '/bower', serveStatic(path.join(__dirname, 'apps', mount, '/bower_components')));
 			
-			app_info['name'] = app.options.name || mount.substr(1); //remove mount '/'
 			app_info['id'] = app.options.id || mount.substr(1); //remove mount '/'
-			app_info['href'] = mount+"/";
-			app_info['icon'] = app.options.icon || 'fa-cog';
+			app_info['href'] = mount;
 			
-			//var nav_bar = this.express().get('nav_bar');
-			////this.apps.push(app_info);
-			//nav_bar.push(app_info);
-			//this.express().set('nav_bar', nav_bar);
+			app_info['name'] = app_info['name'] || app_info['id'];
+			app_info['description'] = app_info['description'] || app_info['name'];
 			
-			if(!app.hidden){
+			
+			//if(!app.hidden){
 				//this.express().get('default_view').apps.push(app_info);
 				//this.express().get('apps').push(app_info);
 				this.content_apps.push(app_info);
-			}
+			//}
 			
 			////console.log(this.apps);
 		});

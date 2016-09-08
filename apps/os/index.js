@@ -21,6 +21,18 @@ module.exports = new Class({
   
   options: {
 	  
+	  layout:{
+			name: 'OS',
+			description: 'OS',
+			menu : {
+				available: true,
+				icon: 'fa-cog'
+			},
+			content: {
+				available: false,
+			}
+		},
+		
 	  //db: { path : path.join(__dirname,'../../../pouchdb/dashboard_read') },
 	  db: 'dashboard',
 	  

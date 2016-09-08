@@ -21,10 +21,20 @@ module.exports = new Class({
   
   options: {
 	  
-	  //db: 'dashboard',
+	  layout:{
+			name: 'Users',
+			description: 'OS Users',
+			menu : {
+				available: true,
+				icon: 'fa-cog'
+			},
+			content: {
+				available: true,
+			}
+		},
 	  
-	  name: 'Users',
-		//id: 'users',
+	  
+	  //id: 'users',
 		path: '/os/users',
 		
 		/*authentication: {

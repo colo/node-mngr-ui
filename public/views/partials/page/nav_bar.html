@@ -25,26 +25,24 @@
 			<div class="menu_section">
 				<h3>General</h3>
 				<ul class="nav side-menu">
-<!--
-					{{#each apps}}
-					{{/each}}
--->
 					<!-- ko foreach: { data: apps, as: 'app' }  -->
-					<li><a data-bind="page-href: app.id"><i class="fa" data-bind="attr: {class: 'fa '+app.icon}"></i>
-					<!-- ko text: app.name --><!-- /ko -->
-					
-					<!--<span class="fa fa-chevron-down"></span>-->
-					</a>
-<!--
-						<ul class="nav child_menu">
-							<li><a href="index.html">Dashboard</a></li>
-							<li><a href="index2.html">Dashboard2</a></li>
-							<li><a href="index3.html">Dashboard3</a></li>
-						</ul>
--->
+					<li>
+						<a data-bind="page-href: app.id"><i class="fa" data-bind="attr: {class: 'fa '+app.menu.icon}"></i>
+						<!-- ko text: app.name --><!-- /ko -->
+						</a>
 					</li>
 					<!-- /ko -->
-					<li><a data-bind="page-href: 'os/users'"><i class="fa fa-chevron-down"></i> Users </a></li>
+					<li>
+						<a data-bind="page-href: 'os'"><i class="fa fa-cog"></i> OS 
+							<span class="fa fa-chevron-down"></span>
+						</a>
+						
+						<ul class="nav child_menu">
+							<li><a data-bind="page-href: 'os/users'"><i class="fa fa-cog"></i> Users </a></li>
+						</ul>
+					</li>
+					
+					
 				</ul>
 			</div>
 <!--
