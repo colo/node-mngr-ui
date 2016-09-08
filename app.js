@@ -25,7 +25,7 @@ var MyApp = new Class({
   authorization:null,
   authentication: null,
   
-  //apps: [],
+  content_apps: [],
   
   options: {
 	  
@@ -82,10 +82,21 @@ var MyApp = new Class({
 			
 		},
   },
+  //get_express_apps: function(){
+		////if(this.express().get('apps').length == 0){
+			////Array.each(this.express_apps, function(app){
+				////this.express().get('apps').push(app);
+			////}.bind(this));
+		////}
+		
+		////return this.express().get('apps');
+		//return this.content_apps;
+	//},
   apps: function(req, res, next){
 		
 		if(req.isAuthenticated()){
-			res.jsonp(this.express().get('apps'));
+			//res.jsonp(this.express().get('apps'));
+			res.jsonp(this.content_apps);
 		}
 		else{
 			res.jsonp([{ id: 'login' }]);
@@ -141,7 +152,8 @@ var MyApp = new Class({
       ],
       style: "",
 			
-			apps: this.express().get('apps'),
+			//apps: this.express().get('apps'),
+			apps: this.content_apps,
 			
 		});
 		
@@ -193,7 +205,8 @@ var MyApp = new Class({
 			
 			if(!app.hidden){
 				//this.express().get('default_view').apps.push(app_info);
-				this.express().get('apps').push(app_info);
+				//this.express().get('apps').push(app_info);
+				this.content_apps.push(app_info);
 			}
 			
 			////console.log(this.apps);
@@ -201,7 +214,7 @@ var MyApp = new Class({
 		
 		this.parent(options);//override default options
 		
-		this.express().set('apps', []);
+		//this.express().set('apps', []);
 		
 		this.profile('root_init');//start profiling
 		

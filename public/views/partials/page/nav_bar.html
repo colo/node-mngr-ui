@@ -25,8 +25,14 @@
 			<div class="menu_section">
 				<h3>General</h3>
 				<ul class="nav side-menu">
+<!--
 					{{#each apps}}
-					<li><a data-bind="page-href: '{{this.id}}'"><i class="fa" data-bind="attr: {class: 'fa {{this.icon}}'}"></i> {{this.name}}
+					{{/each}}
+-->
+					<!-- ko foreach: { data: apps, as: 'app' }  -->
+					<li><a data-bind="page-href: app.id"><i class="fa" data-bind="attr: {class: 'fa '+app.icon}"></i>
+					<!-- ko text: app.name --><!-- /ko -->
+					
 					<!--<span class="fa fa-chevron-down"></span>-->
 					</a>
 <!--
@@ -37,7 +43,7 @@
 						</ul>
 -->
 					</li>
-					{{/each}}
+					<!-- /ko -->
 					<li><a data-bind="page-href: 'os/users'"><i class="fa fa-chevron-down"></i> Users </a></li>
 				</ul>
 			</div>

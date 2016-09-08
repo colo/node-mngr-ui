@@ -35,11 +35,17 @@ head.ready('mootools-more', function(){
 			
 			self.setOptions(options);
 			
+			self.apps = ko.observableArray(apps);
 			/*
 			 * apps[] updated on <body><script>...</script></body>
 			 * each app is an observable of this main model, so we can use the 'with' data-binding (ex: with: login)
 			 * */	
-			apps.each(function(app){
+			//apps.each(function(app){
+				////console.log('app');
+				////console.log(app);
+				//self[app.id] = ko.observable(null);
+			//});
+			self.apps().forEach(function(app){
 				//console.log('app');
 				//console.log(app);
 				self[app.id] = ko.observable(null);
