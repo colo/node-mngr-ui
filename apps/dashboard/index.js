@@ -14,52 +14,64 @@ module.exports = new Class({
   authentication: null,
   
   options: {
-	  
-	id: 'dashboard',
-	path: '/dashboard',
 	
-	/*authentication: {
-		users : [
-			  { id: 1, username: 'lbueno' , role: 'admin', password: '40bd001563085fc35165329ea1ff5c5ecbdbbeef'}, //sha-1 hash
-			  { id: 2, username: 'test' , role: 'user', password: '123'}
-		],
-	},*/
-	
-	authorization: {
-		init: false,
-		config: path.join(__dirname,'./config/rbac.json'),
-	},
-	
-	params: {
-	  //service_action: /start|stop/,
-	},
-	
-	routes: {
+		layout:{
+			name: 'Dashboard',
+			description: 'Dashboard',
+			menu : {
+				available: true,
+				icon: 'fa-cog'
+			},
+			content: {
+				available: true,
+			}
+		},
+				
+		id: 'dashboard',
+		path: '/dashboard',
 		
-		all: [
-		  {
-				path: '',
-				callbacks: ['render']
-		  },
-		]
-	},
-	
-	api: {
+		/*authentication: {
+			users : [
+					{ id: 1, username: 'lbueno' , role: 'admin', password: '40bd001563085fc35165329ea1ff5c5ecbdbbeef'}, //sha-1 hash
+					{ id: 2, username: 'test' , role: 'user', password: '123'}
+			],
+		},*/
 		
-		version: '1.0.0',
+		authorization: {
+			init: false,
+			config: path.join(__dirname,'./config/rbac.json'),
+		},
+		
+		params: {
+			//service_action: /start|stop/,
+		},
 		
 		routes: {
 			
-			//all: [
-			  //{
-					//path: '',
-					//callbacks: ['get_no_version_available'],
-					//version: '',
-			  //},
-			//]
+			all: [
+				{
+					path: '',
+					callbacks: ['render']
+				},
+			]
 		},
 		
-	},
+		api: {
+			
+			version: '1.0.0',
+			
+			routes: {
+				
+				//all: [
+					//{
+						//path: '',
+						//callbacks: ['get_no_version_available'],
+						//version: '',
+					//},
+				//]
+			},
+			
+		},
   },
   
   //get_no_version_available: function(req, res, next){

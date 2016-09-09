@@ -26,12 +26,31 @@
 				<h3>General</h3>
 				<ul class="nav side-menu">
 					<!-- ko foreach: { data: apps, as: 'app' }  -->
-					<li>
-						<a data-bind="page-href: app.id"><i class="fa" data-bind="attr: {class: 'fa '+app.menu.icon}"></i>
-						<!-- ko text: app.name --><!-- /ko -->
-						</a>
-					</li>
+						<!-- ko if: app.menu.available -->
+						<li>
+							<a data-bind="page-href: app.id"><i class="fa" data-bind="attr: {class: 'fa '+app.menu.icon}"></i>
+							<!-- ko text: app.name --><!-- /ko -->
+							<!-- ko if: app.subapps -->
+								<span class="fa fa-chevron-down"></span>
+								
+								<ul class="nav child_menu" data-bind="foreach: { data: app.subapps, as: 'subapp' }">
+									
+									<li>
+										<a data-bind="page-href: subapp.id">
+											<i class="fa" data-bind="attr: {class: 'fa '+subapp.menu.icon}"></i>
+											<!-- ko text: subapp.name --><!-- /ko -->
+										</a>
+									</li>
+									
+								</ul>
+								
+							<!-- /ko -->
+							
+							</a>
+						</li>
+						<!-- /ko -->
 					<!-- /ko -->
+<!--
 					<li>
 						<a data-bind="page-href: 'os'"><i class="fa fa-cog"></i> OS 
 							<span class="fa fa-chevron-down"></span>
@@ -41,6 +60,7 @@
 							<li><a data-bind="page-href: 'os/users'"><i class="fa fa-cog"></i> Users </a></li>
 						</ul>
 					</li>
+-->
 					
 					
 				</ul>

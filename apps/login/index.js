@@ -13,10 +13,22 @@ module.exports = new Class({
   authorization:null,
   authentication: null,
   
-  hidden: true,//don't show on views (nav_bar, content, etc)
+  //hidden: true,//don't show on views (nav_bar, content, etc)
   
   options: {
 	  
+	  layout:{
+			name: 'Login',
+			description: 'Login',
+			menu : {
+				available: false,
+				icon: 'fa-cog'
+			},
+			content: {
+				available: false,
+			}
+		},
+		
 		id: 'login',
 		path: '/login',
 		

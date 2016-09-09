@@ -15,6 +15,18 @@ module.exports = new Class({
   
   options: {
 	  
+	  layout:{
+			name: 'DNS',
+			description: 'DNS',
+			menu : {
+				available: true,
+				icon: 'fa-cog'
+			},
+			content: {
+				available: true,
+			}
+		},
+		
 		id: 'dns',
 		path: '/dns',
 		

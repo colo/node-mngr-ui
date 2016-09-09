@@ -25,7 +25,7 @@ var MyApp = new Class({
   authorization:null,
   authentication: null,
   
-  content_apps: [],
+  apps: [],
   
   options: {
 	  
@@ -74,7 +74,7 @@ var MyApp = new Class({
 				all: [
 					{
 						path: 'apps',
-						callbacks: ['apps'],
+						callbacks: ['get_apps'],
 						version: '',
 					},
 				]
@@ -92,11 +92,11 @@ var MyApp = new Class({
 		////return this.express().get('apps');
 		//return this.content_apps;
 	//},
-  apps: function(req, res, next){
+  get_apps: function(req, res, next){
 		
 		if(req.isAuthenticated()){
 			//res.jsonp(this.express().get('apps'));
-			res.jsonp(this.content_apps);
+			res.jsonp(this.apps);
 		}
 		else{
 			res.jsonp([{ id: 'login' }]);
@@ -153,7 +153,7 @@ var MyApp = new Class({
       style: "",
 			
 			//apps: this.express().get('apps'),
-			apps: this.content_apps,
+			apps: this.apps,
 			
 		});
 		
@@ -186,25 +186,22 @@ var MyApp = new Class({
 				name: null,
 				description: null,
 				menu : {
-					available: true,
+					available: false,
 					icon: 'fa-cog'
 				},
 				content: {
-					available: true,
+					available: false,
 				}
 			},
-			app.layout
+			app.options.layout
 			);
 			
-			//console.log('loading app...');
-			//console.log(mount);
-			//console.log(path.join(__dirname, 'apps', mount, '/assets'));
+			//var base_path = mount;
 			
-			this.express().use('/public/apps' + mount, serveIndex(path.join(__dirname, 'apps', mount, '/assets'), {icons: true}));
-			this.express().use('/public/apps' + mount, serveStatic(path.join(__dirname, 'apps', mount, '/assets')));
-			
-			this.express().use('/public/apps' + mount + '/bower', serveIndex(path.join(__dirname, 'apps', mount, '/bower_components'), {icons: true}));
-			this.express().use('/public/apps' + mount + '/bower', serveStatic(path.join(__dirname, 'apps', mount, '/bower_components')));
+			console.log('loading app...');
+			console.log(mount);
+			console.log('mount # of /');
+			console.log((mount.match(/\//g) || []).length);
 			
 			app_info['id'] = app.options.id || mount.substr(1); //remove mount '/'
 			app_info['href'] = mount;
@@ -212,14 +209,77 @@ var MyApp = new Class({
 			app_info['name'] = app_info['name'] || app_info['id'];
 			app_info['description'] = app_info['description'] || app_info['name'];
 			
+			var subapp_info = null;
+			/**
+			 * count the # of / in the mount point, if its > 1, is a subapp
+			 * */
+			if((mount.match(/\//g) || []).length > 1){
+				console.log('SUBAPP');
+				////for subapps, the base path used on assets should be the same as the base app (ex: os/users -> /os)
+				var base_path = app_info['id'].slice(0, app_info['id'].indexOf('/', 1));
+				var subapp_info = Object.clone(app_info);
+				
+				app_info['id'] = base_path;
+				app_info['subapps'] = [];
+				app_info['subapps'].push(subapp_info);
+			}
+			else{
 			
+				//console.log(path.join(__dirname, 'apps', mount, '/assets'));
+				
+				this.express().use('/public/apps' + mount, serveIndex(path.join(__dirname, 'apps', mount, '/assets'), {icons: true}));
+				
+				this.express().use('/public/apps' + mount, serveStatic(path.join(__dirname, 'apps', mount, '/assets')));
+				
+				this.express().use('/public/apps' + mount + '/bower', serveIndex(path.join(__dirname, 'apps', mount, '/bower_components'), {icons: true}));
+				
+				this.express().use('/public/apps' + mount + '/bower', serveStatic(path.join(__dirname, 'apps', mount, '/bower_components')));
+				
+			}
+			
+			try{
+				Array.each(this.apps, function(app, index){
+					if(app['id'] == app_info['id']){
+						throw new Error(index);
+					}
+				}.bind(this));
+				
+				this.apps.push(app_info);
+			}
+			catch(e){//found
+				console.log('found at '+e.message);
+				var index = e.message.toInt();
+				
+				
+				
+				if(!subapp_info){//means that this is the base app (ex: os), but another app loaded before (ex: os/aaa) got inserted already
+					var subapps = this.apps[index]['subapps'];
+					
+					this.apps[index] = app_info;
+					this.apps[index]['subapps'] = subapps;
+				}
+				else{
+					
+					if(!this.apps[index]['subapps'])
+						this.apps[index]['subapps'] = [];
+					
+					this.apps[index]['subapps'].push(subapp_info);
+				}
+				
+				//console.log(this.apps[index]['subapps']);
+				//console.log(subapp_info);
+			}
 			//if(!app.hidden){
 				//this.express().get('default_view').apps.push(app_info);
 				//this.express().get('apps').push(app_info);
-				this.content_apps.push(app_info);
+			
 			//}
 			
-			////console.log(this.apps);
+			console.log(this.apps);
+			if(this.apps[4]){
+				console.log(this.apps[4].subapps);
+			}
+			
 		});
 		
 		this.parent(options);//override default options

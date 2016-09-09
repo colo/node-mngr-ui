@@ -66,10 +66,30 @@
 							{{/if}}
 							}
 							">
+								{{#if this.subapps}}
+									{{#each this.subapps}}
+									<div data-bind="page:
+									{
+									id: '{{this.id}}',
+									
+									{{#if this.content.available}}
+									
+										sourceLoaded: load_app_resources,
+										sourceOnShow: '{{this.href}} #{{this.id}}',
+										beforeHide: root_page.beforeHide.bind(root_page),
+										afterShow: root_page.afterShow.bind(root_page)
+										
+									{{/if}}
+									}
+									">
+									</div>
+									{{/each}}
+								{{/if}}
 							</div>
 							
 						{{/if}}
 					{{/each}}
+<!--
 						<div data-bind="page:
 						{
 						id: 'os',
@@ -88,6 +108,7 @@
 							">
 							</div>
 						</div>
+-->
 
 				</div>
 				<!-- /page content -->

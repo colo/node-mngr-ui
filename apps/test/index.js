@@ -15,6 +15,18 @@ module.exports = new Class({
   
   options: {
 	  
+	  layout:{
+			name: 'Test',
+			description: 'Test App',
+			menu : {
+				available: true,
+				icon: 'fa-cog'
+			},
+			content: {
+				available: true,
+			}
+		},
+		
 		id: 'test',
 		path: '/test',
 		

@@ -12,10 +12,22 @@ module.exports = new Class({
   authorization:null,
   authentication: null,
   
-  hidden: true,//don't show on views (nav_bar, content, etc)
+  //hidden: true,//don't show on views (nav_bar, content, etc)
   
   options: {
 	  
+	  layout:{
+			name: 'Logout',
+			description: 'Logout',
+			menu : {
+				available: false,
+				icon: 'fa-cog'
+			},
+			content: {
+				available: false,
+			}
+		},
+		
 		id: 'logout',
 		path: '/logout',
 		
