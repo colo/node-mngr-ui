@@ -26,7 +26,9 @@ module.exports = new Class({
 			},
 			content: {
 				available: false,
-			}
+			},
+			
+			hidden: true,
 		},
 		
 		id: 'login',

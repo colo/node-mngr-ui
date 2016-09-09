@@ -191,7 +191,9 @@ var MyApp = new Class({
 				},
 				content: {
 					available: false,
-				}
+				},
+				
+				hidden: false,
 			},
 			app.options.layout
 			);
@@ -204,6 +206,7 @@ var MyApp = new Class({
 			console.log((mount.match(/\//g) || []).length);
 			
 			app_info['id'] = app.options.id || mount.substr(1); //remove mount '/'
+			app_info['class'] = app_info['id'];
 			app_info['href'] = mount;
 			
 			app_info['name'] = app_info['name'] || app_info['id'];
@@ -217,10 +220,21 @@ var MyApp = new Class({
 				console.log('SUBAPP');
 				////for subapps, the base path used on assets should be the same as the base app (ex: os/users -> /os)
 				var base_path = app_info['id'].slice(0, app_info['id'].indexOf('/', 1));
+				var subapp_id = app_info['id'].slice(app_info['id'].indexOf('/', 1) + 1);
+				
 				var subapp_info = Object.clone(app_info);
+				
 				
 				app_info['id'] = base_path;
 				app_info['subapps'] = [];
+				
+				subapp_info['class'] = subapp_info['class'].replace(/\//g, '.');
+				subapp_info['subapp_id'] = subapp_id;
+				
+				//console.log('SUBAPP ID');
+				//console.log(subapp_info);
+				
+				
 				app_info['subapps'].push(subapp_info);
 			}
 			else{
@@ -275,10 +289,10 @@ var MyApp = new Class({
 			
 			//}
 			
-			console.log(this.apps);
-			if(this.apps[4]){
-				console.log(this.apps[4].subapps);
-			}
+			//console.log(this.apps);
+			//if(this.apps[4]){
+				//console.log(this.apps[4].subapps);
+			//}
 			
 		});
 		

@@ -46,46 +46,93 @@
 						afterShow: root_page.afterShow.bind(root_page)
 						}
 						">
-							<div id="{{this.id}}" class="" data-bind="with: {{this.id}}">
+							{{#if this.content.available}}
+							<div id="{{this.class}}" class="" data-bind="with: {{this.id}}">
 								{{{../body}}}
 							</div>
+							{{/if}}
+							
+							{{#if this.subapps}}
+								{{#each this.subapps}}
+								{{#if this.role}}
+								<div data-bind="page:
+								{
+								id: '{{this.subapp_id}}',
+								role: '{{this.role}}',
+								deep: true,
+								beforeHide: root_page.beforeHide.bind(root_page),
+								afterShow: root_page.afterShow.bind(root_page)
+								}
+								">
+									
+									{{#if this.content.available}}
+									<div id="{{this.subapp_id}}" class="" data-bind="with: {{this.id}}">
+										{{{../body}}}
+									</div>
+									{{/if}}
+									
+								</div>
+								{{else}}
+								<div data-bind="page:
+								{
+								id: '{{this.subapp_id}}',
+								
+								{{#if this.content.available}}
+								
+									deep: true,
+									sourceLoaded: load_app_resources,
+									sourceOnShow: '{{this.href}} #{{this.class}}',
+									beforeHide: root_page.beforeHide.bind(root_page),
+									afterShow: root_page.afterShow.bind(root_page)
+									
+								{{/if}}
+								}
+								">
+								</div>
+								{{/if}}
+								{{/each}}
+							{{/if}}
+							
 						</div>
 						{{else}}
 							
-							<div data-bind="page:
-							{
-							id: '{{this.id}}',
-							
-							{{#if this.content.available}}
-							
-								sourceLoaded: load_app_resources,
-								sourceOnShow: '{{this.href}} #{{this.id}}',
-								beforeHide: root_page.beforeHide.bind(root_page),
-								afterShow: root_page.afterShow.bind(root_page)
+							{{#unless this.hidden}}
+								<div data-bind="page:
+								{
+								id: '{{this.id}}',
 								
-							{{/if}}
-							}
-							">
-								{{#if this.subapps}}
-									{{#each this.subapps}}
-									<div data-bind="page:
-									{
-									id: '{{this.id}}',
+								{{#if this.content.available}}
+								
+									sourceLoaded: load_app_resources,
+									sourceOnShow: '{{this.href}} #{{this.class}}',
+									beforeHide: root_page.beforeHide.bind(root_page),
+									afterShow: root_page.afterShow.bind(root_page)
 									
-									{{#if this.content.available}}
-									
-										sourceLoaded: load_app_resources,
-										sourceOnShow: '{{this.href}} #{{this.id}}',
-										beforeHide: root_page.beforeHide.bind(root_page),
-										afterShow: root_page.afterShow.bind(root_page)
-										
-									{{/if}}
-									}
-									">
-									</div>
-									{{/each}}
 								{{/if}}
-							</div>
+								}
+								">
+									{{#if this.subapps}}
+										{{#each this.subapps}}
+										<div data-bind="page:
+										{
+										id: '{{this.subapp_id}}',
+										
+										{{#if this.content.available}}
+										
+											deep: true,
+											sourceLoaded: load_app_resources,
+											sourceOnShow: '{{this.href}} #{{this.class}}',
+											beforeHide: root_page.beforeHide.bind(root_page),
+											afterShow: root_page.afterShow.bind(root_page)
+											
+										{{/if}}
+										}
+										">
+										</div>
+										{{/each}}
+									{{/if}}
+								</div>
+							{{/unless}}
 							
 						{{/if}}
 					{{/each}}

@@ -404,7 +404,7 @@ module.exports = new Class({
 		}
 		else{
 			var view = Object.clone(this.express().get('default_view'));
-			view.tile = "Test";
+			view.tile = "OS";
 			
 			view.apps.each(function(value, index){
 				if(value.id == this.options.id){

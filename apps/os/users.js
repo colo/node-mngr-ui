@@ -106,31 +106,45 @@ module.exports = new Class({
   },
   render: function(req, res, next){
 		console.log('OS.USERS render');
-		//throw new Error();
-		//if(!req.isAuthenticated()){
-			//res.status(403).redirect('/');
-		//}
-		//else{
-			//var view = Object.clone(this.express().get('default_view'));
-			//view.tile = "Test";
+
+		if(!req.isAuthenticated()){
+			res.status(403).redirect('/');
+		}
+		else{
+			var view = Object.clone(this.express().get('default_view'));
+			view.tile = "OS Users";
 			
-			//view.apps.each(function(value, index){
+			view.apps.each(function(value, index){
 				//if(value.id == this.options.id){
+				if(value.id == 'os'){
+						
+					//value.role = 'start';
+					view.apps[index]['role'] = 'start';
 					
-					////value.role = 'start';
-					//view.apps[index]['role'] = 'start';
-				//}
-				//else{
-					//view.apps[index]['role'] = null;
-				//}
-			//}.bind(this));
+					Array.each(view.apps[index]['subapps'], function(subapp, sub_index){
+						//console.log('subapps');
+						//console.log(subapp.id);
+						
+						if(subapp.id == 'os/users'){
+							view.apps[index]['subapps'][sub_index]['role'] = 'start';
+						}
+						else{
+							view.apps[index]['subapps'][sub_index]['role'] = null;
+						}
+						
+					}.bind(this));
+				}
+				else{
+					view.apps[index]['role'] = null;
+				}
+			}.bind(this));
 			
-			//view.body_scripts.push('/public/apps/os/index.js');
+			view.body_scripts.push('/public/apps/os/users.js');
 			
 				
-			//res.render(path.join(__dirname, '/assets/index'), view);
-		//}
-		res.send('OK');
+			res.render(path.join(__dirname, '/assets/users'), view);
+		}
+		
   },
   
   

@@ -47,7 +47,6 @@ head.ready('mootools-more', function(){
 			//});
 			self.apps().forEach(function(app){
 				//console.log('app');
-				//console.log(app);
 				self[app.id] = ko.observable(null);
 			});
 			
@@ -291,7 +290,7 @@ head.ready('mootools-more', function(){
 			self.fireEvent('afterShow_'+pager.page.currentId, pager);
 			
 			console.log('afterShow');
-			console.log(pager.page.currentId);
+			console.log(pager.page);
 			//console.log(this);
 			
 		}

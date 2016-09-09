@@ -19,38 +19,47 @@
 		<!-- /menu profile quick info -->
 
 		<br />
-
+		
 		<!-- sidebar menu -->
 		<div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
 			<div class="menu_section">
 				<h3>General</h3>
-				<ul class="nav side-menu">
-					<!-- ko foreach: { data: apps, as: 'app' }  -->
+				<ul class="nav side-menu" data-bind="foreach: { data: apps, as: 'app' }">
+
 						<!-- ko if: app.menu.available -->
 						<li>
-							<a data-bind="page-href: app.id"><i class="fa" data-bind="attr: {class: 'fa '+app.menu.icon}"></i>
-							<!-- ko text: app.name --><!-- /ko -->
+							<!-- ko ifnot: app.subapps -->
+								<a data-bind="page-href: app.id"><i class="fa" data-bind="attr: {class: 'fa '+app.menu.icon}"></i>
+								<!-- ko text: app.name --><!-- /ko -->
+								</a>
+							<!-- /ko -->
+							
 							<!-- ko if: app.subapps -->
+								<a data-bind="page-href: app.id"><i class="fa" data-bind="attr: {class: 'fa '+app.menu.icon}"></i>
+								<!-- ko text: app.name --><!-- /ko -->
 								<span class="fa fa-chevron-down"></span>
+								</a>
 								
 								<ul class="nav child_menu" data-bind="foreach: { data: app.subapps, as: 'subapp' }">
-									
 									<li>
 										<a data-bind="page-href: subapp.id">
-											<i class="fa" data-bind="attr: {class: 'fa '+subapp.menu.icon}"></i>
-											<!-- ko text: subapp.name --><!-- /ko -->
+										<i class="fa" data-bind="attr: {class: 'fa '+subapp.menu.icon}"></i>
+										<!-- ko text: subapp.name --><!-- /ko -->
 										</a>
 									</li>
-									
 								</ul>
 								
 							<!-- /ko -->
 							
-							</a>
+							
 						</li>
 						<!-- /ko -->
-					<!-- /ko -->
+
+					
+					
+				</ul>
 <!--
+				<ul class="nav side-menu" >
 					<li>
 						<a data-bind="page-href: 'os'"><i class="fa fa-cog"></i> OS 
 							<span class="fa fa-chevron-down"></span>
@@ -60,10 +69,9 @@
 							<li><a data-bind="page-href: 'os/users'"><i class="fa fa-cog"></i> Users </a></li>
 						</ul>
 					</li>
--->
-					
-					
+
 				</ul>
+-->
 			</div>
 <!--
 			<div class="menu_section">
