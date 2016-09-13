@@ -46,8 +46,19 @@ head.ready('mootools-more', function(){
 				//self[app.id] = ko.observable(null);
 			//});
 			self.apps().forEach(function(app){
-				//console.log('app');
+				console.log('app observable');
+				console.log(app.id);
+				
 				self[app.id] = ko.observable(null);
+				
+				if(app['subapps']){
+					Array.each(app['subapps'], function(subapp, index){
+						console.log(subapp.with);
+						
+						self[subapp.with] = ko.observable(null);
+					}.bind(this));
+				}
+				
 			});
 			
 			//self.breadcrumbs = ko.observableArray([
@@ -276,23 +287,43 @@ head.ready('mootools-more', function(){
 		},
 		beforeHide: function(pager){
 			var self = this;
+			var page = pager.page;
+			
 			self.fireEvent('beforeHide', pager);
-			self.fireEvent('beforeHide_'+pager.page.currentId, pager);
 			
-			console.log('beforeHide');
-			console.log(pager.page.currentId);
-			//console.log(this);
+			var resource = page.currentId;
 			
+			if(resource != ''){
+				if(page.parentPage && page.parentPage.currentId)
+					resource = page.parentPage.currentId+'_'+page.currentId;
+					
+				self.fireEvent('beforeHide_'+resource, pager);
+				
+				console.log('beforeHide');
+				console.log(resource);
+				//console.log(this);
+			}
 		},
 		afterShow: function(pager){
 			var self = this;
+			var page = pager.page;
+			
 			self.fireEvent('afterShow', pager);
-			self.fireEvent('afterShow_'+pager.page.currentId, pager);
 			
-			console.log('afterShow');
-			console.log(pager.page);
-			//console.log(this);
+			var resource = page.currentId;
+	
+			if(resource != ''){
+				if(page.parentPage && page.parentPage.currentId)
+					resource = page.parentPage.currentId+'_'+page.currentId;
 			
+			
+				self.fireEvent('afterShow_'+resource, pager);
+			
+				console.log('afterShow');
+				console.log(page);
+				console.log(resource);
+				//console.log(this);
+			}
 		}
 	});
 
@@ -368,12 +399,17 @@ head.ready('mootools-more', function(){
 
 
 var load_app_resources = function(page) {//apply on pagerjs external resources
-	//console.log('mdl: ');
-	console.log(page);
-	console.log(page.pageRoute);
-	console.log(page.originalRoute());
+	console.log('load_app_resources: ');
+	//console.log(page);
+	//console.log(page.pageRoute);
+	//console.log(page.originalRoute());
+	//console.log(page.parentPage.currentId);
 	
+	var resource = page.currentId+'/index.js';
 	
+	if(page.parentPage && page.parentPage.currentId)
+		resource = page.parentPage.currentId+'/'+page.currentId+'.js'
+		
 		//head.ready(function() {
     //// push a function to the end of the page for later execution
     //// runs as soon as the document is ready
@@ -381,7 +417,8 @@ var load_app_resources = function(page) {//apply on pagerjs external resources
 		//componentHandler.upgradeAllRegistered();
 		//});
 		
-		head.js({ page: '/public/apps/'+page.currentId+'/index.js' });
+		head.js({ page: '/public/apps/'+resource});
+		
 		//head.load({ page: '/public/apps/'+page.currentId+'/index.css' });
 		//head.ready('page',function(){
 			//console.log('loaded...'+page.currentId);

@@ -49,7 +49,7 @@
 							">
 								{{#if this.content.available}}
 								{{#unless this.subapps}}
-								<div id="{{this.class}}" class="" data-bind="with: {{this.id}}">
+								<div id="{{this.id}}" class="" data-bind="with: {{this.id}}">
 									{{{../body}}}
 								</div>
 								{{/unless}}
@@ -67,7 +67,7 @@
 								">
 									
 									{{#if this.content.available}}
-									<div id="{{this.subapp_id}}" class="" data-bind="with: {{this.subapp_id}}">
+									<div id="{{this.subapp_id}}" class="" data-bind="with: {{this.with}}">
 										{{{../../body}}}
 									</div>
 									{{/if}}
@@ -110,7 +110,7 @@
 								{{#if this.content.available}}
 								{{#unless this.subapps}}
 									sourceLoaded: load_app_resources,
-									sourceOnShow: '{{this.href}} #{{this.class}}',
+									sourceOnShow: '{{this.href}} #{{this.id}}',
 								{{/unless}}	
 								{{/if}}
 									beforeHide: root_page.beforeHide.bind(root_page),
@@ -158,38 +158,6 @@
 		{{{this}}}
 	{{/each}}
 	
-	//var loader = function(page, element) {
-		//console.log('loader');
-		//console.log(page);
-		//console.log(element);
-		
-    //var loader = {};
-		//var txt = $('<div>hello</div>');
-		//loader.load = function () {
-				//$(element).empty();
-				//$(element).append(txt);
-		//};
-		//loader.unload = function () {
-				//txt.remove();
-		//};
-		//return loader;
-	//}
-	//var callback = function(){
-		//console.log('callback');
-		//return '<div>hello</div>';
-
-	//};
-	
-	//var sourceOnShow = function(Page, callback){
-		//console.log('sourceOnShow');
-		//console.log(Page);
-		
-	//};
-	//var show = function (page, callback) {
-    ////$(page.element).fadeIn(1000, callback);
-    //console.log('show');
-		//console.log(page);
-	//};
 	</script>
 	
 	{{#each body_scripts}}
@@ -208,33 +176,3 @@
 	
   </body>
 </html>
-
-<!--
-						<div data-bind="page:
-						{
-						id: '{{this.id}}',
-						loader: loader,
-						beforeShow: function(page){
-							console.log('beforeShow');
-							console.log(page);
-						},
-						showElement: show,
-						sourceLoaded: load_app_resources,
-						sourceOnShow: '{{this.href}} #{{this.id}}',
-						beforeHide: root_page.beforeHide.bind(root_page),
-						afterShow: root_page.afterShow.bind(root_page)
-						}
-						">
-							<div data-bind="page:
-							{
-							id: '?',
-							deep: true,
-							sourceLoaded: load_app_resources,
-							sourceOnShow: '{{this.href}}{1} #{{this.id}}',
-							beforeHide: root_page.beforeHide.bind(root_page),
-							afterShow: root_page.afterShow.bind(root_page)
-							}
-							">
-							</div>
-						</div>
--->

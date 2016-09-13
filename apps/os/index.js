@@ -17,7 +17,7 @@ module.exports = new Class({
   authorization:null,
   authentication: null,
   
-  hidden: true,
+  //hidden: true,
   
   options: {
 	  
@@ -421,6 +421,8 @@ module.exports = new Class({
 			
 				
 			res.render(path.join(__dirname, '/assets/index'), view);
+			
+			//res.redirect('/os/dashboard');
 		}
   },
   

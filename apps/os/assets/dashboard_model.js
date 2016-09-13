@@ -1,4 +1,4 @@
-var OSModel = new Class({
+var OSDashboardModel = new Class({
 	Implements: [Options, Events],
 	
 	GB: (1024 * 1024 * 1024),
@@ -725,15 +725,15 @@ var OSModel = new Class({
  * 
  * */
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-	module.exports = OSModel;
+	module.exports = OSDashboardModel;
 }
 else {
 	if (typeof define === 'function' && define.amd) {
 		define([], function() {
-			return OSModel;
+			return OSDashboardModel;
 		});
 	}
 	else {
-		window.OSModel = OSModel;
+		window.OSDashboardModel = OSDashboardModel;
 	}
 }

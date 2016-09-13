@@ -17,7 +17,7 @@ module.exports = new Class({
   authorization:null,
   authentication: null,
   
-  hidden: true,
+  //hidden: true,
   
   options: {
 	  

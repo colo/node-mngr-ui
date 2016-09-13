@@ -1,4 +1,4 @@
-var os_page = null;
+var os_dashboard_page = null;
 
 function getURLParameter(name, URI) {
 	URI = URI || location.search;
@@ -28,8 +28,8 @@ function getURLParameter(name, URI) {
 	
 
 
-		head.js({ model: "/public/apps/os/model.js" }, function(){
-			var OSPage = new Class({
+		head.js({ model: "/public/apps/os/dashboard_model.js" }, function(){
+			var OSDashboardPage = new Class({
 				Extends: Page,
 				
 				ON_PERIODICAL_REQUEST_TIMEOUT: 'onPeriodicalRequestTimeout',
@@ -102,11 +102,11 @@ function getURLParameter(name, URI) {
 								url: '/os/api/uptime'
 							},
 							primary_iface: {
-								url: function(){ return '/os/api/networkInterfaces/' +os_page.primary_iface; }.bind(this),
+								url: function(){ return '/os/api/networkInterfaces/' +os_dashboard_page.primary_iface; }.bind(this),
 								onSuccess: function(doc){
-									//////console.log('myRequests.'+os_page.model.primary_iface());
+									//////console.log('myRequests.'+os_dashboard_page.model.primary_iface());
 									//////console.log(doc);
-									os_page.model.networkInterfaces[os_page.model.primary_iface()](doc.data[os_page.model.primary_iface()]);
+									os_dashboard_page.model.networkInterfaces[os_dashboard_page.model.primary_iface()](doc.data[os_dashboard_page.model.primary_iface()]);
 									
 									return true;
 								}.bind(this)
@@ -114,7 +114,7 @@ function getURLParameter(name, URI) {
 							blockdevices_stats: function(){
 								var blks = {};
 								
-								Object.each(os_page.model.blockdevices, function(dev, name){
+								Object.each(os_dashboard_page.model.blockdevices, function(dev, name){
 									blks[name] = {
 										url: '/os/api/blockdevices/'+name+'/stats',
 										onSuccess: function(doc){
@@ -124,11 +124,11 @@ function getURLParameter(name, URI) {
 											/**
 											 * save previous stats, needed to calculate times (updated stats - prev_stats)
 											 * */
-											//os_page.model.blockdevices.sda._prev_stats = os_page.model.blockdevices.sda.stats();
+											//os_dashboard_page.model.blockdevices.sda._prev_stats = os_dashboard_page.model.blockdevices.sda.stats();
 											
 											doc.data.timestamp = doc.metadata.timestamp;
 											
-											os_page.model.blockdevices[name].stats(doc.data);
+											os_dashboard_page.model.blockdevices[name].stats(doc.data);
 											
 											return true;
 										}.bind(this)
@@ -141,9 +141,9 @@ function getURLParameter(name, URI) {
 							mounts: function(){
 								var mounts = {};
 								
-								Array.each(os_page.model.mounts, function(mount, index){
+								Array.each(os_dashboard_page.model.mounts, function(mount, index){
 				
-									if(os_page.model.options.list_partitions_types.test(mount.type())){
+									if(os_dashboard_page.model.options.list_partitions_types.test(mount.type())){
 										console.log('mount.fs()');
 										//console.log();
 										
@@ -153,13 +153,13 @@ function getURLParameter(name, URI) {
 											onSuccess: function(doc){
 												console.log('/os/api/mounts/'+mount.fs().replace(/\//g, '%2F'));
 												console.log(doc);
-												console.log(os_page.model.mounts[index].percentage());
+												console.log(os_dashboard_page.model.mounts[index].percentage());
 												
 												//doc.data.percentage.timestamp = doc.metadata.timestamp;
-												os_page.model.mounts[index].timestamp = doc.metadata.timestamp;
-												os_page.model.mounts[index].percentage(doc.data.percentage);
+												os_dashboard_page.model.mounts[index].timestamp = doc.metadata.timestamp;
+												os_dashboard_page.model.mounts[index].percentage(doc.data.percentage);
 												
-												os_page.model._update_plot_data(mount.mount_point()+'_used', doc.data.percentage, doc.metadata.timestamp);
+												os_dashboard_page.model._update_plot_data(mount.mount_point()+'_used', doc.data.percentage, doc.metadata.timestamp);
 											}
 										};
 										
@@ -171,7 +171,7 @@ function getURLParameter(name, URI) {
 							//blockdevices: function(){
 								//var blks = {};
 								
-								//Object.each(os_page.model.blockdevices, function(dev, name){
+								//Object.each(os_dashboard_page.model.blockdevices, function(dev, name){
 									//blks[name] = {
 										//url: '/os/api/blockdevices/'+name,
 										//onSuccess: function(doc){
@@ -181,11 +181,11 @@ function getURLParameter(name, URI) {
 											/////**
 											 ////* save previous stats, needed to calculate times (updated stats - prev_stats)
 											 ////* */
-											//////os_page.model.blockdevices.sda._prev_stats = os_page.model.blockdevices.sda.stats();
+											//////os_dashboard_page.model.blockdevices.sda._prev_stats = os_dashboard_page.model.blockdevices.sda.stats();
 											
 											////doc.data.timestamp = doc.metadata.timestamp;
 											//doc.data.stats.timestamp = doc.metadata.timestamp;
-											//os_page.model.blockdevices[name].stats(doc.data.stats);
+											//os_dashboard_page.model.blockdevices[name].stats(doc.data.stats);
 											
 											//return true;
 										//}.bind(this)
@@ -214,7 +214,7 @@ function getURLParameter(name, URI) {
 										var doc = docs[i];
 										////console.log(doc.data[0].toFloat())
 										
-										os_page.model._update_plot_data('loadavg', doc.data[0].toFloat(), doc.metadata.timestamp);
+										os_dashboard_page.model._update_plot_data('loadavg', doc.data[0].toFloat(), doc.metadata.timestamp);
 										
 									}
 										
@@ -230,10 +230,10 @@ function getURLParameter(name, URI) {
 									for(var i = docs.length - 1; i >= 0; i--){
 										var doc = docs[i];
 										
-										////console.log((((os_page.model.totalmem() - doc.data) * 100) / os_page.model.totalmem()).toFixed(2));
+										////console.log((((os_dashboard_page.model.totalmem() - doc.data) * 100) / os_dashboard_page.model.totalmem()).toFixed(2));
 										
 										
-										os_page.model._update_plot_data('freemem', (((os_page.model.totalmem() - doc.data) * 100) / os_page.model.totalmem()).toFixed(2), doc.metadata.timestamp);
+										os_dashboard_page.model._update_plot_data('freemem', (((os_dashboard_page.model.totalmem() - doc.data) * 100) / os_dashboard_page.model.totalmem()).toFixed(2), doc.metadata.timestamp);
 										
 									}
 										
@@ -251,12 +251,12 @@ function getURLParameter(name, URI) {
 									for(var i = docs.length - 1; i >= 0; i--){
 										var doc = docs[i];
 										
-										var cpu_usage = os_page.model._process_cpu_usage(doc.data);
-										var percentage = os_page.model.cpu_usage_percentage(os_page.model.cpu_usage, cpu_usage);
+										var cpu_usage = os_dashboard_page.model._process_cpu_usage(doc.data);
+										var percentage = os_dashboard_page.model.cpu_usage_percentage(os_dashboard_page.model.cpu_usage, cpu_usage);
 										
-										os_page.model.cpu_usage = cpu_usage;
+										os_dashboard_page.model.cpu_usage = cpu_usage;
 										
-										os_page.model._update_plot_data('cpus', percentage['usage'].toFloat(), doc.metadata.timestamp);
+										os_dashboard_page.model._update_plot_data('cpus', percentage['usage'].toFloat(), doc.metadata.timestamp);
 										
 										
 									}
@@ -266,7 +266,7 @@ function getURLParameter(name, URI) {
 							blockdevices_stats: function(){
 								var blks = {};
 								
-								Object.each(os_page.model.blockdevices, function(dev, name){
+								Object.each(os_dashboard_page.model.blockdevices, function(dev, name){
 									blks[name] = {
 										url: '/os/api/blockdevices/'+name+'/stats',
 										onSuccess: function(docs){
@@ -280,9 +280,9 @@ function getURLParameter(name, URI) {
 												
 												
 												if(last_doc){
-													var percentage = os_page.model._blockdevice_percentage_data(last_doc, doc.data);
+													var percentage = os_dashboard_page.model._blockdevice_percentage_data(last_doc, doc.data);
 													
-													os_page.model._update_plot_data(name+'_stats', percentage, doc.metadata.timestamp);
+													os_dashboard_page.model._update_plot_data(name+'_stats', percentage, doc.metadata.timestamp);
 												}
 												
 												last_doc = doc.data;
@@ -301,9 +301,9 @@ function getURLParameter(name, URI) {
 							mounts: function(){
 								var mounts = {};
 								
-								Array.each(os_page.model.mounts, function(mount, index){
+								Array.each(os_dashboard_page.model.mounts, function(mount, index){
 				
-									if(os_page.model.options.list_partitions_types.test(mount.type())){
+									if(os_dashboard_page.model.options.list_partitions_types.test(mount.type())){
 										console.log('mount.fs()');
 										//console.log();
 										
@@ -313,17 +313,17 @@ function getURLParameter(name, URI) {
 											onSuccess: function(docs){
 												//console.log('/os/api/mounts/'+mount.fs().replace(/\//g, '%2F'));
 												//console.log(doc);
-												//console.log(os_page.model.mounts[index].percentage());
+												//console.log(os_dashboard_page.model.mounts[index].percentage());
 												
 												//doc.data.percentage.timestamp = doc.metadata.timestamp;
 												
 												for(var i = docs.length - 1; i >= 0; i--){
 													var doc = docs[i];
 													
-													os_page.model.mounts[index].timestamp = doc.metadata.timestamp;
-													os_page.model.mounts[index].percentage(doc.data.percentage);
+													os_dashboard_page.model.mounts[index].timestamp = doc.metadata.timestamp;
+													os_dashboard_page.model.mounts[index].percentage(doc.data.percentage);
 													
-													os_page.model._update_plot_data(mount.mount_point()+'_used', doc.data.percentage, doc.metadata.timestamp);
+													os_dashboard_page.model._update_plot_data(mount.mount_point()+'_used', doc.data.percentage, doc.metadata.timestamp);
 												}
 											}
 										};
@@ -336,7 +336,7 @@ function getURLParameter(name, URI) {
 							//blockdevices: function(){
 								//var blks = {};
 								
-								//Object.each(os_page.model.blockdevices, function(dev, name){
+								//Object.each(os_dashboard_page.model.blockdevices, function(dev, name){
 									//blks[name] = {
 										//url: '/os/api/blockdevices/'+name,
 										//onSuccess: function(docs){
@@ -352,9 +352,9 @@ function getURLParameter(name, URI) {
 												
 												
 												//if(last_doc){
-													//var percentage = os_page.model._blockdevice_percentage_data(last_doc, doc.data.stats);
+													//var percentage = os_dashboard_page.model._blockdevice_percentage_data(last_doc, doc.data.stats);
 													
-													//os_page.model._update_plot_data(name+'_stats', percentage, doc.metadata.timestamp);
+													//os_dashboard_page.model._update_plot_data(name+'_stats', percentage, doc.metadata.timestamp);
 												//}
 												
 												//last_doc = doc.data.stats;
@@ -448,14 +448,14 @@ function getURLParameter(name, URI) {
 					});
 					/** ---------------- */
 					
-					root_page.addEvent('beforeHide_os', function(){
+					root_page.addEvent('beforeHide_os_dashboard', function(){
 						
 						this.stop_timed_requests();
 						this.stop_periodical_functions();
 						
 					}.bind(this));
 					
-					root_page.addEvent('afterShow_os', function(){
+					root_page.addEvent('afterShow_os_dashboard', function(){
 						
 						this.start_timed_requests();
 						this.start_periodical_functions();
@@ -486,7 +486,7 @@ function getURLParameter(name, URI) {
 					this.addEvent(this.JSONP_LOADED+'_update_primary_iface', function(data){
 						
 						this.primary_iface = data;
-						OSModel.implement({'primary_iface': ko.observable(data)});
+						OSDashboardModel.implement({'primary_iface': ko.observable(data)});
 					});
 					
 					this.addEvent(this.ON_PERIODICAL_REQUEST_SUCCESS, this._onPeriodicalSuccess.bind(this));
@@ -640,7 +640,7 @@ function getURLParameter(name, URI) {
 								//////console.log('IMPLEMENTING...');
 								//////console.log(obj);
 								
-								OSModel.implement(obj);
+								OSDashboardModel.implement(obj);
 							}
 							
 						}.bind(this));
@@ -661,14 +661,14 @@ function getURLParameter(name, URI) {
 								
 								if(Object.getLength(obj[id]) == Object.getLength(server_data)){
 									obj[id]['timestamp'] = timestamp;
-									OSModel.implement(obj);
+									OSDashboardModel.implement(obj);
 								}
 								
 							}
 							else{
-								OSModel.implement({timestamp : timestamp});
+								OSDashboardModel.implement({timestamp : timestamp});
 								
-								OSModel.implement(this._implementable_model_object(value, key));
+								OSDashboardModel.implement(this._implementable_model_object(value, key));
 							}
 							
 						}.bind(this));
@@ -699,7 +699,7 @@ function getURLParameter(name, URI) {
 					else{
 						//var obj = {};
 						obj[key] = ko.observable(value);
-						//OSModel.implement(obj);
+						//OSDashboardModel.implement(obj);
 					}
 					
 					return obj;
@@ -1101,22 +1101,22 @@ function getURLParameter(name, URI) {
 				
 			});	
 				
-			os_page = new OSPage();
+			os_dashboard_page = new OSDashboardPage();
 				
-			os_page.addEvent(os_page.STARTED, function(){
+			os_dashboard_page.addEvent(os_dashboard_page.STARTED, function(){
 				
 				var self = this;
 				
 				////console.log('page started');
 				
-				if(mainBodyModel.os() == null){
+				if(mainBodyModel.os_dashboard() == null){
 					
 					if(!self.model){
-						self.model = new OSModel();
+						self.model = new OSDashboardModel();
 						
 					}
 					
-					mainBodyModel.os(self.model);
+					mainBodyModel.os_dashboard(self.model);
 					
 					this._define_timed_requests(this.options.requests.periodical);
 				
@@ -1132,7 +1132,7 @@ function getURLParameter(name, URI) {
 					ko.tasks.schedule(this.start_periodical_functions.bind(this));
 				}
 				else{
-					self.model = mainBodyModel.os();
+					self.model = mainBodyModel.os_dashboard();
 				}
 				
 				
