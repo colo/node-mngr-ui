@@ -489,18 +489,18 @@ module.exports = new Class({
 		}
 		
 		//this.db = new PouchDB(this.options.db.path, {db: require('sqldown')});
-		this.db = new(cradle.Connection)().database(this.options.db);
-		this.db.exists(function (err, exists) {
-			if (err) {
-				console.log('error', err);
-			} else if (exists) {
-				console.log('the force is with you.');
-			} else {
-				console.log('database does not exists.');
-				this.db.create();
-				/* populate design documents */
-			}
-		}.bind(this));
+		//this.db = new(cradle.Connection)().database(this.options.db);
+		//this.db.exists(function (err, exists) {
+			//if (err) {
+				//console.log('error', err);
+			//} else if (exists) {
+				//console.log('the force is with you.');
+			//} else {
+				//console.log('database does not exists.');
+				//this.db.create();
+				///* populate design documents */
+			//}
+		//}.bind(this));
 		
 		//this.db.info().then(function (info) {
 			//console.log(info);
