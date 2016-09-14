@@ -28,7 +28,7 @@ function getURLParameter(name, URI) {
 	
 
 
-		head.js({ model: "/public/apps/os/dashboard_model.js" }, function(){
+		head.js({ model: "/public/apps/os/models/dashboard.js" }, function(){
 			var OSDashboardPage = new Class({
 				Extends: Page,
 				
@@ -69,7 +69,7 @@ function getURLParameter(name, URI) {
 							}
 						],
 						css: {
-							'index_css': '/public/apps/os/index.css'
+							'index_css': '/public/apps/os/css/index.css'
 						},
 						jsonp: {
 							update_server: '/os/api/server/',

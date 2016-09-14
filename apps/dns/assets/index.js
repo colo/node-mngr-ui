@@ -390,19 +390,6 @@ head.ready('jsonp', function(){
 			console.log('DNS binding applied');
 			
 			//$('#datatable-responsive').DataTable();
-			
-			//componentHandler.upgradeDom();
-			//window.dispatchEvent('onload');
-			//window.dispatchEvent(re_init_mdl);
-			
-			//http://stackoverflow.com/questions/32363511/how-can-i-update-refresh-google-mdl-elements-that-i-add-to-my-page-dynamically
-			// Expand all new MDL elements
-			//document.documentElement.classList.add('mdl-js');
-      //componentHandler.upgradeElement(document.id('data_chkbox0'));
-      
-      //componentHandler.upgradeAllRegistered();
-			//document.documentElement.classList.add('mdl-js');
-			//componentHandler.upgradeAllRegistered();
 		}
 		
 		
@@ -410,4 +397,4 @@ head.ready('jsonp', function(){
 	});
 });
 
-//http://stackoverflow.com/questions/31413042/toggle-material-design-lite-checkbox
+

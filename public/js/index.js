@@ -75,7 +75,11 @@ head.ready('mootools-more', function(){
 		
 		JS_LOADED: 'jsLoaded',
 		JSONP_LOADED: 'jsonpLoaded',
+		JS_SUCCESS: 'jsSuccess',//if all JS succesfully load
+		
 		CSS_LOADED: 'cssLoaded',
+		CSS_SUCCESS: 'cssSuccess',//if all CSS succesfully load
+		
 		STARTED: 'started',
 		
 		options: {
@@ -90,6 +94,10 @@ head.ready('mootools-more', function(){
 		pager: null,
 		model: null,
 		ko: null,
+		
+		load_css_success: [],
+		load_js_success: [],
+		js_assets: {},
 		
 		initialize: function(options){
 			
@@ -112,14 +120,39 @@ head.ready('mootools-more', function(){
 		load_css: function(assets){
 			var self = this;
 			Object.each(assets, function(css, id){
-					
-				 var css = Asset.css(css, {
-					 id: id,
-					 onLoad: function(){
-						 self.fireEvent(self.CSS_LOADED+'_'+id, css);
-						 self.fireEvent(self.CSS_LOADED, {id: id, css: css});
-					 }
-				 });
+				//console.log('load_css '+id);
+				//console.log(css);
+				
+				var css = Asset.css(css, {
+					id: id,
+					onLoad: function(){
+						console.log('onLoad css '+id);
+						//console.log(css);
+						
+						/**
+						 * to keep record of succesfuly loaded css
+						 * */
+						self.load_css_success.push(id);
+				
+						self.fireEvent(self.CSS_LOADED+'_'+id, css);
+						self.fireEvent(self.CSS_LOADED, {id: id, css: css});
+						
+						/**
+						 * compare the every key of "css" with "load_css_success", return true when all keys (css) are found
+						 * 
+						 * */
+						var all_success = Object.keys(assets).every(function(asset){
+							return (self.load_css_success.indexOf(asset) >= 0) ? true : false;
+						});
+						
+						
+						if(all_success){
+							console.log('load_css_success');
+							self.fireEvent(self.CSS_SUCCESS);
+						}
+						
+					}
+				});
 			});
 		},
 		load_jsonp: function(assets){
@@ -153,7 +186,24 @@ head.ready('mootools-more', function(){
 
 			});
 		},
+		/**
+		 * if assets = string: load file
+		 * if assets = []: load each 
+		 * if assets = {}: load each {id, file}
+		 * if file to load = []: load each chained on event 
+		 * 		Ex: second_lib will load on JS_LOADED_first_lib Event
+		 *		assets:{
+		 * 			complex_dependency:[
+		 * 				{ first_lib: 'route_to_first_lib.js'},
+		 * 				{ second_lib: 'route_to_second_lib.js'},
+		 * 			]
+		 * 		}
+		 * 			
+		 * */
 		load_js: function(assets){
+			
+			
+			
 			var self = this;
 			if(typeOf(assets) == 'array'){
 				Array.each(assets, function(js){
@@ -163,25 +213,68 @@ head.ready('mootools-more', function(){
 				});
 			}
 			else if(typeOf(assets) == 'object'){
+				
 				Object.each(assets, function(js, id){
 					console.log('Object');
 					console.log({js: js, id:id});
 					
 					if(typeOf(js) == 'array'){
-						Array.each(js, function(file){
+						Array.each(js, function(file, index){
 							console.log('file Array');
 							console.log(file);
-							self.load_js(file);
+							console.log(index);
+							
+							if(index == 0){
+								self.load_js(file);
+							}
+							else{
+								var prev = Object.keys(js[index - 1])[0];
+								
+								//console.log('on '+prev+' is going to load: ');
+								//console.log(prev);
+								//console.log(file);
+								self.addEvent(self.JS_LOADED+'_'+prev, function(){
+									console.log('on '+prev+' is going to load: ');
+									console.log(file);
+									
+									self.load_js(file);
+								});
+							}
 						});
 					}
 					else{
-					
+						
+						self.js_assets = Object.merge(self.js_assets, assets);
+						
 						var jsFile = Asset.javascript(js, {
-							 id: id,
-							 onLoad: function(){
-								 self.fireEvent(self.JS_LOADED+'_'+id, js);
-								 self.fireEvent(self.JS_LOADED, {id: id, js: js});
+							id: id,
+							onLoad: function(){
+								/**
+								* to keep record of succesfuly loaded css
+								* */
+								self.load_js_success.push(id);
+
+								self.fireEvent(self.JS_LOADED+'_'+id, js);
+								self.fireEvent(self.JS_LOADED, {id: id, js: js});
+
+								/**
+								* compare the every key of "css" with "load_css_success", return true when all keys (css) are found
+								* 
+								* */
+								var all_success = Object.keys(self.js_assets).every(function(asset){
+									return (self.load_js_success.indexOf(asset) >= 0) ? true : false;
+								});
+
+
+								if(all_success){
+									console.log('load_js_success');
+									console.log(self.js_assets);
+									self.fireEvent(self.JS_SUCCESS);
+								}
+								
+								 
 							 },
+							 
 						});
 					}
 					

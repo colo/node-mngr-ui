@@ -63,6 +63,24 @@ module.exports = new Class({
 			]
 		},
 		
+		api: {
+			
+			version: '1.0.0',
+			
+			path: '/api',
+			
+			routes: {
+				
+				all: [
+					{
+						path: 'server',
+						callbacks: ['server'],
+						version: '',
+					},
+				]
+			},
+			
+		},
 		//api: {
 			
 			//version: '1.0.0',
@@ -104,6 +122,9 @@ module.exports = new Class({
 			
 		//},
   },
+  server: function(req, res, next){
+		res.jsonp("http://"+req.hostname+":8081");
+	},
   render: function(req, res, next){
 		console.log('OS.USERS render');
 
