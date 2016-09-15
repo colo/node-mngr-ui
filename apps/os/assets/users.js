@@ -1,12 +1,5 @@
 var os_users_page = null;
 
-/** Datatables CSS */
-//head.load('/public/bower/gentelella/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css');
-//head.load('/public/bower/gentelella/vendors/datatables.net-buttons-bs/css/buttons.bootstrap.min.css');
-//head.load('/public/bower/gentelella/vendors/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css');
-//head.load('/public/bower/gentelella/vendors/datatables.net-responsive-bs/css/responsive.bootstrap.min.css');
-//head.load('/public/bower/gentelella/vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css');
-
 /** Datatables JS */
 //head.load('/public/bower/gentelella/vendors/datatables.net/js/jquery.dataTables.min.js');
 //head.load('/public/bower/gentelella/vendors/datatables.net-bs/js/dataTables.bootstrap.min.js');
@@ -24,10 +17,10 @@ var os_users_page = null;
 //head.load('/public/bower/gentelella/vendors/pdfmake/build/pdfmake.min.js');
 //head.load('/public/bower/gentelella/vendors/pdfmake/build/vfs_fonts.js');
 
-head.ready('history'
+head.ready('mootools-more'
 , function() {
 	
-	head.js({ model: "/public/apps/os/models/users.js" }, function(){
+	//head.js({ model: "/public/apps/os/models/users.js" }, function(){
 		
 		var OSUsersPage = new Class({
 			Extends: Page,
@@ -37,6 +30,7 @@ head.ready('history'
 			options: {
 				assets: {
 					js: [
+						{ model: "/public/apps/os/models/users.js" },
 					//{ 'jq' : '/public/bower/gentelella/vendors/jquery/dist/jquery.min.js'},
 					//{ 'bs': '/public/bower/gentelella/vendors/bootstrap/dist/js/bootstrap.min.js'},
 					//{ 'fst_cl' : '/public/bower/gentelella/vendors/fastclick/lib/fastclick.js'},
@@ -71,48 +65,65 @@ head.ready('history'
 			},
 			
 			initialize: function(options){
+				var self = this;
 								
-				this.parent(options);
-				
 				this.addEvent(this.JSONP_LOADED+'_update_server', function(data){
 					this.server = data;
 					
 					//this._update_model(this.options.requests.update_model);
 					
 				}.bind(this));
+				
+				this.addEvent(this.ASSETS_SUCCESS, function(){
+					console.log('os_users_page.ASSETS_SUCCESS');
+					self.fireEvent(self.STARTED);
+				});
+				
+				this.addEvent(this.STARTED, function(){
+						
+					if(mainBodyModel.os_users() == null){
+						
+						if(!self.model){
+							self.model = new OSUsersModel();
+							
+							console.log('os_users binding applied');
+						}
+						
+						mainBodyModel.os_users(self.model);
+						
+						//ko.tasks.schedule(this.start_timed_requests.bind(this));
+						
+					}
+					else{
+						self.model = mainBodyModel.os_users();
+					}
+					
+					
+				});
+				
+				this.parent(options);
 			}
 			
 		});
 											
-		os_users_page = new OSUsersPage();
 		
-		os_users_page.addEvent(os_users_page.STARTED, function(){
-				
-			var self = this;
-				
-			if(mainBodyModel.os_users() == null){
-				
-				if(!self.model){
-					self.model = new OSUsersModel();
-					
-					console.log('os_users binding applied');
-				}
-				
-				mainBodyModel.os_users(self.model);
-				
-				//ko.tasks.schedule(this.start_timed_requests.bind(this));
-				
-			}
-			else{
-				self.model = mainBodyModel.os_users();
-			}
-			
-			
-		});
-		
-		os_users_page.fireEvent(os_users_page.STARTED);
 
 	
-	});//model
+	//});//model
+	
+	if(mainBodyModel){
+		console.log('mainBodyModel');
+		os_users_page = new OSUsersPage();
+	}
+	else{
+		console.log('no mainBodyModel');
+		
+		root_page.addEvent(root_page.STARTED, function(){									
+			os_users_page = new OSUsersPage();
+		});
+	}
+	
+	//os_users_page = new OSUsersPage();
+	
 	
 });

@@ -1,92 +1,86 @@
-head.js({ crypto: "/public/apps/login/bower/cryptojslib/rollups/sha1.js" }); //no dependencies
+var login_page = null;
 
-head.load({ li: "/public/bower/li/lib/index.js" });//parse Link header
+//head.js({ crypto: "/public/apps/login/bower/cryptojslib/rollups/sha1.js" }); //no dependencies
 
-head.ready('history', function() {
+//head.load({ li: "/public/bower/li/lib/index.js" });//parse Link header
 
-	var LoginModel = new Class({
-		Implements: [Options, Events],
+head.ready('mootools-more', function() {
+
+	//if(mainBodyModel.login() == null){
 		
-		options : {
+		//mainBodyModel.login(new LoginModel());
+		
+	//}
+
+	//console.log('Login binding applied');
+	
+	var LoginPage = new Class({
+		Extends: Page,
+		
+		options: {
+			assets: {
+				js: [
+					{ model: "/public/apps/login/models/index.js" },
+					{ li: "/public/bower/li/lib/index.js" },
+					{ resilient: "/public/bower/resilient/resilient.min.js" },
+					{ crypto: "/public/apps/login/bower/cryptojslib/rollups/sha1.js" }
+				],
+				css: {
+					login_css: '/public/apps/login/css/index.css',
+					////dns_css: '/public/apps/dns/index.css',
+					////green_css: '/public/bower/gentelella/vendors/iCheck/skins/flat/green.css'
+				}
+			},
 		},
-						
+		
 		initialize: function(options){
 			var self = this;
 			
-			self.setOptions(options);
-			//Cookie.options = {domain : '192.168.0.80:8080'};
-				
-			//var error = Cookie.read('bad') || false;
-			
-		
-			//self.clearpasswordname = Math.random().toString(36).substring(7);
-			
-			//self.error = ko.observable(error);
-			
-			//self.name = "Hola";
-		
-			self.clearpassword = ko.observable();
-			
-			self.password = ko.observable(null);
-			
-			self.submit = function(form){
-				console.log(form.clearpassword.value);
-				
-				//console.log(self.clearpassword());
-				
-				var hash = CryptoJS.SHA1(form.clearpassword.value);
-				console.log(hash.toString());
-				
-				self.password(hash.toString());
-				
-				//console.log(self.password());
-				
-				//form.clearpassword.value = "";
-				
-				//console.log(window.location.host);
-			
-				var servers = [
-					window.location.protocol+'//'+window.location.host
-				];
-				var client = resilient({
-					 service: { 
-						 basePath: '/login/api',
-						 headers : { "Content-Type": "application/json" },
-						 data: { "username": form.username.value, "password": form.password.value }
-					 }
-				 });
-				client.setServers(servers);
-				
-
-				client.post('/', function(err, res){
-					if(err){
-						console.log('Error:', err);
-						console.log('Response:', err.data);
+			this.addEvent(this.ASSETS_SUCCESS, function(){
+				console.log('login_page.ASSETS_SUCCESS');
+				self.fireEvent(self.STARTED);
+			});
+							
+			this.addEvent(this.STARTED, function(){
+					
+				if(mainBodyModel.login() == null){
+					
+					if(!self.model){
+						self.model = new LoginModel();
+						
+						console.log('login binding applied');
 					}
-					else{
-						//console.log('Ok:', res);
-						//console.log('Body:', res.data);
-						//console.log(li.parse(res.headers.Link));
-						
-						window.location.replace(li.parse(res.headers.Link).next);
-						
-						
-					}
-				});
+					
+					mainBodyModel.login(self.model);
+					
+					//ko.tasks.schedule(this.start_timed_requests.bind(this));
+					
+				}
+				else{
+					self.model = mainBodyModel.login();
+				}
+				
+				
+			});
+			
+			this.parent(options);
+			
+			
+		}
 		
-				return false;//don't submit
-			};
-		},
-	
 	});
-	
-	if(mainBodyModel.login() == null){
-		
-		mainBodyModel.login(new LoginModel());
-		
-	}
 
-	console.log('Login binding applied');
+	if(mainBodyModel){
+		console.log('mainBodyModel');
+		login_page = new LoginPage();
+	}
+	else{
+		console.log('no mainBodyModel');
+		
+		root_page.addEvent(root_page.STARTED, function(){									
+			login_page = new LoginPage();
+		});
+	}	
 		
 });
 
