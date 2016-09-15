@@ -47,23 +47,27 @@ head.ready('mootools-more', function(){
 				////console.log(app);
 				//self[app.id] = ko.observable(null);
 			//});
-			self.apps().forEach(function(app){
+			self.apps().forEach(function(app, index){
 				console.log('app observable');
 				console.log(app.id);
 				
 				self[app.id] = ko.observable(null);
 				
 				if(app['subapps']){
-					Array.each(app['subapps'], function(subapp, index){
+					Array.each(app['subapps'], function(subapp, subindex){
 						console.log(subapp.with);
 						
 						self[subapp.with] = ko.observable(null);
 					}.bind(this));
 				}
 				
+				if(index == self.apps().length -1){
+					console.log('INITIALIZING....');
+					this.fireEvent(this.INITIALIZED);
+				}
 			});
 			
-			this.fireEvent(this.INITIALIZED);
+			
 			
 			//self.breadcrumbs = ko.observableArray([
 				//{label: 'dashboard', href: '/dashboard'},
@@ -272,7 +276,7 @@ head.ready('mootools-more', function(){
 			});
 		},
 		/**
-		 * if assets = string: load file
+		 * if assets = string: load file (this assets won't launch Events, nice for loading gentellela/custom.js wich needs everything applied before load)
 		 * if assets = []: load each 
 		 * if assets = {}: load each {id, file}
 		 * if file to load = []: load each chained on event 
@@ -392,8 +396,13 @@ head.ready('mootools-more', function(){
 							{ jQuery: "/public/bower/jquery/dist/jquery.min.js" },
 							{ pager: "/public/bower/pagerjs/dist/pager.min.js" },
 							{ history: "/public/bower/history.js/scripts/bundled/html4+html5/jquery.history.js"},
-							{ bootstrap: "/public/bower/gentelella/vendors/bootstrap/dist/js/bootstrap.min.js" },
-							{ gentelella: "/public/bower/gentelella/build/js/custom.min.js" }
+							{ page_deps: [
+									{ bootstrap: "/public/bower/gentelella/vendors/bootstrap/dist/js/bootstrap.min.js" },
+									//{ fastclick: "/public/bower/gentelella/vendors/fastclick/lib/fastclick.js" },
+									//{ nprogress: "/public/bower/gentelella/vendors/nprogress/nprogress.js" },
+									"/public/bower/gentelella/build/js/custom.js"
+								]
+							}
 						]
 					},
 					//{ pouchdb: "/public/bower/pouchdb/dist/pouchdb.min.js"} ,
@@ -405,40 +414,40 @@ head.ready('mootools-more', function(){
 							//{ bootstrap: "/public/bower/gentelella/vendors/bootstrap/dist/js/bootstrap.min.js" },
 							////{ fastclick: "/public/bower/gentelella/vendors/fastclick/lib/fastclick.js" },
 							////{ nprogress: "/public/bower/gentelella/vendors/nprogress/nprogress.js" },
-							////{ Chart: "/public/bower/gentelella/vendors/Chart.js/dist/Chart.min.js" },
-							////{ gauge: "/public/bower/gentelella/vendors/bernii/gauge.js/dist/gauge.min.js" },
-							////{ progressbar: "/public/bower/gentelella/vendors/bootstrap-progressbar/bootstrap-progressbar.min.js" },
-							////{ iCheck: "/public/bower/gentelella/vendors/iCheck/icheck.min.js" },
-							////{ skycons: "/public/bower/gentelella/vendors/skycons/skycons.js" },
-							////{ flot: [
-								////"/public/bower/gentelella/vendors/Flot/jquery.flot.js",
-								////{ flot_pie: "/public/bower/gentelella/vendors/Flot/jquery.flot.pie.js" },
-								////{ flot_time: "/public/bower/gentelella/vendors/Flot/jquery.flot.time.js" },
-								////{ flot_stack: "/public/bower/gentelella/vendors/Flot/jquery.flot.stack.js" },
-								////{ flot_resize: "/public/bower/gentelella/vendors/Flot/jquery.flot.resize.js" },
-								////{ flot_orderBars: "/public/bower/gentelella/production/js/flot/jquery.flot.orderBars.js" },
-								////{ flot_date: "/public/bower/gentelella/production/js/flot/date.js" },
-								////{ flot_spline: "/public/bower/gentelella/production/js/flot/jquery.flot.spline.js" },
-								////{ flot_curvedLines: "/public/bower/gentelella/production/js/flot/curvedLines.js" },
-							////]},
-							////{ jvectormap: "/public/bower/gentelella/production/js/maps/jquery-jvectormap-2.0.3.min.js" },
-							////{ moment: "/public/bower/gentelella/production/js/moment/moment.min.js" },
-							////{ daterangepicker: "/public/bower/gentelella/production/js/datepicker/daterangepicker.js" },
+							//////{ Chart: "/public/bower/gentelella/vendors/Chart.js/dist/Chart.min.js" },
+							//////{ gauge: "/public/bower/gentelella/vendors/bernii/gauge.js/dist/gauge.min.js" },
+							//////{ progressbar: "/public/bower/gentelella/vendors/bootstrap-progressbar/bootstrap-progressbar.min.js" },
+							//////{ iCheck: "/public/bower/gentelella/vendors/iCheck/icheck.min.js" },
+							//////{ skycons: "/public/bower/gentelella/vendors/skycons/skycons.js" },
+							//////{ flot: [
+								//////"/public/bower/gentelella/vendors/Flot/jquery.flot.js",
+								//////{ flot_pie: "/public/bower/gentelella/vendors/Flot/jquery.flot.pie.js" },
+								//////{ flot_time: "/public/bower/gentelella/vendors/Flot/jquery.flot.time.js" },
+								//////{ flot_stack: "/public/bower/gentelella/vendors/Flot/jquery.flot.stack.js" },
+								//////{ flot_resize: "/public/bower/gentelella/vendors/Flot/jquery.flot.resize.js" },
+								//////{ flot_orderBars: "/public/bower/gentelella/production/js/flot/jquery.flot.orderBars.js" },
+								//////{ flot_date: "/public/bower/gentelella/production/js/flot/date.js" },
+								//////{ flot_spline: "/public/bower/gentelella/production/js/flot/jquery.flot.spline.js" },
+								//////{ flot_curvedLines: "/public/bower/gentelella/production/js/flot/curvedLines.js" },
+							//////]},
+							//////{ jvectormap: "/public/bower/gentelella/production/js/maps/jquery-jvectormap-2.0.3.min.js" },
+							//////{ moment: "/public/bower/gentelella/production/js/moment/moment.min.js" },
+							//////{ daterangepicker: "/public/bower/gentelella/production/js/datepicker/daterangepicker.js" },
 							//{ gentelella: "/public/bower/gentelella/build/js/custom.min.js" }
 						//]
 					//}
 				],
 				//css: {
-					
+					//gentelella_css: "/public/bower/gentelella/build/css/custom.min.css"
 				//}
 			},
 		},
 		
 		
 		initialize: function(options){
+			var self = this;
 			
-			
-			this.parent(options);
+			//this.parent(options);
 			
 			//this.addEvent(this.JS_LOADED, function(data){
 				//console.log('self.JS_LOADED');
@@ -463,9 +472,67 @@ head.ready('mootools-more', function(){
 			//ko.applyBindings(this.model, document.getElementById("main-body"));
 			//pager.startHistoryJs();
 			
-			
+			//this.fireEvent(self.STARTED);
 			//console.log('main-body binding applied');
 			
+			//root_page.addEvent(root_page.ASSETS_SUCCESS, function(){
+				//console.log('root_page.ASSETS_SUCCESS');
+				//root_page.fireEvent(root_page.STARTED);
+			//});
+			
+			this.addEvent(this.ASSETS_SUCCESS, function(){
+
+				
+				if(mainBodyModel == null){
+					
+				
+					if(!self.model){
+						
+						
+						self.model = new MainModel();
+						self.addEvent(self.model.INITIALIZED,function(){
+							console.log('self.model.INITIALIZED');
+							
+						});
+						
+						self.pager = pager;
+						// use HTML5 history
+						self.pager.useHTML5history = true;
+						// use History instead of history
+						self.pager.Href5.history = History;
+						
+						// extend your view-model with pager.js specific data
+						self.pager.extendWithPage(self.model);
+						
+						//console.log(self.model);
+						
+						
+						ko.applyBindings(self.model, document.getElementById("main-body"));
+						pager.startHistoryJs();
+							
+				
+						
+					
+						console.log('main-body binding applied');
+					}
+					
+					mainBodyModel = self.model;
+					
+					//ko.tasks.schedule(this.start_timed_requests.bind(this));
+					
+				}
+				else{
+					self.model = mainBodyModel;
+				}
+				
+				
+				self.fireEvent(self.STARTED);
+				//self.load_js("/public/bower/gentelella/build/js/custom.js");
+				
+			});
+			
+			this.parent(options);
+			//self.load_js({ gentelella: "/public/bower/gentelella/build/js/custom.js" });
 		},
 		beforeHide: function(pager){
 			var self = this;
@@ -506,53 +573,74 @@ head.ready('mootools-more', function(){
 				console.log(resource);
 				//console.log(this);
 			}
-		}
+		},
+		//load_js(assets){
+			//console.log('LOAD JS');
+			//console.log(assets);
+			
+			//if(assets['page_deps']){
+				//this.addEvent(this.STARTED, this.parent.attempt(assets, this));
+			//}
+			//else{
+				//this.parent(assets);
+			//}
+		//}
 	});
 
 	root_page = new RootPage();
 		
-	root_page.addEvent(root_page.ASSETS_SUCCESS, function(){
-		console.log('root_page.ASSETS_SUCCESS');
-		root_page.fireEvent(root_page.STARTED);
-	});
+	////root_page.addEvent(root_page.ASSETS_SUCCESS, function(){
+		////console.log('root_page.ASSETS_SUCCESS');
+		////root_page.fireEvent(root_page.STARTED);
+	////});
 	
-	root_page.addEvent(root_page.STARTED, function(){
+	//root_page.addEvent(root_page.ASSETS_SUCCESS, function(){
 			
-		var self = this;
+		//var self = this;
 		
-		if(mainBodyModel == null){
+		//if(mainBodyModel == null){
 			
 		
-			if(!self.model){
-				self.model = new MainModel();
+			//if(!self.model){
 				
-				self.pager = pager;
-				// use HTML5 history
-				self.pager.useHTML5history = true;
-				// use History instead of history
-				self.pager.Href5.history = History;
-
+				
+				//self.model = new MainModel();
+				
+				//self.pager = pager;
+				//// use HTML5 history
+				//self.pager.useHTML5history = true;
+				//// use History instead of history
+				//self.pager.Href5.history = History;
+				
+				//// extend your view-model with pager.js specific data
+				//self.pager.extendWithPage(self.model);
+				
+				////console.log(self.model);
+				
+				
+				//ko.applyBindings(self.model, document.getElementById("main-body"));
+				//pager.startHistoryJs();
 					
-				// extend your view-model with pager.js specific data
-				self.pager.extendWithPage(self.model);
+				////self.addEvent(self.model.INITIALIZED,function(){
+					////console.log('self.model.INITIALIZED');
+					
+				////});
 				
-				ko.applyBindings(self.model, document.getElementById("main-body"));
-				pager.startHistoryJs();
 			
-				console.log('main-body binding applied');
-			}
+				//console.log('main-body binding applied');
+			//}
 			
-			mainBodyModel = self.model;
+			//mainBodyModel = self.model;
 			
-			//ko.tasks.schedule(this.start_timed_requests.bind(this));
+			////ko.tasks.schedule(this.start_timed_requests.bind(this));
 			
-		}
-		else{
-			self.model = mainBodyModel;
-		}
+		//}
+		//else{
+			//self.model = mainBodyModel;
+		//}
 		
-		
-	});
+		//root_page.fireEvent(root_page.STARTED);
+	//});
 	
 	//head.load([
 		//{ ko: "/public/bower/knockoutjs/dist/knockout.js" },//no dependencies
