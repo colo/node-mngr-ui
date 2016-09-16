@@ -8,11 +8,11 @@ var root_page = {
 
 var Page = null;
 
-head.js({ PouchDB: "/public/bower/pouchdb/dist/pouchdb.min.js" }); //no dependencies
+//head.js({ PouchDB: "/public/bower/pouchdb/dist/pouchdb.min.js" }); //no dependencies
 
-head.ready('PouchDB', function(){
-	window.PouchDB = PouchDB;//for Chrome Fauxton
-});
+//head.ready('PouchDB', function(){
+	//window.PouchDB = PouchDB;//for Chrome Fauxton
+//});
 
 //head.js({ resilient: "/public/apps/login/bower/resilient/resilient.min.js" }); //no dependencies
 //head.js({ mootools: "/public/bower/mootools/dist/mootools-core.min.js" }); //no dependencies
@@ -245,8 +245,7 @@ head.ready('mootools-more', function(){
 							 * */
 							self.load_jsonp_success.push(id);
 					
-							self.fireEvent(self.JSONP_LOADED+'_'+id, data);
-							self.fireEvent(self.JSONP_LOADED, {id: id, jsonp: data});
+							
 							
 							/**
 							 * compare the every key of "css" with "load_css_success", return true when all keys (css) are found
@@ -262,7 +261,8 @@ head.ready('mootools-more', function(){
 								self.fireEvent(self.JSONP_SUCCESS);
 							}
 							
-							
+							self.fireEvent(self.JSONP_LOADED+'_'+id, data);
+							self.fireEvent(self.JSONP_LOADED, {id: id, jsonp: data});
 							// the request was completed 
 							// and data received the server answer.
 							//console.log(data); // answer object with data

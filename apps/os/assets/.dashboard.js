@@ -8,7 +8,7 @@ function getURLParameter(name, URI) {
 
 
 //head.ready('jsonp', function(){
-	head.ready('mootools-more'
+	head.ready('history'
 	, function() {
 	//head.js({ flot: "/public/bower/gentelella/vendors/Flot/jquery.flot.js" }, function(){
 		//head.js({ flot_pie: "/public/bower/gentelella/vendors/Flot/jquery.flot.pie.js" }, function(){
@@ -20,16 +20,15 @@ function getURLParameter(name, URI) {
 		//head.js({ flot_spline: "/public/bower/gentelella/production/js/flot/jquery.flot.spline.js" }, function(){
 		//head.js({ flot_curvedLines: "/public/bower/gentelella/production/js/flot/curvedLines.js" }, function(){
 		//})})})})})})})})});
+		head.js({ sprintf: '/public/bower/sprintf/dist/sprintf.min.js' });
+		head.js({ randomcolor: '/public/bower/randomcolor/randomColor.js' });
 		
-		//head.js({ sprintf: '/public/bower/sprintf/dist/sprintf.min.js' });
-		//head.js({ randomcolor: '/public/bower/randomcolor/randomColor.js' });
 		
-		
-		//head.ready('PouchDB', function(){
+		head.ready('PouchDB', function(){
 	
 
 
-		//head.js({ model: "/public/apps/os/models/dashboard.js" }, function(){
+		head.js({ model: "/public/apps/os/models/dashboard.js" }, function(){
 			var OSDashboardPage = new Class({
 				Extends: Page,
 				
@@ -62,22 +61,10 @@ function getURLParameter(name, URI) {
 				options: {
 					assets: {
 						js: [
-							{ model: "/public/apps/os/models/dashboard.js" },
-							{ PouchDB: "/public/bower/pouchdb/dist/pouchdb.min.js"},
-							{ sprintf: '/public/bower/sprintf/dist/sprintf.min.js'},
-							{ randomcolor: '/public/bower/randomcolor/randomColor.js' },
+							//{ pouchdb: "/public/bower/pouchdb/dist/pouchdb.min.js"} ,
 							{ gentelella_deps: [
-									//{ bootstrap: "/public/bower/gentelella/vendors/bootstrap/dist/js/bootstrap.min.js" },
+									{ bootstrap: "/public/bower/gentelella/vendors/bootstrap/dist/js/bootstrap.min.js" },
 									{ Chart: "/public/bower/gentelella/vendors/Chart.js/dist/Chart.min.js" },
-									{ flot: "/public/bower/gentelella/vendors/Flot/jquery.flot.js" },
-									{ flot_pie: "/public/bower/gentelella/vendors/Flot/jquery.flot.pie.js" },
-									{ flot_time: "/public/bower/gentelella/vendors/Flot/jquery.flot.time.js" },
-									{ flot_stack: "/public/bower/gentelella/vendors/Flot/jquery.flot.stack.js" },
-									{ flot_resize: "/public/bower/gentelella/vendors/Flot/jquery.flot.resize.js" },
-									{ flot_orderBars: "/public/bower/gentelella/production/js/flot/jquery.flot.orderBars.js" },
-									{ flot_date: "/public/bower/gentelella/production/js/flot/date.js" },
-									{ flot_spline: "/public/bower/gentelella/production/js/flot/jquery.flot.spline.js" },
-									{ flot_curvedLines: "/public/bower/gentelella/production/js/flot/curvedLines.js" },
 								]
 							}
 						],
@@ -409,10 +396,58 @@ function getURLParameter(name, URI) {
 					}
 				},
 				initialize: function(options){
-					var self = this;
+					//var self = this;
 					
-					this.parent(options);
 							
+					//PouchDB.debug.enable('*');
+					PouchDB.debug.disable('*');
+					//window.PouchDB = PouchDB;
+					
+					this.db = new PouchDB('dashboard');
+					//window.PouchDB = this.db;
+					
+					
+					//this.db.info().then(function (info) {
+						//////console.log(info);
+					//})
+					var self = this;
+					/** check if views are in the DB */
+					this.db.get('_design/info')
+					.catch(function (err) {
+						////console.log(err);
+						if (err.status == 404) {//if not found, load and insert
+							
+							self.addEvent(self.JS_LOADED+'_InfoView', function(){
+								self.db.put(InfoView);
+							});
+							
+							self.load_js({ InfoView : '/public/apps/os/_views/InfoView.js'});
+						}
+						// ignore if doc already exists
+					})
+					.then(function (doc) {
+						
+					});
+					
+					this.db.get('_design/status')
+					.catch(function (err) {
+						////console.log(err);
+						if (err.status == 404) {//if not found, load and insert
+							
+							self.addEvent(self.JS_LOADED+'_StatusView', function(){
+								self.db.put(StatusView);
+							});
+							
+							self.load_js({ StatusView : '/public/apps/os/_views/StatusView.js'});
+						}
+						// ignore if doc already exists
+					})
+					.then(function (doc) {
+						//////console.log(doc);
+						
+					});
+					/** ---------------- */
+					
 					root_page.addEvent('beforeHide_os_dashboard', function(){
 						
 						this.stop_timed_requests();
@@ -441,59 +476,6 @@ function getURLParameter(name, URI) {
 						this._load_plots(key);
 					}.bind(this));
 					
-					this.addEvent(this.JS_LOADED+'_PouchDB', function(data){
-						var self = this;
-						//PouchDB.debug.enable('*');
-						PouchDB.debug.disable('*');
-						//window.PouchDB = PouchDB;
-						
-						this.db = new PouchDB('dashboard');
-						//window.PouchDB = this.db;
-						
-						
-						//this.db.info().then(function (info) {
-							//////console.log(info);
-						//})
-						/** check if views are in the DB */
-						this.db.get('_design/info')
-						.catch(function (err) {
-							////console.log(err);
-							if (err.status == 404) {//if not found, load and insert
-								
-								self.addEvent(self.JS_LOADED+'_InfoView', function(){
-									self.db.put(InfoView);
-								});
-								
-								//self.load_js({ InfoView : '/public/apps/os/_views/InfoView.js'});
-								self.load_js('/public/apps/os/_views/InfoView.js');
-							}
-							// ignore if doc already exists
-						})
-						.then(function (doc) {
-							
-						});
-						
-						this.db.get('_design/status')
-						.catch(function (err) {
-							////console.log(err);
-							if (err.status == 404) {//if not found, load and insert
-								
-								self.addEvent(self.JS_LOADED+'_StatusView', function(){
-									self.db.put(StatusView);
-								});
-								
-								//self.load_js({ StatusView : '/public/apps/os/_views/StatusView.js'});
-								self.load_js('/public/apps/os/_views/StatusView.js');
-							}
-							// ignore if doc already exists
-						})
-						.then(function (doc) {
-							//////console.log(doc);
-							
-						});
-						/** ---------------- */
-					}.bind(this));	
-					
 					this.addEvent(this.JSONP_LOADED+'_update_server', function(data){
 						this.server = data;
 						
@@ -510,78 +492,7 @@ function getURLParameter(name, URI) {
 					this.addEvent(this.ON_PERIODICAL_REQUEST_SUCCESS, this._onPeriodicalSuccess.bind(this));
 					this.addEvent(this.ON_HISTORICAL_REQUEST_SUCCESS, this._onHistoricalSuccess.bind(this));
 					
-					//this.addEvent(this.ASSETS_SUCCESS, function(){
-						////console.log('os_dashboard_page.ASSETS_SUCCESS');
-						////self.fireEvent(self.STARTED);
-					//}.bind(this));
-									
-					this.addEvent(this.STARTED, function(){
-					//this.addEvent(this.ASSETS_SUCCESS, function(){
-					//console.log('os_dashboard_page.ASSETS_SUCCESS');
-								
-						if(mainBodyModel.os_dashboard() == null){
-							
-							if(!self.model){
-								self.model = new OSDashboardModel();
-								
-								console.log('osdashboard binding applied');
-							}
-							
-							mainBodyModel.os_dashboard(self.model);
-							
-							this._define_timed_requests(this.options.requests.periodical);
-						
-							this._define_historical_requests(this.options.requests.historical);
-							
-							//this._define_queued_requests();
-							
-							//this.start_timed_requests();
-							ko.tasks.schedule(this.start_timed_requests.bind(this));
-							
-							//ko.tasks.schedule(this._load_plots.bind(this));
-						
-							ko.tasks.schedule(this.start_periodical_functions.bind(this));
-							
-						}
-						else{
-							self.model = mainBodyModel.os_dashboard();
-						}
-						
-						
-					});
-					
-					//os_dashboard_page.addEvent(os_dashboard_page.STARTED, function(){
-				
-						//if(mainBodyModel.os_dashboard() == null){
-							
-							//if(!self.model){
-								//self.model = new OSDashboardModel();
-								
-							//}
-							
-							//mainBodyModel.os_dashboard(self.model);
-							
-							//this._define_timed_requests(this.options.requests.periodical);
-						
-							//this._define_historical_requests(this.options.requests.historical);
-							
-							////this._define_queued_requests();
-							
-							////this.start_timed_requests();
-							//ko.tasks.schedule(this.start_timed_requests.bind(this));
-							
-							////ko.tasks.schedule(this._load_plots.bind(this));
-						
-							//ko.tasks.schedule(this.start_periodical_functions.bind(this));
-						//}
-						//else{
-							//self.model = mainBodyModel.os_dashboard();
-						//}
-						
-						
-					//});
-
-					//this.parent(options);
+					this.parent(options);
 					
 					var now = new Date().getTime();
 					
@@ -594,7 +505,6 @@ function getURLParameter(name, URI) {
 					
 				},
 				_update_model(urls){
-					console.log('UPDATE MODEL');
 					var self = this;
 					urls = (typeOf(urls) == 'array') ? urls : [urls];
 					
@@ -1191,26 +1101,48 @@ function getURLParameter(name, URI) {
 				
 			});	
 				
-			//os_dashboard_page = new OSDashboardPage();
-				
-			
-		//});
-		
-		//});//PouchDB
-		
-		if(mainBodyModel){
-			console.log('mainBodyModel');
 			os_dashboard_page = new OSDashboardPage();
-		}
-		else{
-			console.log('no mainBodyModel');
+				
+			os_dashboard_page.addEvent(os_dashboard_page.STARTED, function(){
+				
+				var self = this;
+				
+				////console.log('page started');
+				
+				if(mainBodyModel.os_dashboard() == null){
+					
+					if(!self.model){
+						self.model = new OSDashboardModel();
+						
+					}
+					
+					mainBodyModel.os_dashboard(self.model);
+					
+					this._define_timed_requests(this.options.requests.periodical);
+				
+					this._define_historical_requests(this.options.requests.historical);
+					
+					//this._define_queued_requests();
+					
+					//this.start_timed_requests();
+					ko.tasks.schedule(this.start_timed_requests.bind(this));
+					
+					//ko.tasks.schedule(this._load_plots.bind(this));
+				
+					ko.tasks.schedule(this.start_periodical_functions.bind(this));
+				}
+				else{
+					self.model = mainBodyModel.os_dashboard();
+				}
+				
+				
+			});	
 			
-			root_page.addEvent(root_page.STARTED, function(){									
-				os_dashboard_page = new OSDashboardPage();
-			});
-		}	
+		});
 		
-	});//mootools-more
+		});//PouchDB
+		
+	});
 //});
 
 

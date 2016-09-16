@@ -400,7 +400,7 @@ var OSDashboardModel = new Class({
 			//this._load_plot();
 		//}.bind(this));
 		var handle = ko.tasks.schedule(function () {
-				console.log('my microtask');
+				//console.log('my microtask');
 				
 				this._load_plot();
 				
