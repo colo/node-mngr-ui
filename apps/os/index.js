@@ -228,8 +228,36 @@ module.exports = new Class({
 						
 						if(module){
 							if(is_os_func){
+								
 								//result.push(value[module]);
-								result[index] = value[module];
+								
+								//if(property){
+									//if(info){
+										//if(value[module][property][info]){
+											////result.push(value[property][info]);
+											//result[index] = value[module][property][info];
+										//}
+										//else{
+											////res.status(500).json({error: 'No ['+info+'] at property ['+property+'] on module '+module});
+											//throw new Error('No ['+info+'] at property ['+property+'] on module '+module);
+										//}
+									//}
+									//else if(value[module][property]){
+										////result.push(value[property]);
+										//result[index] = value[module][property];
+									//}
+									//else{
+										////res.status(500).json({error: 'Bad property ['+property+'] on module '+module});
+										//throw new Error('Bad property ['+property+'] on module '+module);
+									//}
+								//}
+								//else{
+									result[index] = value[module];
+								//}
+								
+								//console.log(result);
+								//throw new Error();
+								
 								
 							}
 							else{

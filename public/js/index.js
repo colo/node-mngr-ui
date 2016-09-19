@@ -289,7 +289,7 @@ head.ready('mootools-more', function(){
 		 * 		}
 		 * 			
 		 * */
-		load_js: function(assets){
+		load_js: function(assets, callback){
 			
 			this.all_js_loaded = false;
 			
@@ -319,12 +319,9 @@ head.ready('mootools-more', function(){
 							else{
 								var prev = Object.keys(js[index - 1])[0];
 								
-								//console.log('on '+prev+' is going to load: ');
-								//console.log(prev);
-								//console.log(file);
 								self.addEvent(self.JS_LOADED+'_'+prev, function(){
-									console.log('on '+prev+' is going to load: ');
-									console.log(file);
+									//console.log('on '+prev+' is going to load: ');
+									//console.log(file);
 									
 									self.load_js(file);
 								});
@@ -374,10 +371,16 @@ head.ready('mootools-more', function(){
 				console.log(assets);
 				
 				var jsFile = Asset.javascript(assets, {
-				 onLoad: function(){
-					 self.fireEvent(self.JS_LOADED, {id: null, js: assets});
-				 },
-			 });
+					onLoad: function(){
+						if(callback){
+							callback.attempt(assets, this);
+						}
+						else{
+							self.fireEvent(self.JS_LOADED, {id: null, js: assets});
+						}
+					},
+				});
+				
 			}
 			
 			
