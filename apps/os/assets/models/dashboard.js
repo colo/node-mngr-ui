@@ -187,6 +187,9 @@ var OSDashboardModel = new Class({
 			
 		//};
 			
+		/**
+		 * tile_stats_count
+		 * */
 		this.tile_stats_count_uptime = ko.pureComputed(function(){
 			
 			return {
@@ -198,10 +201,6 @@ var OSDashboardModel = new Class({
 				}
 			};
 			
-		}.bind(this));
-		
-		this.user_friendly_uptime = ko.pureComputed(function(){
-			return (this.uptime() / this[this.options.current_time_base]).toFixed(0);
 		}.bind(this));
 		
 		this.tile_stats_count_cpus_usage = ko.pureComputed(function(){
@@ -222,25 +221,6 @@ var OSDashboardModel = new Class({
 			
 		}.bind(this));
 		
-		this.user_friendly_cpus_usage = ko.pureComputed(function(){
-			var cpu_usage = this._process_cpu_usage(this.cpus());
-			
-			var percentage = this.cpu_usage_percentage(this.cpu_usage, cpu_usage);
-			
-			this.cpu_usage = cpu_usage;
-			return percentage;
-			
-		}.bind(this));
-		
-		
-		this.primary_iface_out = ko.pureComputed(function(){
-			return (this.networkInterfaces[this.primary_iface()]().transmited.bytes / this[this.options.current_size_base]).toFixed(2);
-		}.bind(this));
-		
-		this.primary_iface_in = ko.pureComputed(function(){
-			return (this.networkInterfaces[this.primary_iface()]().recived.bytes / this[this.options.current_size_base]).toFixed(2);
-		}.bind(this));
-		
 		this.tile_stats_count_primary_iface = ko.pureComputed(function(){
 			//console.log('this.primary_iface()');
 			//console.log(this.primary_iface());
@@ -254,14 +234,6 @@ var OSDashboardModel = new Class({
 				}
 			};
 			
-		}.bind(this));
-		
-		this.user_friendly_totalmem = ko.pureComputed(function(){
-			return (this.totalmem() / this[this.options.current_size_base]).toFixed(2);
-		}.bind(this));
-		
-		this.user_friendly_freemem = ko.pureComputed(function(){
-			return (this.freemem() / this[this.options.current_size_base]).toFixed(2);
 		}.bind(this));
 		
 		this.tile_stats_count_memory = ko.pureComputed(function(){
@@ -294,6 +266,44 @@ var OSDashboardModel = new Class({
 				}
 			};
 			
+		}.bind(this));
+		/**
+		 * tile_stats_count
+		 * */
+		 
+		this.user_friendly_uptime = ko.pureComputed(function(){
+			return (this.uptime() / this[this.options.current_time_base]).toFixed(0);
+		}.bind(this));
+		
+		
+		
+		this.user_friendly_cpus_usage = ko.pureComputed(function(){
+			var cpu_usage = this._process_cpu_usage(this.cpus());
+			
+			var percentage = this.cpu_usage_percentage(this.cpu_usage, cpu_usage);
+			
+			this.cpu_usage = cpu_usage;
+			return percentage;
+			
+		}.bind(this));
+		
+		
+		this.primary_iface_out = ko.pureComputed(function(){
+			return (this.networkInterfaces[this.primary_iface()]().transmited.bytes / this[this.options.current_size_base]).toFixed(2);
+		}.bind(this));
+		
+		this.primary_iface_in = ko.pureComputed(function(){
+			return (this.networkInterfaces[this.primary_iface()]().recived.bytes / this[this.options.current_size_base]).toFixed(2);
+		}.bind(this));
+		
+		
+		
+		this.user_friendly_totalmem = ko.pureComputed(function(){
+			return (this.totalmem() / this[this.options.current_size_base]).toFixed(2);
+		}.bind(this));
+		
+		this.user_friendly_freemem = ko.pureComputed(function(){
+			return (this.freemem() / this[this.options.current_size_base]).toFixed(2);
 		}.bind(this));
 		
 		this.user_friendly_loadavg = ko.pureComputed(function(){

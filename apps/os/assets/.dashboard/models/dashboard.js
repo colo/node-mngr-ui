@@ -181,9 +181,101 @@ var OSDashboardModel = new Class({
 			return this.cpus()[0].model+' @ '+this.cpus()[0].speed;
 		}.bind(this));
 		
+		//this.user_friendly_uptime = {
+			//icon: 'fa-clock-o',
+			//title: 'Uptime (days)',
+			
+		//};
+			
+		/**
+		 * tile_stats_count
+		 * */
+		this.tile_stats_count_uptime = ko.pureComputed(function(){
+			
+			return {
+				icon: 'fa-clock-o',
+				title: 'Uptime (days)',
+				value: (this.uptime() / this[this.options.current_time_base]).toFixed(0),
+				bottom: {
+					value: 'Max uptime: ?'
+				}
+			};
+			
+		}.bind(this));
+		
+		this.tile_stats_count_cpus_usage = ko.pureComputed(function(){
+			var cpu_usage = this._process_cpu_usage(this.cpus());
+			
+			var percentage = this.cpu_usage_percentage(this.cpu_usage, cpu_usage);
+			
+			//this.cpu_usage = cpu_usage;
+			
+			return {
+				icon: 'fa-clock-o',
+				title: 'CPU Usage',
+				value: percentage.usage,
+				bottom: {
+					value: percentage.user+' | '+percentage.nice+' | '+percentage.sys
+				}
+			};
+			
+		}.bind(this));
+		
+		this.tile_stats_count_primary_iface = ko.pureComputed(function(){
+			//console.log('this.primary_iface()');
+			//console.log(this.primary_iface());
+			
+			return {
+				icon: 'fa-cog',
+				title: this.primary_iface() +' IFace',
+				value: this.primary_iface_out(),
+				bottom: {
+					value: this.primary_iface_in(),
+				}
+			};
+			
+		}.bind(this));
+		
+		this.tile_stats_count_memory = ko.pureComputed(function(){
+			
+			return {
+				icon: 'fa-cog',
+				title: 'Free Memory (GB)',
+				value: this.user_friendly_freemem(),
+				bottom: {
+					value: 'Total: '+this.user_friendly_totalmem()
+				}
+			};
+			
+		}.bind(this));
+		
+		this.tile_stats_count_loadavg = ko.pureComputed(function(){
+			var arr = [];
+			
+			Array.each(this.loadavg(), function(item, index){
+				arr[index] = item.toFixed(2);
+			}.bind(this));
+			
+			
+			return {
+				icon: 'fa-clock-o',
+				title: 'Load Average',
+				value: arr[0],
+				bottom: {
+					value: arr[1]+' | '+arr[2]
+				}
+			};
+			
+		}.bind(this));
+		/**
+		 * tile_stats_count
+		 * */
+		 
 		this.user_friendly_uptime = ko.pureComputed(function(){
 			return (this.uptime() / this[this.options.current_time_base]).toFixed(0);
 		}.bind(this));
+		
+		
 		
 		this.user_friendly_cpus_usage = ko.pureComputed(function(){
 			var cpu_usage = this._process_cpu_usage(this.cpus());
@@ -195,9 +287,6 @@ var OSDashboardModel = new Class({
 			
 		}.bind(this));
 		
-		this.user_friendly_uptime = ko.pureComputed(function(){
-			return (this.uptime() / this[this.options.current_time_base]).toFixed(0);
-		}.bind(this));
 		
 		this.primary_iface_out = ko.pureComputed(function(){
 			return (this.networkInterfaces[this.primary_iface()]().transmited.bytes / this[this.options.current_size_base]).toFixed(2);
@@ -206,6 +295,8 @@ var OSDashboardModel = new Class({
 		this.primary_iface_in = ko.pureComputed(function(){
 			return (this.networkInterfaces[this.primary_iface()]().recived.bytes / this[this.options.current_size_base]).toFixed(2);
 		}.bind(this));
+		
+		
 		
 		this.user_friendly_totalmem = ko.pureComputed(function(){
 			return (this.totalmem() / this[this.options.current_size_base]).toFixed(2);

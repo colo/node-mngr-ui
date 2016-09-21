@@ -96,12 +96,12 @@ head.ready('mootools-more'
 					uptime: {
 						url: '/os/api/uptime'
 					},
-					primary_iface: {
-						url: function(){ return '/os/api/networkInterfaces/' +os_dashboard_page.primary_iface; }.bind(this),
+					primary_iface_stats: {
+						url: function(){ return '/os/api/networkInterfaces/' +os_dashboard_page.primary_iface; },
 						onSuccess: function(doc){
-							//////console.log('myRequests.'+os_dashboard_page.model.primary_iface());
-							//////console.log(doc);
-							os_dashboard_page.model.networkInterfaces[os_dashboard_page.model.primary_iface()](doc.data[os_dashboard_page.model.primary_iface()]);
+							console.log('PRIMARY IFACE myRequests.'+os_dashboard_page.primary_iface);
+							console.log(doc);
+							os_dashboard_page.model.networkInterfaces[os_dashboard_page.primary_iface](doc.data);
 							
 							return true;
 						}.bind(this)
@@ -505,7 +505,7 @@ head.ready('mootools-more'
 				
 				this.primary_iface = data;
 				OSDashboardModel.implement({'primary_iface': ko.observable(data)});
-			});
+			}.bind(this));
 			
 			//this.addEvent(this.ASSETS_SUCCESS, function(){
 			this.addEvent(this.VIEWS_SUCCESS, function(){
@@ -749,9 +749,10 @@ head.ready('mootools-more'
 		},
 		_onPeriodicalSuccess: function(doc, doc_path, key){
 			console.log('PERIODICAL myRequests.'+key);
+			console.log(doc.data);
 			
 			var self = this;
-			//console.log(doc);
+			
 			
 			delete doc._rev;
 			
@@ -762,7 +763,9 @@ head.ready('mootools-more'
 					var timestamp_key = key+'_timestamp';//we may use this property to know when was the last time we updated this key
 					self.model[timestamp_key] = doc.metadata.timestamp;
 					
-					self.model[key](doc.data);
+					if(typeOf(self.model[key]()) == typeOf(doc.data)){//if typeOf data match
+						self.model[key](doc.data);
+					}
 					
 					//console.log(key);
 					//console.log(self.model[timestamp_key]);
