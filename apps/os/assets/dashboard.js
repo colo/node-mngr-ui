@@ -42,6 +42,53 @@ head.ready('mootools-more'
 		
 		options: {
 			assets: {
+				html: {
+					tile_stats_count: {
+						url: '/public/views/ko/tile_stats_count.html',
+						append: $("main-body"),
+						ko_template: true
+					},
+					x_panel: {
+						url: '/public/views/ko/x_panel.html',
+						append: $("main-body"),
+						ko_template: true
+					},
+					mounts_x_panel_content: {
+						url: '/public/apps/os/templates/mounts_x_panel_content.html',
+						append: $("main-body"),
+						ko_template: true
+					},
+					blockdevice_x_panel_content: {
+						url: '/public/apps/os/templates/blockdevice_x_panel_content.html',
+						append: $("main-body"),
+						ko_template: true
+					},
+					quicksettings_x_panel_content: {
+						url: '/public/apps/os/templates/quicksettings_x_panel_content.html',
+						append: $("main-body"),
+						ko_template: true
+					},
+					recentactivities_x_panel_content: {
+						url: '/public/apps/os/templates/recentactivities_x_panel_content.html',
+						append: $("main-body"),
+						ko_template: true
+					},
+					visitorslocation_x_panel_content: {
+						url: '/public/apps/os/templates/visitorslocation_x_panel_content.html',
+						append: $("main-body"),
+						ko_template: true
+					},
+					todolist_x_panel_content: {
+						url: '/public/apps/os/templates/todolist_x_panel_content.html',
+						append: $("main-body"),
+						ko_template: true
+					},
+					dailyactiveusers_x_panel_content: {
+						url: '/public/apps/os/templates/dailyactiveusers_x_panel_content.html',
+						append: $("main-body"),
+						ko_template: true
+					},
+				},
 				js: [
 					{ model: "/public/apps/os/models/dashboard.js" },
 					{ PouchDB: "/public/bower/pouchdb/dist/pouchdb.min.js"},

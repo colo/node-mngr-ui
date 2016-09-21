@@ -81,8 +81,11 @@ head.ready('mootools-more', function(){
 	Page = new Class({
 		Implements: [Options, Events],
 		
+		HTML_LOADED: 'jsonpLoaded',
+		HTML_SUCCESS: 'jsonpSuccess',//if all HTML succesfully load
+		
 		JSONP_LOADED: 'jsonpLoaded',
-		JSONP_SUCCESS: 'jsonpSuccess',//if all JS succesfully load
+		JSONP_SUCCESS: 'jsonpSuccess',//if all JSONP succesfully load
 		
 		JS_LOADED: 'jsLoaded',
 		JS_SUCCESS: 'jsSuccess',//if all JS succesfully load
@@ -98,11 +101,13 @@ head.ready('mootools-more', function(){
 		model: null,
 		ko: null,
 		
+		load_html_success: [],
 		load_jsonp_success: [],
 		load_css_success: [],
 		load_js_success: [],
 		js_assets: {},
 		
+		all_html_loaded: true,
 		all_css_loaded: true,
 		all_js_loaded: true,
 		all_jsonp_loaded: true,
@@ -110,6 +115,8 @@ head.ready('mootools-more', function(){
 		
 		options: {
 			assets: {
+				html: {
+				},
 				js: {
 				},
 				css: {
@@ -123,14 +130,22 @@ head.ready('mootools-more', function(){
 			
 			this.setOptions(options);
 			
+			this.addEvent(this.HTML_SUCCESS, function(){
+				this.all_html_loaded = true;
+				
+				if(this.all_css_loaded && this.all_jsonp_loaded && this.all_js_loaded){
+					this.fireEvent(this.ASSETS_SUCCESS);
+				}
+			}.bind(this));
+			
 			this.addEvent(this.JS_SUCCESS, function(){
-				console.log('this.JS_SUCCESS');
-				console.log(this.all_css_loaded);
-				console.log(this.all_jsonp_loaded);
+				//console.log('this.JS_SUCCESS');
+				//console.log(this.all_css_loaded);
+				//console.log(this.all_jsonp_loaded);
 				
 				this.all_js_loaded = true;
 				
-				if(this.all_css_loaded && this.all_jsonp_loaded){
+				if(this.all_css_loaded && this.all_jsonp_loaded && this.all_html_loaded){
 					this.fireEvent(this.ASSETS_SUCCESS);
 				}
 			}.bind(this));
@@ -138,7 +153,7 @@ head.ready('mootools-more', function(){
 			this.addEvent(this.CSS_SUCCESS, function(){
 				this.all_css_loaded = true;
 				
-				if(this.all_js_loaded && this.all_jsonp_loaded){
+				if(this.all_js_loaded && this.all_jsonp_loaded && this.all_html_loaded){
 					this.fireEvent(this.ASSETS_SUCCESS);
 				}
 			}.bind(this));
@@ -146,7 +161,7 @@ head.ready('mootools-more', function(){
 			this.addEvent(this.JSONP_SUCCESS, function(){
 				this.all_jsonp_loaded = true;
 				
-				if(this.all_js_loaded && this.all_css_loaded){
+				if(this.all_js_loaded && this.all_css_loaded && this.all_html_loaded){
 					this.fireEvent(this.ASSETS_SUCCESS);
 				}
 			}.bind(this));
@@ -158,6 +173,13 @@ head.ready('mootools-more', function(){
 				}
 				else{
 					self.fireEvent(self.CSS_SUCCESS);
+				}
+				
+				if(Object.getLength(this.options.assets.html) > 0){
+					this.load_html(this.options.assets.html);
+				}
+				else{
+					self.fireEvent(self.HTML_SUCCESS);
 				}
 				
 				if(this.options.assets.js.length > 0){
@@ -179,6 +201,123 @@ head.ready('mootools-more', function(){
 				this.fireEvent(this.ASSETS_SUCCESS);
 			}
 			
+		},
+		load_html: function(assets){
+			var self = this;
+			this.all_html_loaded = false;
+			
+			Object.each(assets, function(html, id){
+				console.log('load_html '+id);
+				console.log(html);
+				
+				var req = {
+					evalScripts: false,
+					//evalResponse: true,
+					method: 'get',
+					noCache: true,
+				};
+				
+				var append = null;
+				
+				if(typeOf(html) == 'object'){
+					req = Object.merge(req, Object.clone(html));
+					
+					if(req.ko_template && req.append){
+						append = req.append;
+						req.append = null //we will append manually, not as a property of Request.HTML
+					}
+						
+				}
+				else{
+					req.url = html;
+				}
+				
+				console.log(req);
+				
+				var html_req = new Request.HTML(Object.merge(
+					{
+						onSuccess: function(responseTree, responseElements, responseHTML, responseJavaScript){
+							
+							var resp = {
+								tree: responseTree,
+								elements: responseElements,
+								html: responseHTML,
+								js: responseJavaScript
+							}
+							console.log('responseHTML');
+							console.log(resp);
+							
+							if(req.ko_template && append){
+								var el = new Element('script',{
+									type: "text/html",
+									id: id+'-template'
+								});
+								
+								el.appendText(resp.js);
+								//console.log(el);
+								
+								append.adopt(el);
+								//console.log(append);
+							}
+							
+							/**
+							* to keep record of succesfuly loaded html
+							* */
+							self.load_html_success.push(id);
+					
+							self.fireEvent(self.HTML_LOADED+'_'+id, resp);
+							self.fireEvent(self.HTML_LOADED, {id: id, response: resp});
+							
+							/**
+							 * compare the every key of "css" with "load_css_success", return true when all keys (css) are found
+							 * 
+							 * */
+							var all_success = Object.keys(assets).every(function(asset){
+								return (self.load_html_success.indexOf(asset) >= 0) ? true : false;
+							});
+							
+							
+							if(all_success){
+								console.log('load_html_success');
+								self.fireEvent(self.HTML_SUCCESS);
+							}
+						},
+					},
+					req
+				));
+				
+				html_req.send();
+				//var css = Asset.css(css, {
+					//id: id,
+					//onLoad: function(){
+						//console.log('onLoad css '+id);
+						////console.log(css);
+						
+						///**
+						 //* to keep record of succesfuly loaded css
+						 //* */
+						//self.load_css_success.push(id);
+				
+						//self.fireEvent(self.CSS_LOADED+'_'+id, css);
+						//self.fireEvent(self.CSS_LOADED, {id: id, css: css});
+						
+						///**
+						 //* compare the every key of "css" with "load_css_success", return true when all keys (css) are found
+						 //* 
+						 //* */
+						//var all_success = Object.keys(assets).every(function(asset){
+							//return (self.load_css_success.indexOf(asset) >= 0) ? true : false;
+						//});
+						
+						
+						//if(all_success){
+							//console.log('load_css_success');
+							//self.fireEvent(self.CSS_SUCCESS);
+						//}
+						
+					//}
+				//});
+			});
 		},
 		load_css: function(assets){
 			var self = this;

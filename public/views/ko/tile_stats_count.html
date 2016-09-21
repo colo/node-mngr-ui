@@ -1,0 +1,15 @@
+<script type="text/html" id="tile_stats_count-template">
+	<span class="count_top"><i data-bind="attr:{class: 'fa '+icon}"></i> <!-- ko text: title --><!-- /ko --></span>
+	<div class="count" data-bind="text: value"></div>
+	<!-- ko if: bottom.value -->
+	<span class="count_bottom" data-bind="text: bottom.value"></span>
+	<!-- /ko -->
+	
+	<!-- ko if: bottom.green -->
+	<span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i><!-- ko text: bottom.green.value --><!-- /ko --> </i> <!-- ko text: bottom.green.title --><!-- /ko --></span>
+	<!-- /ko -->
+	
+	<!-- ko if: bottom.red -->
+	<span class="count_bottom"><i class="red"><i class="fa fa-sort-desc"></i><!-- ko text: bottom.red.value --><!-- /ko --> </i> <!-- ko text: bottom.red.title --><!-- /ko --></span>
+	<!-- /ko -->
+</script>
