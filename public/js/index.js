@@ -256,8 +256,17 @@ head.ready('mootools-more', function(){
 								el.appendText(resp.js);
 								//console.log(el);
 								
+								console.log(append);
+								/**
+								 * using $() to select the Element may cause jQuery to grab it instead of mootols - use on document.id is encouraged
+								 * */
+								if(!append.adopt && append.selector){
+									append = document.id(append.selector);
+									//console.log(append);
+								}
+									
 								append.adopt(el);
-								//console.log(append);
+						
 							}
 							
 							/**

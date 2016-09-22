@@ -13,7 +13,7 @@ var OSUsersModel = new Class({
 		this.setOptions(options);
 		
 		var handle = ko.tasks.schedule(function () {
-
+			$('#users-datatable').DataTable();
 		}.bind(this));
 		
 	},

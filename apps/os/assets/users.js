@@ -29,6 +29,18 @@ head.ready('mootools-more'
 			
 			options: {
 				assets: {
+					html: {
+						x_panel: {
+							url: '/public/views/ko/x_panel.html',
+							append: document.id("main-body"),
+							ko_template: true
+						},
+						users_x_panel_content: {
+							url: '/public/apps/os/templates/users_x_panel_content.html',
+							append: document.id("main-body"),
+							ko_template: true
+						},
+					},
 					js: [
 						{ model: "/public/apps/os/models/users.js" },
 					//{ 'jq' : '/public/bower/gentelella/vendors/jquery/dist/jquery.min.js'},

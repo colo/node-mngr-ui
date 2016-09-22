@@ -66,6 +66,18 @@ head.ready('jsonp', function(){
 			
 			options: {
 				assets: {
+					html: {
+						x_panel: {
+							url: '/public/views/ko/x_panel.html',
+							append: document.id("main-body"),
+							ko_template: true
+						},
+						zones_x_panel_content: {
+							url: '/public/apps/dns/templates/zones_x_panel_content.html',
+							append: document.id("main-body"),
+							ko_template: true
+						},
+					},
 					js: [
 						{ model: "/public/apps/dns/models/index.js" },
 						{ li: "/public/bower/li/lib/index.js" },
