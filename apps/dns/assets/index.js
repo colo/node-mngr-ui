@@ -43,11 +43,11 @@ var dns_server = null;
 	//dns_server = data;
 //}
 
-head.load({ jsonp: "/dns/api/server/?callback=update_server" });
+//head.load({ jsonp: "/dns/api/server/?callback=update_server" });
 
 //head.load({ li: "/public/bower/li/lib/index.js" });//parse Link header
 
-head.ready('jsonp', function(){
+//head.ready('jsonp', function(){
 	head.ready('mootools-more',
 	function() {
 			 
@@ -111,7 +111,7 @@ head.ready('jsonp', function(){
 								
 				this.addEvent(this.STARTED, function(){
 						
-					if(mainBodyModel.dns() == null){
+					if(!mainBodyModel.dns()){
 						
 						if(!self.model){
 							self.model = new DNSModel();
@@ -119,8 +119,14 @@ head.ready('jsonp', function(){
 							console.log('dns binding applied');
 						}
 						
+						//mainBodyModel.addEvent(mainBodyModel.ON_MODEL+'_dns', function(){
+							//console.log('mainBodyModel.ON_MODEL_dns');
+							//console.log(document.id('data_chkbox'));
+							//self.model.pagination.set_main_checkbox(document.getElementById('data_chkbox'));
+						//});
+		
 						mainBodyModel.dns(self.model);
-						
+						//self.model.pagination.set_main_checkbox(document.id('data_chkbox'));
 						//ko.tasks.schedule(this.start_timed_requests.bind(this));
 						
 					}
@@ -152,6 +158,6 @@ head.ready('jsonp', function(){
 		
 			
 	});
-});
+//});
 
 

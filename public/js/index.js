@@ -28,6 +28,7 @@ head.ready('mootools-more', function(){
 		Implements: [Options, Events],
 		
 		INITIALIZED: 'initialized',
+		ON_MODEL: 'onModel',
 		
 		options : {
 		},
@@ -53,11 +54,25 @@ head.ready('mootools-more', function(){
 				
 				self[app.id] = ko.observable(null);
 				
+				self[app.id].subscribe( function(value){
+					
+					self.fireEvent(self.ON_MODEL+'_'+app.id, value);
+					
+				}.bind(this) );
+				
+				
 				if(app['subapps']){
 					Array.each(app['subapps'], function(subapp, subindex){
 						console.log(subapp.with);
 						
 						self[subapp.with] = ko.observable(null);
+						
+						self[subapp.with].subscribe( function(value){
+					
+							self.fireEvent(self.ON_MODEL+'_'+subapp.with, value);
+							
+						}.bind(this) );
+				
 					}.bind(this));
 				}
 				
@@ -182,18 +197,18 @@ head.ready('mootools-more', function(){
 					self.fireEvent(self.HTML_SUCCESS);
 				}
 				
-				if(this.options.assets.js.length > 0){
-					this.load_js(this.options.assets.js);
-				}
-				else{
-					self.fireEvent(self.JS_SUCCESS);
-				}
-				
 				if(Object.getLength(this.options.assets.jsonp) > 0){
 					this.load_jsonp(this.options.assets.jsonp);
 				}
 				else{
 					self.fireEvent(self.JSONP_SUCCESS);
+				}
+				
+				if(this.options.assets.js.length > 0){
+					this.load_js(this.options.assets.js);
+				}
+				else{
+					self.fireEvent(self.JS_SUCCESS);
 				}
 			}
 			else{

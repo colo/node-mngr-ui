@@ -4,7 +4,7 @@ var Pagination = new Class({
 	total_count: 0,
 	total_pages: 1,
 	
-	main_chkbox: null,
+	main_checkbox: null,
 	url: '',
 		
 	disabled: {
@@ -27,6 +27,8 @@ var Pagination = new Class({
 	options : {
 		url: '',
 		items_per_page: 0,
+		main_checkbox: null,
+		elements: null
 	},
 	
 	initialize: function(options){
@@ -34,9 +36,12 @@ var Pagination = new Class({
 		
 		this.setOptions(options);
 		
-		this.main_chkbox = document.getElementById('data_chkbox');//get "toggle all" checkbox
+		//this._update_els();
 		
-		
+		var handle = ko.tasks.schedule(function () {
+			console.log('ko.tasks.schedule');
+			self.main_checkbox = document.id(self.options.main_checkbox);
+		});
 	},
 	/**
 	 * don't use it to check the "toogle all" checkbox
@@ -76,7 +81,7 @@ var Pagination = new Class({
 	
 	toggle_all: function(el){//receives the "toogle all" element
 		var self = this;
-		var els = document.getElementsByName('data_chkbox');//get all labels by "name"
+		var els = document.getElementsByName(this.options.elements);//get all labels by "name"
 		
 		if(el.checked){
 			el.checked = true;
@@ -105,7 +110,7 @@ var Pagination = new Class({
 		if(el.checked){
 			self.check(el);
 			
-			var els = document.getElementsByName('data_chkbox');//get all labels->checkbox by "name"
+			var els = document.getElementsByName(this.options.elements);//get all labels->checkbox by "name"
 			self._toogle_main_checkbox(els);
 		}
 		else{
@@ -125,7 +130,7 @@ var Pagination = new Class({
 		var self = this;
 		console.log('check_checked');
 		
-		var els = document.getElementsByName('data_chkbox');
+		var els = document.getElementsByName(this.options.elements);
 		
 		Array.each(els, function(el){
 			var checkbox = el;//input checkbox
@@ -137,16 +142,19 @@ var Pagination = new Class({
 		
 		self._toogle_main_checkbox(els);
 	},
+	//set_main_checkbox: function(el){
+		//this.main_checkbox = el;
+	//},
 	check_main: function(bool){
 		console.log('check_main');
 		console.log(bool);
 		
-		var main_chkbox = document.getElementById('data_chkbox');//get "toggle all" checkbox
+		//this.main_chkbox = document.getElementById(this.options.main_checkbox);//get "toggle all" checkbox
 		
-		var self = this;
+		//var self = this;
 		
-		if(main_chkbox)//may not be present on views with no checkbox
-			main_chkbox.checked = bool;
+		if(this.main_checkbox)//may not be present on views with no checkbox
+			this.main_checkbox.checked = bool;
 	},
 	page_url: function(){
 		var self = this;
@@ -271,12 +279,26 @@ var Pagination = new Class({
 		//console.log(self.url);
 		
 		//componentHandler.upgradeDom();
+		//this._update_els();
+		
 		self.check_checked();
 		/**
 		 * @end pagination
 		 * 
 		 * */
 	},
+	//_update_els: function(){
+		//console.log('_update_els');
+		//if(this.main_checkbox){
+			//console.log('this.main_checkbox');
+			//console.log(this.main_checkbox);
+		//}
+		//else{
+			//console.log('NO this.main_checkbox');
+			//this.main_checkbox = this.options.main_checkbox;//get "toggle all" checkbox
+		//}
+		
+	//},
 	/**
 	 * @private: toggle check/uncheck the "toggle all" check box if all elements are check or not
 	 * 
@@ -318,6 +340,8 @@ var DNSModel = new Class({
 	options : {
 		pagination: {
 			items_per_page: 10,
+			main_checkbox: 'data_chkbox',
+			elements: 'data_chkbox',
 		},
 	},
 	
@@ -330,7 +354,10 @@ var DNSModel = new Class({
 		self.zones = ko.observableArray([
 		]);
 		
-		self.pagination = new Pagination({url: dns_server+'/bind/zones', items_per_page: self.options.pagination.items_per_page});
+		self.pagination = new Pagination(Object.merge({
+			url: dns_server+'/bind/zones',
+		},
+		self.options.pagination));
 		
 		console.log(self.pagination.options);
 		//console.log('dns server');
@@ -380,6 +407,16 @@ var DNSModel = new Class({
 		};
 	
 		load_page(self.URI, self.pagination.page_url());
+		
+		//var handle = ko.tasks.schedule(function () {
+			//console.log('ko.tasks.schedule');
+			//self.pagination.set_main_checkbox(document.id('data_chkbox'));
+		//});
+		//mainBodyModel.addEvent(mainBodyModel.ON_MODEL+'_dns', function(){
+			//console.log('mainBodyModel.ON_MODEL_dns');
+			//console.log(document.id('data_chkbox'));
+			//self.pagination.set_main_checkbox(document.getElementById('data_chkbox'));
+		//});
 	},
 	
 });
