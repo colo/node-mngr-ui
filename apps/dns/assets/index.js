@@ -39,9 +39,9 @@ function getURLParameter(name, URI) {
 }
 
 var dns_server = null;
-var update_server = function (data){
-	dns_server = data;
-}
+//var update_server = function (data){
+	//dns_server = data;
+//}
 
 head.load({ jsonp: "/dns/api/server/?callback=update_server" });
 
@@ -86,12 +86,23 @@ head.ready('jsonp', function(){
 					css: {
 						dns_css: '/public/apps/dns/index.css',
 						green_css: '/public/bower/gentelella/vendors/iCheck/skins/flat/green.css'
+					},
+					jsonp: {
+						update_server: '/dns/api/server/'
 					}
 				}
 			},
 			
 			initialize: function(options){
 				var self = this;
+				
+				this.addEvent(this.JSONP_LOADED+'_update_server', function(data){
+					//this.server = data;
+					
+					//this._update_model(this.options.requests.update_model);
+					dns_server = data;
+					
+				}.bind(this));
 				
 				this.addEvent(this.ASSETS_SUCCESS, function(){
 					console.log('dns_page.ASSETS_SUCCESS');
