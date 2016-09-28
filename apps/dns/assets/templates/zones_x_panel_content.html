@@ -1,8 +1,9 @@
 <script type="text/html" id="zones_x_panel_content-template">
 	<p>Add class <code>bulk_action</code> to table for bulk actions options on row select</p>
 
-	<div class="table-responsive">
-		<table class="table table-striped jambo_table bulk_action">
+	<div class="table-responsive"> 
+		
+		<table id="zones-datatable" class="table table-striped jambo_table"> <!-- class="table table-striped jambo_table bulk_action" -->
 			<thead>
 				<tr class="headings">
 					<th>
@@ -16,7 +17,7 @@
 			<tbody data-bind="foreach: zones">
 				<tr data-bind="attr: {'class': function(){ if(($index % 2)  == 0){ return 'even pointer'; } else { return 'odd pointer';} }}">
 					<td class="a-center">
-							<input name="data_chkbox" type="checkbox" class="flat" data-bind="attr: {'id': 'data_chkbox'+$index(), value: $data}, click: function(){console.log($element); return pagination.toggle($element)}">
+							<input name="data_chkbox" type="checkbox" class="flat" data-bind="attr: {'id': 'data_chkbox'+$index(), value: $data}, click: function(){console.log($element); return $parent.pagination.toggle($element)}">
 					</td>
 					<td data-bind="text: $data"></td>
 					<td>

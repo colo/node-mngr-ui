@@ -81,11 +81,32 @@ var dns_server = null;
 					js: [
 						{ model: "/public/apps/dns/models/index.js" },
 						{ li: "/public/bower/li/lib/index.js" },
-						{ resilient: "/public/bower/resilient/resilient.min.js" }
+						{ resilient: "/public/bower/resilient/resilient.min.js" },
+						{ datatables_deps: [
+							{ 'dt': '/public/bower/gentelella/vendors/datatables.net/js/jquery.dataTables.min.js'},
+							{ 'dt_bs_js': '/public/bower/gentelella/vendors/datatables.net-bs/js/dataTables.bootstrap.min.js'},
+							{ 'dt_bttn_js': '/public/bower/gentelella/vendors/datatables.net-buttons/js/dataTables.buttons.min.js'},
+							{ 'dt_bs_bttn_js': '/public/bower/gentelella/vendors/datatables.net-buttons-bs/js/buttons.bootstrap.min.js'},
+							{ 'dt_bs_bttn_html5_js': '/public/bower/gentelella/vendors/datatables.net-buttons/js/buttons.html5.min.js'},
+							{ 'dt_bs_bttn_print_js': '/public/bower/gentelella/vendors/datatables.net-buttons/js/buttons.print.min.js'},
+							{ 'dt_fx_hd_js': '/public/bower/gentelella/vendors/datatables.net-fixedheader/js/dataTables.fixedHeader.min.js'},
+							{ 'dt_kT_js' : '/public/bower/gentelella/vendors/datatables.net-keytable/js/dataTables.keyTable.min.js'},
+							{ 'dt_resp_js': '/public/bower/gentelella/vendors/datatables.net-responsive/js/dataTables.responsive.min.js'},
+							{ 'resp_bs_js': '/public/bower/gentelella/vendors/datatables.net-responsive-bs/js/responsive.bootstrap.js'},
+							{ 'dt_scroll_sj': '/public/bower/gentelella/vendors/datatables.net-scroller/js/dataTables.scroller.min.js'},
+							]
+						}
 					],
 					css: {
 						dns_css: '/public/apps/dns/index.css',
-						green_css: '/public/bower/gentelella/vendors/iCheck/skins/flat/green.css'
+						green_css: '/public/bower/gentelella/vendors/iCheck/skins/flat/green.css',
+						/** datatables */
+						'index_css': '/public/apps/os/css/index.css',
+						'dt_bs': '/public/bower/gentelella/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css',
+						'dt_bs_bttn': '/public/bower/gentelella/vendors/datatables.net-buttons-bs/css/buttons.bootstrap.min.css',
+						'dt_bs_fxHd': '/public/bower/gentelella/vendors/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css',
+						'dt_bs_resp': '/public/bower/gentelella/vendors/datatables.net-responsive-bs/css/responsive.bootstrap.min.css',
+						'dt_bs_scroll': '/public/bower/gentelella/vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css'
 					},
 					jsonp: {
 						update_server: '/dns/api/server/'
@@ -126,8 +147,17 @@ var dns_server = null;
 						//});
 		
 						mainBodyModel.dns(self.model);
-						//self.model.pagination.set_main_checkbox(document.id('data_chkbox'));
-						//ko.tasks.schedule(this.start_timed_requests.bind(this));
+						
+						/**
+						 * https://github.com/immense/knockout-datatable
+						 * http://rawgit.com/immense/knockout-datatable/master/demo.html
+						 * 
+						 * http://abrudtkuhl.github.io/Simple-Knockout-Js-Paging-Datatables/
+						 * */
+						
+						//$('#zones-datatable').DataTable();
+						
+						
 						
 					}
 					else{

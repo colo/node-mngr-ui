@@ -25,7 +25,7 @@ var Pagination = new Class({
 	checked: [],
 	
 	options : {
-		url: '',
+		//url: '',
 		items_per_page: 0,
 		main_checkbox: null,
 		elements: null
@@ -246,15 +246,35 @@ var Pagination = new Class({
 			//self.current_page = 1;
 		}
 		
+		console.log('li.parse(res.headers.Link).first');
+		console.log(li.parse(res.headers.Link).first);
+		
+		//var first = new String(
+			//li.parse(res.headers.Link).first.replace(self.options.url, '')+
+			//'='+self.options.items_per_page
+		//).replace('/', '');
 		
 		var first = new String(
-			li.parse(res.headers.Link).first.replace(self.options.url, '')+
+			
+			li.parse(res.headers.Link).first.match(new RegExp(/\/[^\/]+$/g))+
 			'='+self.options.items_per_page
 		).replace('/', '');
 		
-		var prev = new String(li.parse(res.headers.Link).prev.replace(self.options.url, '')).replace('/', '');
+		console.log('first');
+		console.log(first);
 		
-		var next = new String(li.parse(res.headers.Link).next.replace(self.options.url, '')).replace('/', '');
+		//var prev = new String(li.parse(res.headers.Link).prev.replace(self.options.url, '')).replace('/', '');
+		var prev = new String(li.parse(res.headers.Link).prev.match(new RegExp(/\/[^\/]+$/g))).replace('/', '');
+		
+		
+		console.log('prev');
+		console.log(prev);
+		
+		//var next = new String(li.parse(res.headers.Link).next.replace(self.options.url, '')).replace('/', '');
+		var next = new String(li.parse(res.headers.Link).next.match(new RegExp(/\/[^\/]+$/g))).replace('/', '');
+		
+		console.log('next');
+		console.log(next);
 		
 		/**
 		 * use 'start&end', 'last=N' "modifies" the number of "items per page" (not the variable)
@@ -354,10 +374,7 @@ var DNSModel = new Class({
 		self.zones = ko.observableArray([
 		]);
 		
-		self.pagination = new Pagination(Object.merge({
-			url: dns_server+'/bind/zones',
-		},
-		self.options.pagination));
+		self.pagination = new Pagination(self.options.pagination);
 		
 		console.log(self.pagination.options);
 		//console.log('dns server');
@@ -407,6 +424,8 @@ var DNSModel = new Class({
 		};
 	
 		load_page(self.URI, self.pagination.page_url());
+		
+		
 		
 		//var handle = ko.tasks.schedule(function () {
 			//console.log('ko.tasks.schedule');
