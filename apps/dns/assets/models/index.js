@@ -38,9 +38,17 @@ var Pagination = new Class({
 		
 		//this._update_els();
 		
+		
+		root_page.addEvent('afterShow_dns', function(){
+			console.log('Pagination.afterShow_dns');
+			self.main_checkbox = document.id(self.options.main_checkbox);
+			self._toogle_main_checkbox(document.getElementsByName(self.options.elements));
+		}.bind(this));
+			
 		var handle = ko.tasks.schedule(function () {
 			console.log('ko.tasks.schedule');
 			self.main_checkbox = document.id(self.options.main_checkbox);
+			self._toogle_main_checkbox(document.getElementsByName(self.options.elements));
 		});
 	},
 	/**
@@ -371,17 +379,8 @@ var DNSModel = new Class({
 		
 		this.setOptions(options);
 		
-		//self.zones = ko.observableArray([
-		//]);
-		self.zones = ko.observable({});
-		
-		self.zones.subscribe( function(value){
-			console.log('self.zones');
-			console.log(self.zones());
-					
-			//self.fireEvent(self.ON_MODEL+'_'+app.id, value);
-			$('#zones-table').bootstrapTable('load', self.zones());
-		}.bind(this) );
+		self.zones = ko.observableArray([
+		]);
 		
 		self.pagination = new Pagination(self.options.pagination);
 		
@@ -410,6 +409,7 @@ var DNSModel = new Class({
 			console.log('param: ');
 			console.log(param);
 			
+			
 			client.get('/zones/'+param, function(err, res){
 				if(err){
 					console.log('Error:', err);
@@ -421,16 +421,7 @@ var DNSModel = new Class({
 					console.log('headers');
 					console.log(res.headers);
 					
-					//self.zones(res.data);
-					var zones = [];
-					Array.each(res.data, function(zone){
-						zones.push({zone: zone});
-					});
-					
-					self.zones({
-						total: res.headers['Content-Range'].split('/')[1],
-						rows: zones
-					});
+					self.zones(res.data);
 					
 					pager.navigate(URI+param);//modify browser URL to match current request 
 					
@@ -440,56 +431,17 @@ var DNSModel = new Class({
 			});
 		};
 	
-		//load_page(self.URI, self.pagination.page_url());
+		load_page(self.URI, self.pagination.page_url());
 		
-		var myCustomSearch = function(text){
-			console.log('do remote search of text');
-		};
+		//root_page.addEvent('afterShow_dns', function(){
+			//console.log('DNSModel.afterShow_dns');
+			//load_page(self.URI, self.pagination.page_url());
+		//}.bind(this));
 		
-		var myCustomSort = function(sortName, sortOrder) {
-			console.log('do remote sort');
-		};
-		
-		var handle = ko.tasks.schedule(function () {
-			/**
-			 * https://github.com/wenzhixin/bootstrap-table
-			 * */
-			 
-			$('#zones-table').bootstrapTable({
-				columns: [
-					{
-							field: 'id',
-							title: '',
-							checkbox: true
-					},
-					{
-							field: 'zone',
-							title: 'Zones',
-					},
-				],
-				striped: true,
-				pagination: true,
-				sidePagination: 'server',
-				search: true,
-				//showColumns: true
-				showRefresh: true,
-				//showToggle: true,
-				//showPaginationSwitch: true,
-				customSearch: myCustomSearch,
-				customSort: myCustomSort,
-				
-				maintainSelected: true,
-				sortable: true,
-				
-				onPageChange: function(number, size){
-					console.log('notify page change ');
-					console.log('num '+number);
-					console.log('size '+size);
-				}
-			});
-			
-			load_page(self.URI, self.pagination.page_url());
-		});
+		//var handle = ko.tasks.schedule(function () {
+			//console.log('ko.tasks.schedule');
+			//self.pagination.set_main_checkbox(document.id('data_chkbox'));
+		//});
 		//mainBodyModel.addEvent(mainBodyModel.ON_MODEL+'_dns', function(){
 			//console.log('mainBodyModel.ON_MODEL_dns');
 			//console.log(document.id('data_chkbox'));

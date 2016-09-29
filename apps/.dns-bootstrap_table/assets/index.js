@@ -103,7 +103,6 @@ var dns_server = null;
 						green_css: '/public/bower/gentelella/vendors/iCheck/skins/flat/green.css',
 						bootstrap_tb_css: "/public/bower/bootstrap-table/dist/bootstrap-table.min.css",
 						/** datatables */
-						//'index_css': '/public/apps/os/css/index.css',
 						//'dt_bs': '/public/bower/gentelella/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css',
 						//'dt_bs_bttn': '/public/bower/gentelella/vendors/datatables.net-buttons-bs/css/buttons.bootstrap.min.css',
 						//'dt_bs_fxHd': '/public/bower/gentelella/vendors/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css',
@@ -150,7 +149,7 @@ var dns_server = null;
 		
 						mainBodyModel.dns(self.model);
 						
-						$('#zones-table').bootstrapTable();
+						
 					}
 					else{
 						self.model = mainBodyModel.dns();
