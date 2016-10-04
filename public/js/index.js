@@ -554,6 +554,8 @@ head.ready('mootools-more', function(){
 	var RootPage = new Class({
 		Extends: Page,
 		
+		resources: {},
+		
 		options: {
 			assets: {
 				js: [
@@ -611,6 +613,7 @@ head.ready('mootools-more', function(){
 		
 		
 		initialize: function(options){
+			console.log('initializing root....');
 			var self = this;
 			
 			//this.parent(options);
@@ -740,6 +743,43 @@ head.ready('mootools-more', function(){
 				//console.log(this);
 			}
 		},
+		load_app_resources: function(page) {//apply on pagerjs external resources
+			var self = this;
+			console.log('load_app_resources: ');
+			console.log(self);
+			//console.log(page);
+			//console.log(page.pageRoute);
+			//console.log(page.originalRoute());
+			//console.log(page.parentPage.currentId);
+			
+			var resource = page.currentId+'/index.js';
+			var res_key = page.currentId;
+			
+			if(page.parentPage && page.parentPage.currentId){
+				resource = page.parentPage.currentId+'/'+page.currentId+'.js'
+				res_key = page.parentPage.currentId+'_'+page.currentId;
+			}
+			
+			//if(!self.resources)
+				//self.resources = {};
+			
+			if(!self.resources[res_key]){
+				console.log('loading....: '+ '/public/apps/'+resource);
+				
+
+				self.resources[res_key] = '/public/apps/'+resource;
+				head.js(self.resources[res_key]);
+			}
+				
+				//head.js({ page: '/public/apps/'+resource});
+				
+				//head.load({ page: '/public/apps/'+page.currentId+'/index.css' });
+				//head.ready('page',function(){
+					//console.log('loaded...'+page.currentId);
+					//document.documentElement.classList.add('mdl-js');
+					//componentHandler.upgradeAllRegistered();
+				//});
+		},
 		//load_js(assets){
 			//console.log('LOAD JS');
 			//console.log(assets);
@@ -855,31 +895,34 @@ head.ready('mootools-more', function(){
 });
 
 
-var load_app_resources = function(page) {//apply on pagerjs external resources
-	console.log('load_app_resources: ');
-	//console.log(page);
-	//console.log(page.pageRoute);
-	//console.log(page.originalRoute());
-	//console.log(page.parentPage.currentId);
+//var load_app_resources = function(page) {//apply on pagerjs external resources
+	//console.log('load_app_resources: ');
+	////console.log(page);
+	////console.log(page.pageRoute);
+	////console.log(page.originalRoute());
+	////console.log(page.parentPage.currentId);
 	
-	var resource = page.currentId+'/index.js';
+	//var resource = page.currentId+'/index.js';
 	
-	if(page.parentPage && page.parentPage.currentId)
-		resource = page.parentPage.currentId+'/'+page.currentId+'.js'
+	//if(page.parentPage && page.parentPage.currentId)
+		//resource = page.parentPage.currentId+'/'+page.currentId+'.js'
 		
-		//head.ready(function() {
-    //// push a function to the end of the page for later execution
-    //// runs as soon as the document is ready
-    //document.documentElement.classList.add('mdl-js');
-		//componentHandler.upgradeAllRegistered();
-		//});
+		////head.ready(function() {
+    ////// push a function to the end of the page for later execution
+    ////// runs as soon as the document is ready
+    ////document.documentElement.classList.add('mdl-js');
+		////componentHandler.upgradeAllRegistered();
+		////});
 		
-		head.js({ page: '/public/apps/'+resource});
+		//var headObj = {};
+		//headObj[resource] = '/public/apps/'+resource;
+		//head.js(headObj);
+		////head.js({ page: '/public/apps/'+resource});
 		
-		//head.load({ page: '/public/apps/'+page.currentId+'/index.css' });
-		//head.ready('page',function(){
-			//console.log('loaded...'+page.currentId);
-			//document.documentElement.classList.add('mdl-js');
-			//componentHandler.upgradeAllRegistered();
-		//});
-};
+		////head.load({ page: '/public/apps/'+page.currentId+'/index.css' });
+		////head.ready('page',function(){
+			////console.log('loaded...'+page.currentId);
+			////document.documentElement.classList.add('mdl-js');
+			////componentHandler.upgradeAllRegistered();
+		////});
+//};

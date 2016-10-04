@@ -1,3 +1,6 @@
+<!--
+sourceCache: needed so 'load_app_resources' runs only once per app/page, or else, breaks things like DNS paginated table checksbox
+-->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -81,8 +84,9 @@
 								{{#if this.content.available}}
 								
 									deep: true,
-									sourceLoaded: load_app_resources,
-									sourceOnShow: '{{this.href}} #{{this.subapp_id}}',
+									sourceLoaded: root_page.load_app_resources.bind(root_page),
+									sourceOnShow: '{{this.href}} #{{this.subapp_id}}',,
+									sourceCache: true,
 								
 								{{/if}}
 								
@@ -109,8 +113,9 @@
 								
 								{{#if this.content.available}}
 								{{#unless this.subapps}}
-									sourceLoaded: load_app_resources,
+									sourceLoaded: root_page.load_app_resources.bind(root_page),
 									sourceOnShow: '{{this.href}} #{{this.id}}',
+									sourceCache: true,
 								{{/unless}}	
 								{{/if}}
 									beforeHide: root_page.beforeHide.bind(root_page),
@@ -126,8 +131,9 @@
 										{{#if this.content.available}}
 										
 											deep: true,
-											sourceLoaded: load_app_resources,
+											sourceLoaded: root_page.load_app_resources.bind(root_page),
 											sourceOnShow: '{{this.href}} #{{this.subapp_id}}',
+											sourceCache: true,
 										{{/if}}
 										
 											beforeHide: root_page.beforeHide.bind(root_page),

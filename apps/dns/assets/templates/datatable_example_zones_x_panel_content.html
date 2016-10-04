@@ -1,0 +1,74 @@
+<div id="users-datatable_wrapper" class="dataTables_wrapper form-inline dt-bootstrap no-footer">
+	<div class="row">
+		<div class="col-sm-6">
+			<div class="dataTables_length" id="users-datatable_length">
+				<label>Show 
+					<select name="users-datatable_length" aria-controls="users-datatable" class="form-control input-sm">
+						<option value="10">10</option>
+						<option value="25">25</option>
+						<option value="50">50</option>
+						<option value="100">100</option>
+					</select> 
+				entries
+				</label>
+			</div>
+		</div>
+		<div class="col-sm-6">
+			<div id="users-datatable_filter" class="dataTables_filter">
+				<label>Search:
+					<input type="search" class="form-control input-sm" placeholder="" aria-controls="users-datatable">
+				</label>
+			</div>
+		</div>
+	</div>
+	
+	<div class="row">
+		<div class="col-sm-12">
+			<table id="users-datatable" class="table table-striped table-bordered dataTable no-footer" role="grid" aria-describedby="users-datatable_info">
+				<thead>
+					<tr role="row">
+						<th class="sorting_asc" tabindex="0" aria-controls="users-datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 110px;">Name</th>
+						<th class="sorting" tabindex="0" aria-controls="users-datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 175px;">Position</th>
+						<th class="sorting" tabindex="0" aria-controls="users-datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 99px;">Office</th>
+						<th class="sorting" tabindex="0" aria-controls="users-datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 77px;">Age</th>
+						<th class="sorting" tabindex="0" aria-controls="users-datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 146px;">Start date</th>
+						<th class="sorting" tabindex="0" aria-controls="users-datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 107px;">Salary</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr role="row" class="odd">
+						<td class="sorting_1">Tiger Nixon</td>
+						<td>System Architect</td>
+						<td>Edinburgh</td>
+						<td>61</td>
+						<td>2011/04/25</td>
+						<td>$320,800</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
+	<div class="row">
+		<div class="col-sm-5">
+			<div class="dataTables_info" id="users-datatable_info" role="status" aria-live="polite">
+				Showing 1 to 1 of 1 entries
+			</div>
+		</div>
+		<div class="col-sm-7">
+			<div class="dataTables_paginate paging_simple_numbers" id="users-datatable_paginate">
+				<ul class="pagination">
+					<li class="paginate_button previous disabled" id="users-datatable_previous">
+						<a href="#" aria-controls="users-datatable" data-dt-idx="0" tabindex="0">Previous</a>
+					</li>
+					<li class="paginate_button active">
+						<a href="#" aria-controls="users-datatable" data-dt-idx="1" tabindex="0">1</a>
+					</li>
+					<li class="paginate_button next disabled" id="users-datatable_next">
+						<a href="#" aria-controls="users-datatable" data-dt-idx="2" tabindex="0">Next</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>

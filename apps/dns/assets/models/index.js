@@ -41,13 +41,15 @@ var Pagination = new Class({
 		
 		root_page.addEvent('afterShow_dns', function(){
 			console.log('Pagination.afterShow_dns');
-			self.main_checkbox = document.id(self.options.main_checkbox);
+			//console.log(document.id(self.options.main_checkbox));
+			//self.main_checkbox = document.id(self.options.main_checkbox);
 			self._toogle_main_checkbox(document.getElementsByName(self.options.elements));
 		}.bind(this));
 			
 		var handle = ko.tasks.schedule(function () {
 			console.log('ko.tasks.schedule');
-			self.main_checkbox = document.id(self.options.main_checkbox);
+			//console.log(document.id(self.options.main_checkbox));
+			//self.main_checkbox = document.id(self.options.main_checkbox);
 			self._toogle_main_checkbox(document.getElementsByName(self.options.elements));
 		});
 	},
@@ -154,6 +156,7 @@ var Pagination = new Class({
 		//this.main_checkbox = el;
 	//},
 	check_main: function(bool){
+		var self = this;
 		console.log('check_main');
 		console.log(bool);
 		
@@ -161,8 +164,14 @@ var Pagination = new Class({
 		
 		//var self = this;
 		
-		if(this.main_checkbox)//may not be present on views with no checkbox
-			this.main_checkbox.checked = bool;
+		//if(this.main_checkbox){//may not be present on views with no checkbox
+			//this.main_checkbox.checked = false;
+			//this.main_checkbox.checked = bool;
+		if(document.id(self.options.main_checkbox)){
+			document.id(self.options.main_checkbox).checked = bool;
+		}
+		
+		return true;
 	},
 	page_url: function(){
 		var self = this;
@@ -433,10 +442,10 @@ var DNSModel = new Class({
 	
 		load_page(self.URI, self.pagination.page_url());
 		
-		//root_page.addEvent('afterShow_dns', function(){
-			//console.log('DNSModel.afterShow_dns');
-			//load_page(self.URI, self.pagination.page_url());
-		//}.bind(this));
+		root_page.addEvent('afterShow_dns', function(){
+			console.log('DNSModel.afterShow_dns');
+			load_page(self.URI, self.pagination.page_url());
+		}.bind(this));
 		
 		//var handle = ko.tasks.schedule(function () {
 			//console.log('ko.tasks.schedule');
