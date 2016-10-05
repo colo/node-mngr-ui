@@ -13,7 +13,9 @@ var OSUsersModel = new Class({
 		this.setOptions(options);
 		
 		var handle = ko.tasks.schedule(function () {
-			$('#users-datatable').DataTable();
+			$('#users-datatable').DataTable({
+				"pagingType": "full",
+			});
 		}.bind(this));
 		
 	},

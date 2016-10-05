@@ -86,6 +86,11 @@ var dns_server = null;
 					css: {
 						dns_css: '/public/apps/dns/index.css',
 						green_css: '/public/bower/gentelella/vendors/iCheck/skins/flat/green.css',
+						'dt_bs': '/public/bower/gentelella/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css',
+						'dt_bs_bttn': '/public/bower/gentelella/vendors/datatables.net-buttons-bs/css/buttons.bootstrap.min.css',
+						'dt_bs_fxHd': '/public/bower/gentelella/vendors/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css',
+						'dt_bs_resp': '/public/bower/gentelella/vendors/datatables.net-responsive-bs/css/responsive.bootstrap.min.css',
+						'dt_bs_scroll': '/public/bower/gentelella/vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css'
 					},
 					jsonp: {
 						update_server: '/dns/api/server/'
