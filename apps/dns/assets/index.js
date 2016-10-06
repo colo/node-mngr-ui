@@ -82,15 +82,25 @@ var dns_server = null;
 						{ model: "/public/apps/dns/models/index.js" },
 						{ li: "/public/bower/li/lib/index.js" },
 						{ resilient: "/public/bower/resilient/resilient.min.js" },
+						
+						/** bootstarp-table */
+						{ bootstrap_tb: "/public/bower/bootstrap-table/dist/bootstrap-table.min.js" },
+						/** bootstarp-table */
 					],
 					css: {
 						dns_css: '/public/apps/dns/index.css',
 						green_css: '/public/bower/gentelella/vendors/iCheck/skins/flat/green.css',
-						'dt_bs': '/public/bower/gentelella/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css',
-						'dt_bs_bttn': '/public/bower/gentelella/vendors/datatables.net-buttons-bs/css/buttons.bootstrap.min.css',
-						'dt_bs_fxHd': '/public/bower/gentelella/vendors/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css',
-						'dt_bs_resp': '/public/bower/gentelella/vendors/datatables.net-responsive-bs/css/responsive.bootstrap.min.css',
-						'dt_bs_scroll': '/public/bower/gentelella/vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css'
+						/** datatable mockup */
+						//'dt_bs': '/public/bower/gentelella/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css',
+						//'dt_bs_bttn': '/public/bower/gentelella/vendors/datatables.net-buttons-bs/css/buttons.bootstrap.min.css',
+						//'dt_bs_fxHd': '/public/bower/gentelella/vendors/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css',
+						//'dt_bs_resp': '/public/bower/gentelella/vendors/datatables.net-responsive-bs/css/responsive.bootstrap.min.css',
+						//'dt_bs_scroll': '/public/bower/gentelella/vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css'
+						/** datatable mockup */
+						
+						/** bootstarp-table */
+						bootstrap_tb_css: "/public/bower/bootstrap-table/dist/bootstrap-table.min.css",
+						/** bootstarp-table */
 					},
 					jsonp: {
 						update_server: '/dns/api/server/'
