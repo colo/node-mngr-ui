@@ -178,8 +178,13 @@ var Pagination = new Class({
 		
 		var url = '?first='+self.options.items_per_page;
 		
-		if(getURLParameter('last') && getURLParameter('last') >= 0){
+		if(getURLParameter('first') && getURLParameter('first') > 0){
+			url = '?first='+getURLParameter('first');
+			this.setOptions({items_per_page: getURLParameter('first')});
+		}
+		else if(getURLParameter('last') && getURLParameter('last') > 0){
 			url = '?last='+getURLParameter('last');
+			this.setOptions({items_per_page: getURLParameter('last')});
 		}
 		else if(getURLParameter('start') && getURLParameter('start') >= 0){
 			url = '?start='+getURLParameter('start');
@@ -187,13 +192,14 @@ var Pagination = new Class({
 			if(getURLParameter('end') && getURLParameter('end') >= 0){
 				
 				//don't allow to set more "items per page" than configured
-				if((getURLParameter('end') - getURLParameter('start')) > (self.options.items_per_page - 1)){
-					var end = new Number(getURLParameter('start')) + (self.options.items_per_page - 1);
-					url += '&end='+end;
-				}
-				else{
+				//if((getURLParameter('end') - getURLParameter('start')) > (self.options.items_per_page - 1)){
+					//var end = new Number(getURLParameter('start')) + (self.options.items_per_page - 1);
+					//url += '&end='+end;
+				//}
+				//else{
 					url += '&end='+getURLParameter('end');
-				}
+					this.setOptions({items_per_page: (getURLParameter('end') - getURLParameter('start'))});
+				//}
 			}
 			else{
 				var end = new Number(getURLParameter('start')) + (self.options.items_per_page - 1);
@@ -488,6 +494,8 @@ var DNSModel = new Class({
 		};
 		
 		var handle = ko.tasks.schedule(function () {
+			load_page(self.URI, self.pagination.page_url());
+			
 			/**
 			 * https://github.com/wenzhixin/bootstrap-table
 			 * */
@@ -512,12 +520,15 @@ var DNSModel = new Class({
 				//onlyInfoPagination: true,
 				sidePagination: 'server',
 				search: true,
+				pageSize: self.pagination.options.items_per_page,
+				//pageList: [10, 25, 50, 100, self.pagination.options.items_per_page],
 				//showColumns: true
 				//showRefresh: true,
 				//showToggle: true,
 				//showPaginationSwitch: true,
-				customSearch: myCustomSearch,
-				customSort: myCustomSort,
+				
+				//customSearch: myCustomSearch,
+				//customSort: myCustomSort,
 				
 				//maintainSelected: true,
 				//sortable: true,
@@ -528,6 +539,10 @@ var DNSModel = new Class({
 					console.log('notify page change ');
 					console.log('num '+number);
 					console.log('size '+size);
+					//self.pagination.setOptions({items_per_page: size});
+					//$('#zones-table').bootstrapTable({pageSize: size});
+					//load_page(self.URI, self.pagination.page_url());
+					
 				},
 				onSearch: function(text){
 					console.log('onSearch: '+text);
@@ -537,7 +552,7 @@ var DNSModel = new Class({
 				},
 			});
 			
-			load_page(self.URI, self.pagination.page_url());
+			
 		});
 		
 	},
