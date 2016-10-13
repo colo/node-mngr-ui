@@ -4,6 +4,7 @@ var Pagination = new Class({
 	total_count: 0,
 	total_pages: 1,
 	
+	main_checkbox: null,
 	url: '',
 		
 	disabled: {
@@ -20,184 +21,24 @@ var Pagination = new Class({
 		last: null,
 	}),
 	
-	options : {
-		items_per_page: 0,
-	},
-	
-	initialize: function(options){
-		this.setOptions(options);
-	},
-	get_page_url: function(){
-		var self = this;
-		
-		var url = '?first='+self.options.items_per_page;
-		
-		if(getURLParameter('first') && getURLParameter('first') > 0){
-			url = '?first='+getURLParameter('first');
-			//this.setOptions({items_per_page: null});
-		}
-		else if(getURLParameter('last') && getURLParameter('last') > 0){
-			url = '?last='+getURLParameter('last');
-			//this.setOptions({items_per_page: null});
-		}
-		else if(getURLParameter('start') && getURLParameter('start') >= 0){
-			url = '?start='+getURLParameter('start');
-			
-			if(getURLParameter('end') && getURLParameter('end') >= 0){
-				
-				//don't allow to set more "items per page" than configured
-				//if((getURLParameter('end') - getURLParameter('start')) > (self.options.items_per_page - 1)){
-					//var end = new Number(getURLParameter('start')) + (self.options.items_per_page - 1);
-					//url += '&end='+end;
-				//}
-				//else{
-					url += '&end='+getURLParameter('end');
-					//this.setOptions({items_per_page: null});
-				//}
-			}
-			else{
-				var end = new Number(getURLParameter('start')) + (self.options.items_per_page - 1);
-				url += '&end='+end;
-			}
-		}
-		
-		return url;
-	},
-	set_page: function(res){
-		var self = this;
-		/**
-		 * @pagination
-		 * 
-		 * */
-		//self.check_main(false);
-		
-		if(res.status == 206){//partial content
-			self.total_count = res.headers['Content-Range'].split('/')[1];
-			self.total_pages = Math.ceil(self.total_count / self.options.items_per_page);
-		}
-		else{
-			self.total_pages = 1;
-			self.total_count = res.data.length;
-		}
-		
-		if(self.total_pages > 1){
-			console.log('self.url');
-			console.log(self.url);
-			
-			if(new RegExp(/first\=/).test(self.get_page_url()) ||
-				new RegExp(/start\=0/).test(self.get_page_url())){//first page of pages > 1
-					
-				console.log('first page');
-				self.disabled.first(true);
-				self.disabled.prev(true);
-				self.disabled.next(false);
-				self.disabled.last(false);
-				
-				//self.current_page = 1;
-			}
-			else if(new RegExp(/\?last\=/).test(self.get_page_url()) ||
-				new RegExp('end\='+new Number(self.total_count - 1)).test(self.get_page_url())){//last page of pages > 1
-					
-				console.log('last page');
-				self.disabled.first(false);
-				self.disabled.prev(false);
-				self.disabled.next(true);
-				self.disabled.last(true);
-			
-				//self.current_page = pagination.options.total_pages;
-				
-			}
-			else{
-				self.disabled.first(false);
-				self.disabled.prev(false);
-				self.disabled.next(false);
-				self.disabled.last(false);
-			}
-		}
-		else{//no more than 1 page, disable all
-			self.disabled.first(true);
-			self.disabled.prev(true);
-			self.disabled.next(true);
-			self.disabled.last(true);
-			
-			//self.current_page = 1;
-		}
-		
-		console.log('li.parse(res.headers.Link).first');
-		console.log(li.parse(res.headers.Link).first);
-		
-		//var first = new String(
-			//li.parse(res.headers.Link).first.replace(self.options.url, '')+
-			//'='+self.options.items_per_page
-		//).replace('/', '');
-		
-		var first = new String(
-			
-			li.parse(res.headers.Link).first.match(new RegExp(/\/[^\/]+$/g))+
-			'='+self.options.items_per_page
-		).replace('/', '');
-		
-		console.log('first');
-		console.log(first);
-		
-		//var prev = new String(li.parse(res.headers.Link).prev.replace(self.options.url, '')).replace('/', '');
-		var prev = new String(li.parse(res.headers.Link).prev.match(new RegExp(/\/[^\/]+$/g))).replace('/', '');
-		
-		
-		console.log('prev');
-		console.log(prev);
-		
-		//var next = new String(li.parse(res.headers.Link).next.replace(self.options.url, '')).replace('/', '');
-		var next = new String(li.parse(res.headers.Link).next.match(new RegExp(/\/[^\/]+$/g))).replace('/', '');
-		
-		console.log('next');
-		console.log(next);
-		
-		/**
-		 * use 'start&end', 'last=N' "modifies" the number of "items per page" (not the variable)
-		 * 
-		 * var last_items = last_end - last_start;
-		 * var last = new String(li.parse(res.headers.Link).last.replace(self.options.url, '')+'='+last_items).replace('/', '');
-		 * */
-		var last_start = (self.total_pages - 1) * self.options.items_per_page;
-		var last_end = self.total_count - 1;
-		var last = '?start='+last_start+'&end='+last_end;
-		
-		self.links({
-			first: first,
-			prev: prev,
-			next: next,
-			last : last
-		});
-		
-		
-		//self.check_checked();
-		/**
-		 * @end pagination
-		 * 
-		 * */
-	},
-	
-});
-
-var MultiCheckBox = new Class({
-	Implements: [Options, Events],
-	
-	main_checkbox: null,
-	
 	//checked: new Array(),//array of checkbox.value checked
 	checked: [],
 	
 	options : {
+		//url: '',
+		items_per_page: 0,
 		main_checkbox: null,
 		elements: null
 	},
-	
 	
 	initialize: function(options){
 		var self = this;
 		
 		this.setOptions(options);
+		
+		//this._update_els();
+		
+		
 		root_page.addEvent('afterShow_dns', function(){
 			console.log('Pagination.afterShow_dns');
 			//console.log(document.id(self.options.main_checkbox));
@@ -211,7 +52,6 @@ var MultiCheckBox = new Class({
 			//self.main_checkbox = document.id(self.options.main_checkbox);
 			self._toogle_main_checkbox(document.getElementsByName(self.options.elements));
 		});
-		
 	},
 	/**
 	 * don't use it to check the "toogle all" checkbox
@@ -333,6 +173,175 @@ var MultiCheckBox = new Class({
 		
 		return true;
 	},
+	get_page_url: function(){
+		var self = this;
+		
+		var url = '?first='+self.options.items_per_page;
+		
+		if(getURLParameter('first') && getURLParameter('first') > 0){
+			url = '?first='+getURLParameter('first');
+			//this.setOptions({items_per_page: null});
+		}
+		else if(getURLParameter('last') && getURLParameter('last') > 0){
+			url = '?last='+getURLParameter('last');
+			//this.setOptions({items_per_page: null});
+		}
+		else if(getURLParameter('start') && getURLParameter('start') >= 0){
+			url = '?start='+getURLParameter('start');
+			
+			if(getURLParameter('end') && getURLParameter('end') >= 0){
+				
+				//don't allow to set more "items per page" than configured
+				//if((getURLParameter('end') - getURLParameter('start')) > (self.options.items_per_page - 1)){
+					//var end = new Number(getURLParameter('start')) + (self.options.items_per_page - 1);
+					//url += '&end='+end;
+				//}
+				//else{
+					url += '&end='+getURLParameter('end');
+					//this.setOptions({items_per_page: null});
+				//}
+			}
+			else{
+				var end = new Number(getURLParameter('start')) + (self.options.items_per_page - 1);
+				url += '&end='+end;
+			}
+		}
+		
+		return url;
+	},
+	set_page: function(res){
+		var self = this;
+		/**
+		 * @pagination
+		 * 
+		 * */
+		self.check_main(false);
+		
+		if(res.status == 206){//partial content
+			self.total_count = res.headers['Content-Range'].split('/')[1];
+			self.total_pages = Math.ceil(self.total_count / self.options.items_per_page);
+		}
+		else{
+			self.total_pages = 1;
+			self.total_count = res.data.length;
+		}
+		
+		if(self.total_pages > 1){
+			console.log('self.url');
+			console.log(self.url);
+			
+			if(new RegExp(/first\=/).test(self.get_page_url()) ||
+				new RegExp(/start\=0/).test(self.get_page_url())){//first page of pages > 1
+					
+				console.log('first page');
+				self.disabled.first(true);
+				self.disabled.prev(true);
+				self.disabled.next(false);
+				self.disabled.last(false);
+				
+				//self.current_page = 1;
+			}
+			else if(new RegExp(/\?last\=/).test(self.get_page_url()) ||
+				new RegExp('end\='+new Number(self.total_count - 1)).test(self.get_page_url())){//last page of pages > 1
+					
+				console.log('last page');
+				self.disabled.first(false);
+				self.disabled.prev(false);
+				self.disabled.next(true);
+				self.disabled.last(true);
+			
+				//self.current_page = pagination.options.total_pages;
+				
+			}
+			else{
+				self.disabled.first(false);
+				self.disabled.prev(false);
+				self.disabled.next(false);
+				self.disabled.last(false);
+			}
+		}
+		else{//no more than 1 page, disable all
+			self.disabled.first(true);
+			self.disabled.prev(true);
+			self.disabled.next(true);
+			self.disabled.last(true);
+			
+			//self.current_page = 1;
+		}
+		
+		console.log('li.parse(res.headers.Link).first');
+		console.log(li.parse(res.headers.Link).first);
+		
+		//var first = new String(
+			//li.parse(res.headers.Link).first.replace(self.options.url, '')+
+			//'='+self.options.items_per_page
+		//).replace('/', '');
+		
+		var first = new String(
+			
+			li.parse(res.headers.Link).first.match(new RegExp(/\/[^\/]+$/g))+
+			'='+self.options.items_per_page
+		).replace('/', '');
+		
+		console.log('first');
+		console.log(first);
+		
+		//var prev = new String(li.parse(res.headers.Link).prev.replace(self.options.url, '')).replace('/', '');
+		var prev = new String(li.parse(res.headers.Link).prev.match(new RegExp(/\/[^\/]+$/g))).replace('/', '');
+		
+		
+		console.log('prev');
+		console.log(prev);
+		
+		//var next = new String(li.parse(res.headers.Link).next.replace(self.options.url, '')).replace('/', '');
+		var next = new String(li.parse(res.headers.Link).next.match(new RegExp(/\/[^\/]+$/g))).replace('/', '');
+		
+		console.log('next');
+		console.log(next);
+		
+		/**
+		 * use 'start&end', 'last=N' "modifies" the number of "items per page" (not the variable)
+		 * 
+		 * var last_items = last_end - last_start;
+		 * var last = new String(li.parse(res.headers.Link).last.replace(self.options.url, '')+'='+last_items).replace('/', '');
+		 * */
+		var last_start = (self.total_pages - 1) * self.options.items_per_page;
+		var last_end = self.total_count - 1;
+		var last = '?start='+last_start+'&end='+last_end;
+		
+		self.links({
+			first: first,
+			prev: prev,
+			next: next,
+			last : last
+		});
+		
+			
+		//console.log('navigate');
+		//console.log(URI);
+		//console.log(self.url);
+		
+		//componentHandler.upgradeDom();
+		//this._update_els();
+		
+		self.check_checked();
+		/**
+		 * @end pagination
+		 * 
+		 * */
+	},
+	//_update_els: function(){
+		//console.log('_update_els');
+		//if(this.main_checkbox){
+			//console.log('this.main_checkbox');
+			//console.log(this.main_checkbox);
+		//}
+		//else{
+			//console.log('NO this.main_checkbox');
+			//this.main_checkbox = this.options.main_checkbox;//get "toggle all" checkbox
+		//}
+		
+	//},
 	/**
 	 * @private: toggle check/uncheck the "toggle all" check box if all elements are check or not
 	 * 
@@ -365,9 +374,8 @@ var MultiCheckBox = new Class({
 	}
 });
 
-var Table = new Class({
-	Extends: Pagination,
-	Implements: [MultiCheckBox],
+var MultiCheckBox = new Class({
+	Implements: [Options, Events],
 	
 	options : {
 	},
@@ -375,74 +383,18 @@ var Table = new Class({
 	
 	initialize: function(options){
 		this.setOptions(options);
-		
-		/**
-		 * https://github.com/wenzhixin/bootstrap-table
-		 * */
-		 
-		$('#zones-table').bootstrapTable({
-			columns: [
-				{
-						field: 'id',
-						title: '',
-						checkbox: true
-				},
-				{
-						field: 'zone',
-						title: 'Zones',
-						sortable: true,
-				},
-			],
-			idField: 'id',
-			//sortName: 'zone',
-			striped: true,
-			pagination: true,
-			//onlyInfoPagination: true,
-			sidePagination: 'server',
-			search: true,
-			//pageSize: self.options.items_per_page,
-			
-			//pageList: [10, 25, 50, 100, self.pagination.options.items_per_page],
-			//showColumns: true
-			//showRefresh: true,
-			//showToggle: true,
-			//showPaginationSwitch: true,
-			
-			//customSearch: myCustomSearch,
-			//customSort: myCustomSort,
-			
-			//maintainSelected: true,
-			//sortable: true,
-			//paginationFirstText: '|<',
-			//paginationLastText: '>|',
-			
-			onPageChange: function(number, size){
-				console.log('notify page change ');
-				console.log('num '+number);
-				console.log('size '+size);
-				
-				//if(size != self.pagination.options.items_per_page)
-					self.pagination.setOptions({'items_per_page': size});
-				
-				//self.pagination.setOptions({items_per_page: size});
-				//$('#zones-table').bootstrapTable({pageSize: size});
-				
-				console.log(self.pagination.options.items_per_page);
-				console.log('URL: ', self.pagination.get_page_url());
-				
-				//load_page(self.URI, self.pagination.get_page_url());
-				
-			},
-			onSearch: function(text){
-				console.log('onSearch: '+text);
-			},
-			onSort: function(name, order){
-				console.log('onSort: '+name +' | '+ order);
-			},
-		});
 	},
-	load: function(data){
-		$('#zones-table').bootstrapTable('load', data);
+});
+
+var Table = new Class({
+	Implements: [Options, Events],
+	
+	options : {
+	},
+	
+	
+	initialize: function(options){
+		this.setOptions(options);
 	},
 });
 
@@ -450,19 +402,14 @@ var DNSModel = new Class({
 	Implements: [Options, Events],
 	
 	zones: null,
-	//pagination: null,
-	table: null,
+	pagination: null,
 	
 	options : {
-		table: {
-			multi_checkbox: {
-				main_checkbox: 'data_chkbox',
-				elements: 'data_chkbox',
-			},
-			pagination: {
-				items_per_page: 10,
-			},
-		}
+		pagination: {
+			items_per_page: 10,
+			main_checkbox: 'data_chkbox',
+			elements: 'data_chkbox',
+		},
 	},
 	
 	
@@ -484,14 +431,13 @@ var DNSModel = new Class({
 			console.log(self.zones());
 					
 			//self.fireEvent(self.ON_MODEL+'_'+app.id, value);
-			this.table.load(self.zones());
+			$('#zones-table').bootstrapTable('load', self.zones());
 		}.bind(this) );
 		/** boootstrap-table */
 		
-		//self.pagination = new Pagination(self.options.pagination);
-		self.table = new Table(self.options.table);
+		self.pagination = new Pagination(self.options.pagination);
 		
-		//console.log(self.pagination.options);
+		console.log(self.pagination.options);
 		//console.log('dns server');
 		//console.log(dns_server);
 		
@@ -547,7 +493,7 @@ var DNSModel = new Class({
 					
 					pager.navigate(URI+param);//modify browser URL to match current request 
 					
-					self.table.set_page(res);
+					self.pagination.set_page(res);
 					
 				}
 			});
@@ -572,7 +518,73 @@ var DNSModel = new Class({
 		};
 		
 		var handle = ko.tasks.schedule(function () {
-			load_page(self.URI, self.table.get_page_url());
+			load_page(self.URI, self.pagination.get_page_url());
+			
+			/**
+			 * https://github.com/wenzhixin/bootstrap-table
+			 * */
+			 
+			$('#zones-table').bootstrapTable({
+				columns: [
+					{
+							field: 'id',
+							title: '',
+							checkbox: true
+					},
+					{
+							field: 'zone',
+							title: 'Zones',
+							sortable: true,
+					},
+				],
+				idField: 'id',
+				//sortName: 'zone',
+				striped: true,
+				pagination: true,
+				//onlyInfoPagination: true,
+				sidePagination: 'server',
+				search: true,
+				pageSize: self.pagination.options.items_per_page,
+				//pageList: [10, 25, 50, 100, self.pagination.options.items_per_page],
+				//showColumns: true
+				//showRefresh: true,
+				//showToggle: true,
+				//showPaginationSwitch: true,
+				
+				//customSearch: myCustomSearch,
+				//customSort: myCustomSort,
+				
+				//maintainSelected: true,
+				//sortable: true,
+				//paginationFirstText: '|<',
+				//paginationLastText: '>|',
+				
+				onPageChange: function(number, size){
+					console.log('notify page change ');
+					console.log('num '+number);
+					console.log('size '+size);
+					
+					//if(size != self.pagination.options.items_per_page)
+						self.pagination.setOptions({'items_per_page': size});
+					
+					//self.pagination.setOptions({items_per_page: size});
+					//$('#zones-table').bootstrapTable({pageSize: size});
+					
+					console.log(self.pagination.options.items_per_page);
+					console.log('URL: ', self.pagination.get_page_url());
+					
+					//load_page(self.URI, self.pagination.get_page_url());
+					
+				},
+				onSearch: function(text){
+					console.log('onSearch: '+text);
+				},
+				onSort: function(name, order){
+					console.log('onSort: '+name +' | '+ order);
+				},
+			});
+			
+			
 		});
 		
 	},
