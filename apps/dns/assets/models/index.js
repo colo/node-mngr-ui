@@ -194,25 +194,31 @@ var MultiCheckBox = new Class({
 	},
 	
 	
-	initialize: function(options){
-		var self = this;
+	//initialize: function(options){
+		//console.log('MultiCheckBox');
+		////console.log(options);
 		
-		this.setOptions(options);
-		root_page.addEvent('afterShow_dns', function(){
-			console.log('Pagination.afterShow_dns');
-			//console.log(document.id(self.options.main_checkbox));
-			//self.main_checkbox = document.id(self.options.main_checkbox);
-			self._toogle_main_checkbox(document.getElementsByName(self.options.elements));
-		}.bind(this));
+		//var self = this;
+		
+		////this.setOptions(options);
+		
+		//console.log(this.options);
+		
+		//root_page.addEvent('afterShow_dns', function(){
+			//console.log('Pagination.afterShow_dns');
+			////console.log(document.id(self.options.main_checkbox));
+			////self.main_checkbox = document.id(self.options.main_checkbox);
+			//self._toogle_main_checkbox(document.getElementsByName(self.options.elements));
+		//}.bind(this));
 			
-		var handle = ko.tasks.schedule(function () {
-			console.log('ko.tasks.schedule');
-			//console.log(document.id(self.options.main_checkbox));
-			//self.main_checkbox = document.id(self.options.main_checkbox);
-			self._toogle_main_checkbox(document.getElementsByName(self.options.elements));
-		});
+		//var handle = ko.tasks.schedule(function () {
+			//console.log('ko.tasks.schedule');
+			////console.log(document.id(self.options.main_checkbox));
+			////self.main_checkbox = document.id(self.options.main_checkbox);
+			//self._toogle_main_checkbox(document.getElementsByName(self.options.elements));
+		//});
 		
-	},
+	//},
 	/**
 	 * don't use it to check the "toogle all" checkbox
 	 * */
@@ -374,72 +380,108 @@ var Table = new Class({
 	
 	
 	initialize: function(options){
-		this.setOptions(options);
+		var self = this;
 		
-		/**
-		 * https://github.com/wenzhixin/bootstrap-table
-		 * */
-		 
-		$('#zones-table').bootstrapTable({
-			columns: [
-				{
-						field: 'id',
-						title: '',
-						checkbox: true
-				},
-				{
-						field: 'zone',
-						title: 'Zones',
-						sortable: true,
-				},
-			],
-			idField: 'id',
-			//sortName: 'zone',
-			striped: true,
-			pagination: true,
-			//onlyInfoPagination: true,
-			sidePagination: 'server',
-			search: true,
-			//pageSize: self.options.items_per_page,
+		this.parent(options);
+		
+		root_page.addEvent('afterShow_dns', function(){
+			console.log('Pagination.afterShow_dns');
+			//console.log(document.id(self.options.main_checkbox));
+			//self.main_checkbox = document.id(self.options.main_checkbox);
+			self._toogle_main_checkbox(document.getElementsByName(self.options.elements));
+		}.bind(this));
 			
-			//pageList: [10, 25, 50, 100, self.pagination.options.items_per_page],
-			//showColumns: true
-			//showRefresh: true,
-			//showToggle: true,
-			//showPaginationSwitch: true,
-			
-			//customSearch: myCustomSearch,
-			//customSort: myCustomSort,
-			
-			//maintainSelected: true,
-			//sortable: true,
-			//paginationFirstText: '|<',
-			//paginationLastText: '>|',
-			
-			onPageChange: function(number, size){
-				console.log('notify page change ');
-				console.log('num '+number);
-				console.log('size '+size);
-				
-				//if(size != self.pagination.options.items_per_page)
-					self.pagination.setOptions({'items_per_page': size});
-				
-				//self.pagination.setOptions({items_per_page: size});
-				//$('#zones-table').bootstrapTable({pageSize: size});
-				
-				console.log(self.pagination.options.items_per_page);
-				console.log('URL: ', self.pagination.get_page_url());
-				
-				//load_page(self.URI, self.pagination.get_page_url());
-				
-			},
-			onSearch: function(text){
-				console.log('onSearch: '+text);
-			},
-			onSort: function(name, order){
-				console.log('onSort: '+name +' | '+ order);
-			},
+		var handle = ko.tasks.schedule(function () {
+			console.log('ko.tasks.schedule');
+			//console.log(document.id(self.options.main_checkbox));
+			//self.main_checkbox = document.id(self.options.main_checkbox);
+			self._toogle_main_checkbox(document.getElementsByName(self.options.elements));
 		});
+	},
+	//load: function(data){
+	//},
+});
+
+var BSTable = new Class({
+	Extends: Table,
+	
+	options : {
+	},
+	
+	initialize: function(options){
+		var self = this;
+		
+		console.log('BSTable');
+		console.log(options)
+		this.parent(options);
+		
+		var handle = ko.tasks.schedule(function () {
+			/**
+			 * https://github.com/wenzhixin/bootstrap-table
+			 * */
+			 
+			$('#zones-table').bootstrapTable({
+				columns: [
+					{
+							field: 'id',
+							title: '',
+							checkbox: true
+					},
+					{
+							field: 'zone',
+							title: 'Zones',
+							sortable: true,
+					},
+				],
+				idField: 'id',
+				//sortName: 'zone',
+				striped: true,
+				pagination: true,
+				//onlyInfoPagination: true,
+				sidePagination: 'server',
+				search: true,
+				pageSize: self.options.items_per_page,
+				
+				//pageList: [10, 25, 50, 100, self.pagination.options.items_per_page],
+				//showColumns: true
+				//showRefresh: true,
+				//showToggle: true,
+				//showPaginationSwitch: true,
+				
+				//customSearch: myCustomSearch,
+				//customSort: myCustomSort,
+				
+				//maintainSelected: true,
+				//sortable: true,
+				//paginationFirstText: '|<',
+				//paginationLastText: '>|',
+				
+				onPageChange: function(number, size){
+					console.log('notify page change ');
+					console.log('num '+number);
+					console.log('size '+size);
+					
+					////if(size != self.pagination.options.items_per_page)
+						//self.setOptions({'items_per_page': size});
+					
+					////self.pagination.setOptions({items_per_page: size});
+					////$('#zones-table').bootstrapTable({pageSize: size});
+					
+					//console.log(self.pagination.options.items_per_page);
+					//console.log('URL: ', self.pagination.get_page_url());
+					
+					////load_page(self.URI, self.pagination.get_page_url());
+					
+				},
+				onSearch: function(text){
+					console.log('onSearch: '+text);
+				},
+				onSort: function(name, order){
+					console.log('onSort: '+name +' | '+ order);
+				},
+			});
+		});
+		
 	},
 	load: function(data){
 		$('#zones-table').bootstrapTable('load', data);
@@ -455,13 +497,12 @@ var DNSModel = new Class({
 	
 	options : {
 		table: {
-			multi_checkbox: {
-				main_checkbox: 'data_chkbox',
-				elements: 'data_chkbox',
-			},
-			pagination: {
-				items_per_page: 10,
-			},
+			//multi_checkbox: {
+				
+			//},
+			main_checkbox: 'data_chkbox',
+			elements: 'data_chkbox',
+			items_per_page: 10,
 		}
 	},
 	
@@ -489,7 +530,7 @@ var DNSModel = new Class({
 		/** boootstrap-table */
 		
 		//self.pagination = new Pagination(self.options.pagination);
-		self.table = new Table(self.options.table);
+		self.table = new BSTable(self.options.table);
 		
 		//console.log(self.pagination.options);
 		//console.log('dns server');
@@ -563,13 +604,13 @@ var DNSModel = new Class({
 		/** custom & datatable mockup */
 		
 		/** boootstrap-table */
-		var myCustomSearch = function(text){
-			console.log('do remote search of text');
-		};
+		//var myCustomSearch = function(text){
+			//console.log('do remote search of text');
+		//};
 		
-		var myCustomSort = function(sortName, sortOrder) {
-			console.log('do remote sort');
-		};
+		//var myCustomSort = function(sortName, sortOrder) {
+			//console.log('do remote sort');
+		//};
 		
 		var handle = ko.tasks.schedule(function () {
 			load_page(self.URI, self.table.get_page_url());

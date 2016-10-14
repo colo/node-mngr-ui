@@ -140,12 +140,12 @@ var dns_server = null;
 							//self.model.pagination.set_main_checkbox(document.getElementById('data_chkbox'));
 						//});
 		
-						//mainBodyModel.dns(self.model);
+						mainBodyModel.dns(self.model);
 						
 						//$('#zones-table').bootstrapTable();
 					}
 					else{
-						//self.model = mainBodyModel.dns();
+						self.model = mainBodyModel.dns();
 					}
 					
 					
