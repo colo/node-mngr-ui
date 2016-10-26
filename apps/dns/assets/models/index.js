@@ -325,6 +325,8 @@ var MultiCheckBox = new Class({
 		var self = this;
 		console.log('check_main');
 		console.log(bool);
+		console.log(self.options.main_checkbox);
+		console.log(document.id(self.options.main_checkbox));
 		
 		//this.main_chkbox = document.getElementById(this.options.main_checkbox);//get "toggle all" checkbox
 		
@@ -398,6 +400,22 @@ var Table = new Class({
 			self._toogle_main_checkbox(document.getElementsByName(self.options.elements));
 		});
 	},
+	set_page: function(res){
+		var self = this;
+		/**
+		 * @pagination
+		 * 
+		 * */
+		self.check_main(false);
+		
+		self.parent(res);
+		
+		self.check_checked();
+		/**
+		 * @end pagination
+		 * 
+		 * */
+	}
 	//load: function(data){
 	//},
 });
@@ -434,6 +452,7 @@ var BSTable = new Class({
 					},
 				],
 				idField: 'id',
+				selectItemName: 'data_chkbox',
 				//sortName: 'zone',
 				striped: true,
 				pagination: true,
