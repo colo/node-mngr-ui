@@ -551,7 +551,7 @@ head.ready('mootools-more'
 				console.log(data);
 				
 				this.primary_iface = data;
-				OSDashboardModel.implement({'primary_iface': ko.observable(data)});
+				//OSDashboardModel.implement({'primary_iface': ko.observable(data)});
 			}.bind(this));
 			
 			//this.addEvent(this.ASSETS_SUCCESS, function(){
@@ -562,10 +562,12 @@ head.ready('mootools-more'
 
 			//this.addEvent(this.STARTED, function(){		
 			this.addEvent(this.MODEL_UPDATED, function(){
-						
+				
 				if(mainBodyModel.os_dashboard() == null){
 					
 					if(!self.model){
+						OSDashboardModel.implement({'primary_iface': ko.observable(self.primary_iface)});
+						
 						self.model = new OSDashboardModel();
 						
 						console.log('os_dashboard binding applied');
