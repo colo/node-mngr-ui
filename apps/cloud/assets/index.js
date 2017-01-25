@@ -72,8 +72,8 @@ var cloud_server = null;
 							append: document.id("main-body"),
 							ko_template: true
 						},
-						servers_x_panel_content: {
-							url: '/public/apps/cloud/templates/servers_x_panel_content.html',
+						hypervisors_x_panel_content: {
+							url: '/public/apps/cloud/templates/hypervisors_x_panel_content.html',
 							append: document.id("main-body"),
 							ko_template: true
 						},
@@ -142,7 +142,7 @@ var cloud_server = null;
 		
 						mainBodyModel.cloud(self.model);
 						
-						//$('#servers-table').bootstrapTable();
+						//$('#hypervisors-table').bootstrapTable();
 					}
 					else{
 						self.model = mainBodyModel.cloud();

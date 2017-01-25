@@ -438,7 +438,7 @@ var BSTable = new Class({
 			 * https://github.com/wenzhixin/bootstrap-table
 			 * */
 			 
-			$('#servers-table').bootstrapTable({
+			$('#hypervisors-table').bootstrapTable({
 				columns: [
 					{
 							field: 'id',
@@ -484,7 +484,7 @@ var BSTable = new Class({
 						//self.setOptions({'items_per_page': size});
 					
 					////self.pagination.setOptions({items_per_page: size});
-					////$('#servers-table').bootstrapTable({pageSize: size});
+					////$('#hypervisors-table').bootstrapTable({pageSize: size});
 					
 					//console.log(self.pagination.options.items_per_page);
 					//console.log('URL: ', self.pagination.get_page_url());
@@ -503,14 +503,14 @@ var BSTable = new Class({
 		
 	},
 	load: function(data){
-		$('#servers-table').bootstrapTable('load', data);
+		$('#hypervisors-table').bootstrapTable('load', data);
 	},
 });
 
 var CloudModel = new Class({
 	Implements: [Options, Events],
 	
-	servers: null,
+	hypervisors: null,
 	//pagination: null,
 	table: null,
 	
@@ -532,19 +532,19 @@ var CloudModel = new Class({
 		this.setOptions(options);
 		
 		/** custom & datatable mockup */
-		self.servers = ko.observableArray([
+		self.hypervisors = ko.observableArray([
 		]);
 		/** custom & datatable mockup */
 		
 		/** boootstrap-table */
-		//self.servers = ko.observable({});
+		//self.hypervisors = ko.observable({});
 		
-		//self.servers.subscribe( function(value){
-			//console.log('self.servers');
-			//console.log(self.servers());
+		//self.hypervisors.subscribe( function(value){
+			//console.log('self.hypervisors');
+			//console.log(self.hypervisors());
 					
 			////self.fireEvent(self.ON_MODEL+'_'+app.id, value);
-			//this.table.load(self.servers());
+			//this.table.load(self.hypervisors());
 		//}.bind(this) );
 		/** boootstrap-table */
 		
@@ -557,7 +557,7 @@ var CloudModel = new Class({
 		//console.log('cloud server');
 		//console.log(cloud_server);
 		
-		var servers = [
+		var hypervisors = [
 				cloud_server
 		];
 		
@@ -568,7 +568,7 @@ var CloudModel = new Class({
 			 }
 		});
 		
-		client.setServers(servers);
+		client.setServers(hypervisors);
 		
 		self.URI = window.location.protocol+'//'+window.location.host+window.location.pathname;
 		
@@ -579,7 +579,7 @@ var CloudModel = new Class({
 			console.log(param);
 			
 			
-			client.get('/servers/'+param, function(err, res){
+			client.get('/hypervisors/'+param, function(err, res){
 				if(err){
 					console.log('Error:', err);
 					console.log('Response:', err.data);
@@ -591,18 +591,18 @@ var CloudModel = new Class({
 					console.log(res.headers);
 					
 					/** custom & datatable mockup */
-					self.servers(res.data);
+					self.hypervisors(res.data);
 					/** custom & datatable mockup */
 					
 					/** boootstrap-table */
-					//var servers = [];
+					//var hypervisors = [];
 					//Array.each(res.data, function(zone){
-						//servers.push({zone: zone});
+						//hypervisors.push({zone: zone});
 					//});
 					
-					//self.servers({
+					//self.hypervisors({
 						//total: res.headers['Content-Range'].split('/')[1],
-						//rows: servers
+						//rows: hypervisors
 					//});
 					/** boootstrap-table */
 					
