@@ -9,8 +9,9 @@ var App = require('node-express-app'),
 	serveIndex = require('serve-index'),
 	serveStatic = require('serve-static'),
 	//cons = require('consolidate'),//template engine wrapper
-	exphbs  = require('express-handlebars');//template engine
-
+	exphbs  = require('express-handlebars'), //template engine
+	cors = require('cors');
+	
 	//AdminApp = require(path.join(__dirname,'apps/admin/'));
 	
 	
@@ -344,6 +345,10 @@ var MyApp = new Class({
 		
 		this.express().use(bodyParser.json()); // for parsing application/json
 		this.express().use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+		
+		this.express().use(cors({
+			'exposedHeaders': ['Link', 'Content-Range', 'Access-Control-Allow-Origin']
+		}));
 		
 		this.express().use('/public', serveIndex(__dirname + '/public', {icons: true}));
 		this.express().use('/public', serveStatic(__dirname + '/public'));

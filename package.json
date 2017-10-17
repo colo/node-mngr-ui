@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "body-parser": "^1.15.0",
+    "cors": "^2.8.4",
     "cradle-pouchdb-server": "^0.7.1",
     "etc-passwd": "^0.1.1",
     "express-handlebars": "^3.0.0",

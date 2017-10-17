@@ -170,7 +170,7 @@ module.exports = new Class({
 				
 			view.layout = 'main';//no header|navbar|app loading
 			
-			res.render(path.join(__dirname, '/assets/index'), {layout: false});
+			res.render(path.join(__dirname, '/assets/index'), view);
 		
 		}
   },

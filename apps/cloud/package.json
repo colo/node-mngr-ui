@@ -10,8 +10,7 @@
   "engines": {
     "node": ">= 0.10.21"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {},
   "optionalDependencies": {},
   "licenses": [
