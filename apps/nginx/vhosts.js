@@ -73,17 +73,23 @@ module.exports = new Class({
   },
   get: function(req, res, next){
 		
-		var callback = function(doc){
-			console.log(doc);
+		var callback = function(resp){
+			//console.log(doc);
 			console.log('onGet');
-			res.json(JSON.decode(doc));
+			console.log(resp.headers);
+			res.json(JSON.decode(resp.body));
 			this.client.removeEvent('onGet', callback);
+			
+			const uris = res.body
+			var total = uris.length
+			
+			
 		}.bind(this);
 		
-		var error_callback = function(err){
+		var error_callback = function(resp){
 			//console.log(doc);
 			console.log('onGetError');
-			res.json(err);
+			console.log(resp);
 			this.client.removeEvent('onGetError', error_callback);
 		}.bind(this);
 		
@@ -92,7 +98,7 @@ module.exports = new Class({
 		
 		this.client.addEvent('onGetError', error_callback);
 		
-		this.client.api.get({uri: ''});
+		this.client.api.get({uri: '?first=5'});
 		
 		
 	},

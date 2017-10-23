@@ -50,10 +50,47 @@ module.exports = new Class({
 			routes: {
 				get: [
 					{
+						path: 'enabled',
+						callbacks: ['get'],
+						version: '',
+					},
+					{
+						path: 'enabled/:uri',
+						callbacks: ['get'],
+						version: '',
+					},
+					{
+						path: 'enabled/:uri/:prop_or_index',
+						callbacks: ['get'],
+						version: '',
+					},
+					{
+						path: 'enabled/:uri/:prop_or_index/:prop',
+						callbacks: ['get'],
+						version: '',
+					},
+					{
 						path: ':uri',
 						callbacks: ['get'],
 						version: '',
 					},
+					{
+						path: ':uri/:prop_or_index',
+						callbacks: ['get'],
+						version: '',
+					},
+					{
+						path: ':uri/:prop_or_index/:prop',
+						callbacks: ['get'],
+						version: '',
+					},
+					{
+						path: '',
+						callbacks: ['get'],
+						version: '',
+					},
+				],
+				all: [
 					{
 						path: '',
 						callbacks: ['get'],
@@ -71,12 +108,12 @@ module.exports = new Class({
 		if(err){
 			console.log(err);
 			
-			if(req.uri != ''){
-				this.fireEvent('on'+req.uri.charAt(0).toUpperCase() + req.uri.slice(1)+'Error', err);//capitalize first letter
-			}
-			else{
-				this.fireEvent('onGetError', err);
-			}
+			//if(req.uri != ''){
+				//this.fireEvent('on'+req.uri.charAt(0).toUpperCase() + req.uri.slice(1)+'Error', err);//capitalize first letter
+			//}
+			//else{
+				this.fireEvent('onGetError', resp);
+			//}
 			
 			//this.fireEvent(this.ON_DOC_ERROR, err);
 			
@@ -91,12 +128,12 @@ module.exports = new Class({
 			//console.log('success');
 			//console.log(JSON.decode(body));
 			
-			if(req.uri != ''){
-				this.fireEvent('on'+req.uri.charAt(0).toUpperCase() + req.uri.slice(1), JSON.decode(body));//capitalize first letter
-			}
-			else{
-				this.fireEvent('onGet', body);
-			}
+			//if(req.uri != ''){
+				//this.fireEvent('on'+req.uri.charAt(0).toUpperCase() + req.uri.slice(1), JSON.decode(body));//capitalize first letter
+			//}
+			//else{
+				this.fireEvent('onGet', resp);
+			//}
 			
 			//this.fireEvent(this.ON_DOC, JSON.decode(body));
 			
