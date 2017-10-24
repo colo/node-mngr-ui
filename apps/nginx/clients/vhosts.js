@@ -49,44 +49,50 @@ module.exports = new Class({
 			
 			routes: {
 				get: [
+					/**
+					 * enabled vhosts only
+					 * */
 					{
-						path: 'enabled',
-						callbacks: ['get'],
+						path: '/enabled',
+						//callbacks: ['get'],
 						version: '',
 					},
 					{
-						path: 'enabled/:uri',
-						callbacks: ['get'],
+						path: '/enabled/:uri',
+						//callbacks: ['get'],
 						version: '',
 					},
 					{
-						path: 'enabled/:uri/:prop_or_index',
-						callbacks: ['get'],
+						path: '/enabled/:uri/:prop_or_index',
+						//callbacks: ['get'],
 						version: '',
 					},
 					{
-						path: 'enabled/:uri/:prop_or_index/:prop',
-						callbacks: ['get'],
+						path: '/enabled/:uri/:prop_or_index/:prop',
+						//callbacks: ['get'],
 						version: '',
 					},
+					/**
+					 * all vhosts
+					 * */
 					{
 						path: ':uri',
-						callbacks: ['get'],
+						//callbacks: ['get'],
 						version: '',
 					},
 					{
 						path: ':uri/:prop_or_index',
-						callbacks: ['get'],
+						//callbacks: ['get'],
 						version: '',
 					},
 					{
 						path: ':uri/:prop_or_index/:prop',
-						callbacks: ['get'],
+						//callbacks: ['get'],
 						version: '',
 					},
 					{
 						path: '',
-						callbacks: ['get'],
+						//callbacks: ['get'],
 						version: '',
 					},
 				],
@@ -101,65 +107,7 @@ module.exports = new Class({
 			
 		},
   },
-  get: function (err, resp, body, req){
-		console.log('NGINX VHOSTS get');
-		//console.log(this.options.requests.current);
-		
-		if(err){
-			console.log(err);
-			
-			//if(req.uri != ''){
-				//this.fireEvent('on'+req.uri.charAt(0).toUpperCase() + req.uri.slice(1)+'Error', err);//capitalize first letter
-			//}
-			//else{
-				this.fireEvent('onGetError', resp);
-			//}
-			
-			//this.fireEvent(this.ON_DOC_ERROR, err);
-			
-			/*if(this.options.requests.current.type == 'info'){
-				this.fireEvent(this.ON_INFO_DOC_ERROR, err);
-			}
-			else{
-				this.fireEvent(this.ON_STATUS_DOC_ERROR, err);
-			}*/
-		}
-		else{
-			//console.log('success');
-			//console.log(JSON.decode(body));
-			
-			//if(req.uri != ''){
-				//this.fireEvent('on'+req.uri.charAt(0).toUpperCase() + req.uri.slice(1), JSON.decode(body));//capitalize first letter
-			//}
-			//else{
-				this.fireEvent('onGet', resp);
-			//}
-			
-			//this.fireEvent(this.ON_DOC, JSON.decode(body));
-			
-			/*if(this.options.requests.current.type == 'info'){
-				this.fireEvent(this.ON_INFO_DOC, JSON.decode(body));
-			}
-			else{
-				//var original = JSON.decode(body);
-				//var doc = {};
-				
-				//doc.loadavg = original.loadavg;
-				//doc.uptime = original.uptime;
-				//doc.freemem = original.freemem;
-				//doc.totalmem = original.totalmem;
-				//doc.cpus = original.cpus;
-				//doc.networkInterfaces = original.networkInterfaces;
-				
-				this.fireEvent(this.ON_STATUS_DOC, JSON.decode(body));
-				
-				//console.log('STATUS');
-			}*/
-			
-			
-		}
-		
-  },
+  
   /*get: function (err, resp, body, req){
 		console.log('NGINX VHOSTS get');
 		
