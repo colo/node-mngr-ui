@@ -19,14 +19,22 @@ module.exports = new Class({
   client: null,
   //hidden: true,//don't show on views (nav_bar, content, etc)
   
-  pagination: {
-		page: 1,
-		prev: null,
-		next: null
-	},
+  
 	
   options: {
-	  
+	  session: {
+			//pagination: {
+				//page: 1,
+				//prev: null,
+				//next: null
+			//},
+			content_range: {
+				start: 0,
+				end: 0,
+				total: 0
+			}
+		},
+		
 	  client: {scheme: 'http', url:'127.0.0.1', port: 8081},
 	  
 	  pagination: {
@@ -83,6 +91,8 @@ module.exports = new Class({
 		},
   },
   get: function(req, res, next){
+		
+		var sent = false;
 		/*
 		var callback = function(resp){
 			//console.log(doc);
@@ -110,27 +120,55 @@ module.exports = new Class({
 		this.client.addEvent('onGetError', error_callback);
 		*/
 		
-		//content-range
-		const link = (this.pagination.next) ? this.pagination.next : '?first='+this.options.pagination.rows;
+		//const link = (this.options.session.pagination.next) ? this.options.session.pagination.next : '?first='+this.options.pagination.rows;
+		//const end = (this.options.session.content_range.end > 0) ? this.options.session.content_range.end : this.options.pagination.rows - 1;
+		
+		console.log('--this.options.session.content_range.start--');
+		console.log(this.options.session.content_range);
+			
+		const end = (this.options.pagination.rows - 1) + this.options.session.content_range.start;
+		const link = '?start='+this.options.session.content_range.start+'&end='+end;
+		
+		console.log('---link: '+link);
 		
 		this.client.api.get({uri: link}, function(err, resp, body, req){
 			console.log('some callback');
 			//console.log(resp.headers);
 			
 			
-			const items = []
-			var content_range = null;
+			const items = [];
+			/**
+			 * Count only single URIs being added to response.
+			 * Used to keep track where we need to start next pagination
+			 * 
+			 * */
+			var uri_counter = 0;
+			
+			//var content_range = null;
+			
+			//console.log(resp.headers['content-range'].split('/')[0].split('-'));
+			console.log('--this.options.session.content_range.start--');
+			console.log(this.options.session);
 			
 			if(resp.headers['content-range'])
-				content_range = resp.headers['content-range'].split('/')[1].toInt();
+				this.options.session.content_range.total = resp.headers['content-range'].split('/')[1].toInt();
+				/*this.options.session.content_range = {
+					//start: resp.headers['content-range'].split('/')[0].split('-')[0].toInt(),
+					//end: resp.headers['content-range'].split('/')[0].split('-')[1].toInt(),
+					total: resp.headers['content-range'].split('/')[1].toInt()
+				};*/
+			
+			console.log('--this.options.session.content_range.start--');
+			console.log(this.options.session);
+			
 			
 			if(err){
 				res.json.status(500)(err);
 			}
 			else{
 				
-				this.pagination.prev = new String(li.parse(resp.headers.link).prev.match(new RegExp(/\/[^\/]+$/g))).replace('/', '');
-				this.pagination.next = new String(li.parse(resp.headers.link).next.match(new RegExp(/\/[^\/]+$/g))).replace('/', '');
+				//this.options.session.pagination.prev = new String(li.parse(resp.headers.link).prev.match(new RegExp(/\/[^\/]+$/g))).replace('/', '');
+				//this.options.session.pagination.next = new String(li.parse(resp.headers.link).next.match(new RegExp(/\/[^\/]+$/g))).replace('/', '');
 				//console.log(next);
 				
 				const uris =JSON.decode(body);
@@ -214,8 +252,9 @@ module.exports = new Class({
 													
 													vhost.enabled = true;
 												}
-											
-												items.push(vhost);
+												
+												if(items.length < this.options.pagination.rows)
+													items.push(vhost);
 												
 										}.bind(this))
 										
@@ -268,31 +307,53 @@ module.exports = new Class({
 										if(enabled_uris.contains(vhost.uri))
 											vhost.enabled = true
 										
-										items.push(vhost)
+										if(items.length < this.options.pagination.rows)
+											items.push(vhost);
+										
 									}
+									
+									uri_counter++;
 									
 									/*console.log('---total---')
 									console.log(total)
 									console.log(items.length)*/
 									
 									//if(items.length == total){
+									
 									/**
 									 * We select N rows of URIs, but one URI may have more than one vhost associated.
 									 * We must return only this.options.pagination.rows number of vhosts,
 									 * and save the remaining one for next page.
 									 * */
-									if(items.length == this.options.pagination.rows || items.length == total){
+									if((items.length == this.options.pagination.rows || items.length == total) && sent === false){
 										
-										if(content_range)
-											total = content_range;
-											
+										console.log('---items.length---');
+										console.log(items.length);
+										
+										console.log('---uri_counter---');
+										console.log(uri_counter);
+										
+										console.log('--this.options.session.content_range.start--');
+										console.log(this.options.session.content_range);
+										
+										if(this.options.session.content_range.total != 0)
+											total = this.options.session.content_range.total;
+										
+										//next iteration will start from this point (next uri)	
+										this.options.session.content_range.start = (this.options.session.content_range.start + uri_counter).toInt();
+										
 										res.json({total: total, items: items});
+										sent = true;
 									}
+									
+									
 								}
+								
 							}.bind(this));
 							
 						
 						}.bind(this));
+					
 					
 					}	
 				}.bind(this));
