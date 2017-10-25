@@ -20,14 +20,26 @@ module.exports = new Class({
   //hidden: true,//don't show on views (nav_bar, content, etc)
   
   
-	
   options: {
+		
+		/**
+		 * @todo req.query sanitizer as req.params
+		 *
+		 * query: {
+		 * rows: /^(0|[1-9][0-9]*)$/,
+		 * page: /^(0|[1-9][0-9]*)$/
+		 * },
+		*/
+		
 	  session: {
-			//pagination: {
-				//page: 1,
+			pagination: {
+				page: 1,
+				rows: 10,
+				sort: 'uri',
+				descending: false
 				//prev: null,
 				//next: null
-			//},
+			},
 			content_range: {
 				start: 0,
 				end: 0,
@@ -37,10 +49,7 @@ module.exports = new Class({
 		
 	  client: {scheme: 'http', url:'127.0.0.1', port: 8081},
 	  
-	  pagination: {
-			rows: 10
-		},
-		
+	  
 	  layout:{
 			name: 'Nginx Vhosts',
 			description: 'Nginx Vhosts',
@@ -92,48 +101,66 @@ module.exports = new Class({
   },
   get: function(req, res, next){
 		
+		
 		var sent = false;
-		/*
-		var callback = function(resp){
-			//console.log(doc);
-			console.log('onGet');
-			console.log(resp.headers);
-			res.json(JSON.decode(resp.body));
-			this.client.removeEvent('onGet', callback);
+		
+		console.log(req.query);
+		
+		this.options.session.pagination = {
+			sort : req.query.sort || this.options.session.pagination.sort,
+			descending : (req.query.descending == "true") ? true : this.options.session.pagination.descending,
+			page : req.query.page || this.options.session.pagination.page,
+			rows : req.query.rows || this.options.session.pagination.rows
+		};
+		
+		//console.log(this.options.session);
+		
+		//get all to sort & paginate
+		/*this.client.api.get({uri: ''}, function(err, resp, body, req){
+			var uris =JSON.decode(body).sort();
+
+			if(this.options.session.pagination.descending == true){
+				console.log('..reversing...');
+				uris = uris.reverse();
+			}
 			
-			const uris = res.body
-			var total = uris.length
+			uris = uris.slice(0, this.options.session.pagination.rows)	
+			//console.log(this.options.session.pagination.descending);
 			
-			
-		}.bind(this);
-		
-		var error_callback = function(resp){
-			//console.log(doc);
-			console.log('onGetError');
-			console.log(resp);
-			this.client.removeEvent('onGetError', error_callback);
-		}.bind(this);
+			console.log(uris);
+					
+			//var total = uris.length;
+				
+		}.bind(this));*/
 		
 		
-		this.client.addEvent('onGet', callback);
 		
-		this.client.addEvent('onGetError', error_callback);
-		*/
+		////console.log('--this.options.session.content_range.start--');
+		////console.log(this.options.session.content_range);
+		var link = '';
 		
-		//const link = (this.options.session.pagination.next) ? this.options.session.pagination.next : '?first='+this.options.pagination.rows;
-		//const end = (this.options.session.content_range.end > 0) ? this.options.session.content_range.end : this.options.pagination.rows - 1;
-		
-		console.log('--this.options.session.content_range.start--');
-		console.log(this.options.session.content_range);
-			
-		const end = (this.options.pagination.rows - 1) + this.options.session.content_range.start;
-		const link = '?start='+this.options.session.content_range.start+'&end='+end;
+		if(this.options.session.pagination.descending === true){
+			if(this.options.session.content_range.total != 0 && this.options.session.content_range.start < this.options.session.content_range.total){
+				console.log('---has total---');
+				console.log(this.options.session.content_range);
+				const end = this.options.session.content_range.end - (this.options.session.content_range.start - 1);
+				const start = (end - (this.options.session.pagination.rows - 1) > 0) ? end - (this.options.session.pagination.rows - 1) : 0;
+				link = '?start='+start+'&end='+end;
+			}
+			else{
+				link = '?last='+this.options.session.pagination.rows;
+			}
+		}
+		else{
+			const end = (this.options.session.pagination.rows - 1) + this.options.session.content_range.start;
+			link = '?start='+this.options.session.content_range.start+'&end='+end;
+		}
 		
 		console.log('---link: '+link);
 		
 		this.client.api.get({uri: link}, function(err, resp, body, req){
-			console.log('some callback');
-			//console.log(resp.headers);
+			//console.log('some callback');
+			////console.log(resp.headers);
 			
 			
 			const items = [];
@@ -146,20 +173,22 @@ module.exports = new Class({
 			
 			//var content_range = null;
 			
-			//console.log(resp.headers['content-range'].split('/')[0].split('-'));
-			console.log('--this.options.session.content_range.start--');
-			console.log(this.options.session);
+			////console.log(resp.headers['content-range'].split('/')[0].split('-'));
+			//console.log('--this.options.session.content_range.start--');
+			//console.log(this.options.session);
 			
-			if(resp.headers['content-range'])
+			if(resp.headers['content-range']){
 				this.options.session.content_range.total = resp.headers['content-range'].split('/')[1].toInt();
+				this.options.session.content_range.end = resp.headers['content-range'].split('/')[0].split('-')[1].toInt();
+			}
 				/*this.options.session.content_range = {
 					//start: resp.headers['content-range'].split('/')[0].split('-')[0].toInt(),
 					//end: resp.headers['content-range'].split('/')[0].split('-')[1].toInt(),
 					total: resp.headers['content-range'].split('/')[1].toInt()
 				};*/
 			
-			console.log('--this.options.session.content_range.start--');
-			console.log(this.options.session);
+			////console.log('--this.options.session.content_range.start--');
+			////console.log(this.options.session);
 			
 			
 			if(err){
@@ -169,23 +198,28 @@ module.exports = new Class({
 				
 				//this.options.session.pagination.prev = new String(li.parse(resp.headers.link).prev.match(new RegExp(/\/[^\/]+$/g))).replace('/', '');
 				//this.options.session.pagination.next = new String(li.parse(resp.headers.link).next.match(new RegExp(/\/[^\/]+$/g))).replace('/', '');
-				//console.log(next);
+				////console.log(next);
 				
+				//const uris =JSON.decode(body).sort();
 				const uris =JSON.decode(body);
 				
-				console.log(uris);
+				if(this.options.session.pagination.descending === true)
+					uris.reverse();
 				
+				//console.log(this.options.session.pagination.descending);
+				console.log(uris);
+					
 				var total = uris.length;
 				
 				this.client.api.get({uri: 'enabled'}, function(err, resp, body, req){
-					console.log('---enabled---');
+					//console.log('---enabled---');
 					
 					if(err){
 						res.json.status(500)(err);
 					}
 					else{
 						
-						//console.log(body);
+						////console.log(body);
 						
 						const enabled_uris = JSON.decode(body)
 						
@@ -194,7 +228,7 @@ module.exports = new Class({
 							
 							//get vhost properties
 							this.client.api.get({uri: uri}, function(err, resp, body, req){
-								console.log('---properties---');
+								//console.log('---properties---');
 								
 								if(err){
 									res.json.status(500)(err);
@@ -202,32 +236,38 @@ module.exports = new Class({
 								else{
 									
 									const data = JSON.decode(body)
-									//console.log(data);
+									////console.log(data);
+									const vhost = {}
+									
 									if(data instanceof Array){//uri has more than 1 vhost
 										total += data.length - 1
 										
 										
+										vhost.id = index;
+										vhost.uri = uri;
+										vhost.sub_items = [];
+										
 										Array.each(data, function(tmp_item, tmp_index){
-												const vhost = {}
-												vhost.id = uri +'_'+tmp_index
-												vhost.uri = uri
+												const sub_vhost = {}
+												sub_vhost.id = uri +'_'+tmp_index
+												sub_vhost.uri = uri
 												
 												var tmp_listen = tmp_item.listen.split(":")
 												if(tmp_listen instanceof Array || typeof(tmp_listen) == 'array')
 													tmp_listen = tmp_listen = tmp_listen[tmp_listen.length - 1]
 												
-												//console.log(tmp_listen)
+												////console.log(tmp_listen)
 												
 												tmp_listen = tmp_listen.split(' ')
 												if(tmp_listen instanceof Array || typeof(tmp_listen) == 'array')
 													tmp_listen = tmp_listen[0]
 												
-												vhost.port = tmp_listen
+												sub_vhost.port = tmp_listen
 												
-												if(enabled_uris.contains(vhost.uri)){
+												if(enabled_uris.contains(sub_vhost.uri)){
 													
 													this.client.api.get({uri: '/enabled/'+uri}, function(err, resp, body, req){
-														console.log('---enabled/'+uri);
+														//console.log('---enabled/'+uri);
 														
 														if(err){
 															res.json.status(500)(err);
@@ -237,37 +277,37 @@ module.exports = new Class({
 														
 															if(enabled_data instanceof Array){
 																Array.each(enabled_data, function(enabled_data_item, index){
-																	if(vhost.enabled !== true)
-																		vhost.enabled = (tmp_item.listen == enabled_data_item.listen) ? true : false
+																	if(sub_vhost.enabled !== true)
+																		sub_vhost.enabled = (tmp_item.listen == enabled_data_item.listen) ? true : false
 																		
 																})
 															}
 															else{
-																vhost.enabled = (tmp_item.listen == enabled_data.listen) ? true : false
+																sub_vhost.enabled = (tmp_item.listen == enabled_data.listen) ? true : false
 															}
 															
 														}
 														
 													}.bind(this));
 													
-													vhost.enabled = true;
+													sub_vhost.enabled = true;
 												}
 												
-												if(items.length < this.options.pagination.rows)
-													items.push(vhost);
+												if(items.length < this.options.session.pagination.rows)
+													vhost.sub_items.push(sub_vhost);
 												
 										}.bind(this))
 										
 										
 									}
 									else{
-										//console.log(data)
+										////console.log(data)
 										
-										const vhost = {}
+										//const vhost = {}
 										vhost.id = uri
 										vhost.uri = uri
 										
-										//console.log(data.listen)
+										////console.log(data.listen)
 										
 										if(typeof(data.listen) == 'string'){
 											var tmp_listen = data.listen.split(":")
@@ -290,8 +330,8 @@ module.exports = new Class({
 												if(tmp_listen instanceof Array || typeof(tmp_listen) == 'array')
 													tmp_listen = tmp_listen[tmp_listen.length - 1]
 												
-												//console.log('-----tmp_listen----')
-												//console.log(tmp_listen)
+												////console.log('-----tmp_listen----')
+												////console.log(tmp_listen)
 												tmp_listen = tmp_listen.split(' ')
 												if(tmp_listen instanceof Array || typeof(tmp_listen) == 'array')
 													tmp_listen = tmp_listen[0]
@@ -307,34 +347,37 @@ module.exports = new Class({
 										if(enabled_uris.contains(vhost.uri))
 											vhost.enabled = true
 										
-										if(items.length < this.options.pagination.rows)
-											items.push(vhost);
+										//if(items.length < this.options.session.pagination.rows)
+											//items.push(vhost);
 										
 									}
 									
+									if(items.length < this.options.session.pagination.rows)
+										items.push(vhost);
+											
 									uri_counter++;
 									
-									/*console.log('---total---')
-									console.log(total)
-									console.log(items.length)*/
+									/*//console.log('---total---')
+									//console.log(total)
+									//console.log(items.length)*/
 									
 									//if(items.length == total){
 									
 									/**
 									 * We select N rows of URIs, but one URI may have more than one vhost associated.
-									 * We must return only this.options.pagination.rows number of vhosts,
+									 * We must return only this.options.session.pagination.rows number of vhosts,
 									 * and save the remaining one for next page.
 									 * */
-									if((items.length == this.options.pagination.rows || items.length == total) && sent === false){
+									if((items.length == this.options.session.pagination.rows || items.length == total) && sent === false){
 										
-										console.log('---items.length---');
-										console.log(items.length);
+										//console.log('---items.length---');
+										//console.log(items.length);
 										
-										console.log('---uri_counter---');
-										console.log(uri_counter);
+										//console.log('---uri_counter---');
+										//console.log(uri_counter);
 										
-										console.log('--this.options.session.content_range.start--');
-										console.log(this.options.session.content_range);
+										//console.log('--this.options.session.content_range.start--');
+										//console.log(this.options.session.content_range);
 										
 										if(this.options.session.content_range.total != 0)
 											total = this.options.session.content_range.total;
