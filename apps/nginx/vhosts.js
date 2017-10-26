@@ -99,6 +99,57 @@ module.exports = new Class({
 			
 		},
   },
+  get_page_uri: function(){
+		var uri = '';
+		const page = this.options.session.pagination.page - 1;
+		const rows = this.options.session.pagination.rows;
+		const total = this.options.session.content_range.total;
+		
+		if(this.options.session.pagination.descending === true){
+			if(total == 0){
+				uri = '?last='+rows;
+			}
+			else{
+				const end = (total - (page * rows)) - 1;
+				const start = (end - (rows - 1)) > 0 ? end - (rows - 1) : 0;
+				uri = '?start='+start+'&end='+end;
+			}
+			
+			/*const start = page * rows;
+			const end = start + (rows - 1);
+			uri = '?start='+start+'&end='+end;*/
+
+			//if(this.options.session.content_range.total != 0 && this.options.session.content_range.start < this.options.session.content_range.total){
+				//console.log('---has total---');
+				//console.log(this.options.session.content_range);
+				//const end = this.options.session.content_range.end - (this.options.session.content_range.start - 1);
+				//const start = (end - (this.options.session.pagination.rows - 1) > 0) ? end - (this.options.session.pagination.rows - 1) : 0;
+				//link = '?start='+start+'&end='+end;
+			//}
+			//else{
+				//link = '?last='+this.options.session.pagination.rows;
+			//}
+		}
+		else{
+			//const end = (this.options.session.pagination.rows - 1) + this.options.session.content_range.end;
+			//link = '?start='+this.options.session.content_range.end+'&end='+end;
+			/*switch(page) {
+					case 0:
+						uri = '?first='+rows;
+						break;
+					default:
+						const start = page * rows;
+						const end = start + (rows - 1);
+						uri = '?start='+start+'&end='+end;
+			}*/
+			
+			const start = page * rows;
+			const end = start + (rows - 1);
+			uri = '?start='+start+'&end='+end;
+		}
+		
+		return uri;
+	},
   get: function(req, res, next){
 		
 		
@@ -108,88 +159,27 @@ module.exports = new Class({
 		
 		this.options.session.pagination = {
 			sort : req.query.sort || this.options.session.pagination.sort,
-			descending : (req.query.descending == "true") ? true : this.options.session.pagination.descending,
+			//descending : (req.query.descending == "true") ? true : this.options.session.pagination.descending,
+			descending : JSON.parse(req.query.descending),
 			page : req.query.page || this.options.session.pagination.page,
 			rows : req.query.rows || this.options.session.pagination.rows
 		};
 		
-		//console.log(this.options.session);
-		
-		//get all to sort & paginate
-		/*this.client.api.get({uri: ''}, function(err, resp, body, req){
-			var uris =JSON.decode(body).sort();
-
-			if(this.options.session.pagination.descending == true){
-				console.log('..reversing...');
-				uris = uris.reverse();
-			}
-			
-			uris = uris.slice(0, this.options.session.pagination.rows)	
-			//console.log(this.options.session.pagination.descending);
-			
-			console.log(uris);
-					
-			//var total = uris.length;
-				
-		}.bind(this));*/
+		const page_uri = this.get_page_uri();
 		
 		
+		console.log('---link: '+page_uri);
 		
-		////console.log('--this.options.session.content_range.start--');
-		////console.log(this.options.session.content_range);
-		var link = '';
-		
-		if(this.options.session.pagination.descending === true){
-			if(this.options.session.content_range.total != 0 && this.options.session.content_range.start < this.options.session.content_range.total){
-				console.log('---has total---');
-				console.log(this.options.session.content_range);
-				const end = this.options.session.content_range.end - (this.options.session.content_range.start - 1);
-				const start = (end - (this.options.session.pagination.rows - 1) > 0) ? end - (this.options.session.pagination.rows - 1) : 0;
-				link = '?start='+start+'&end='+end;
-			}
-			else{
-				link = '?last='+this.options.session.pagination.rows;
-			}
-		}
-		else{
-			const end = (this.options.session.pagination.rows - 1) + this.options.session.content_range.start;
-			link = '?start='+this.options.session.content_range.start+'&end='+end;
-		}
-		
-		console.log('---link: '+link);
-		
-		this.client.api.get({uri: link}, function(err, resp, body, req){
-			//console.log('some callback');
-			////console.log(resp.headers);
-			
+		this.client.api.get({uri: page_uri}, function(err, resp, body, req){
 			
 			const items = [];
-			/**
-			 * Count only single URIs being added to response.
-			 * Used to keep track where we need to start next pagination
-			 * 
-			 * */
-			var uri_counter = 0;
-			
-			//var content_range = null;
-			
-			////console.log(resp.headers['content-range'].split('/')[0].split('-'));
-			//console.log('--this.options.session.content_range.start--');
-			//console.log(this.options.session);
 			
 			if(resp.headers['content-range']){
 				this.options.session.content_range.total = resp.headers['content-range'].split('/')[1].toInt();
+				this.options.session.content_range.end = resp.headers['content-range'].split('/')[0].split('-')[0].toInt();
 				this.options.session.content_range.end = resp.headers['content-range'].split('/')[0].split('-')[1].toInt();
 			}
-				/*this.options.session.content_range = {
-					//start: resp.headers['content-range'].split('/')[0].split('-')[0].toInt(),
-					//end: resp.headers['content-range'].split('/')[0].split('-')[1].toInt(),
-					total: resp.headers['content-range'].split('/')[1].toInt()
-				};*/
-			
-			////console.log('--this.options.session.content_range.start--');
-			////console.log(this.options.session);
-			
+				
 			
 			if(err){
 				res.json.status(500)(err);
@@ -200,7 +190,6 @@ module.exports = new Class({
 				//this.options.session.pagination.next = new String(li.parse(resp.headers.link).next.match(new RegExp(/\/[^\/]+$/g))).replace('/', '');
 				////console.log(next);
 				
-				//const uris =JSON.decode(body).sort();
 				const uris =JSON.decode(body);
 				
 				if(this.options.session.pagination.descending === true)
@@ -240,10 +229,10 @@ module.exports = new Class({
 									const vhost = {}
 									
 									if(data instanceof Array){//uri has more than 1 vhost
-										total += data.length - 1
+										//total += data.length - 1
 										
 										
-										vhost.id = index;
+										vhost.id = uri;
 										vhost.uri = uri;
 										vhost.sub_items = [];
 										
@@ -355,35 +344,24 @@ module.exports = new Class({
 									if(items.length < this.options.session.pagination.rows)
 										items.push(vhost);
 											
-									uri_counter++;
+									//uri_counter++;
 									
-									/*//console.log('---total---')
-									//console.log(total)
-									//console.log(items.length)*/
+									console.log('---total---')
+									console.log(total)
+									console.log(items.length)
 									
-									//if(items.length == total){
+									if(items.length == total){
 									
 									/**
 									 * We select N rows of URIs, but one URI may have more than one vhost associated.
 									 * We must return only this.options.session.pagination.rows number of vhosts,
 									 * and save the remaining one for next page.
 									 * */
-									if((items.length == this.options.session.pagination.rows || items.length == total) && sent === false){
+									//if((items.length == this.options.session.pagination.rows || items.length == total) && sent === false){
 										
-										//console.log('---items.length---');
-										//console.log(items.length);
-										
-										//console.log('---uri_counter---');
-										//console.log(uri_counter);
-										
-										//console.log('--this.options.session.content_range.start--');
-										//console.log(this.options.session.content_range);
 										
 										if(this.options.session.content_range.total != 0)
 											total = this.options.session.content_range.total;
-										
-										//next iteration will start from this point (next uri)	
-										this.options.session.content_range.start = (this.options.session.content_range.start + uri_counter).toInt();
 										
 										res.json({total: total, items: items});
 										sent = true;
