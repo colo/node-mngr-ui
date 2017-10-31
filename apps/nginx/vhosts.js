@@ -87,11 +87,30 @@ module.exports = new Class({
 			version: '1.0.0',
 			
 			routes: {
-
+				get: [
+					/**
+					 * all vhosts
+					 * */
+					{
+						path: ':uri',
+						callbacks: ['get_vhost'],
+						version: '',
+					},
+					{
+						path: ':uri/:prop_or_index',
+						callbacks: ['get_vhost'],
+						version: '',
+					},
+					{
+						path: '',
+						callbacks: ['get_page'],
+						version: '',
+					},
+				],
 				all: [
 					{
 						path: '',
-						callbacks: ['get'],
+						callbacks: ['get_page'],
 						version: '',
 					},
 				]
@@ -99,39 +118,28 @@ module.exports = new Class({
 			
 		},
   },
-  get_page_uri: function(){
-		var uri = '';
-		const page = this.options.session.pagination.page - 1;
-		const rows = this.options.session.pagination.rows;
-		const search = this.options.session.pagination.search;
-		const total = this.options.session.content_range.total;
+  get_vhost: function(req, res, next){
+		console.log('---get_vhost---');
+		console.log(req.params);
 		
-		console.log('---search---');
-		console.log(search);
+		const uri = req.params.uri;
+		const index = req.params.prop_or_index;
 		
-		if(search == ''){
-			if(this.options.session.pagination.descending === true){
-				if(total == 0){
-					uri = '?last='+rows;
-				}
-				else{
-					const end = (total - (page * rows)) - 1;
-					const start = (end - (rows - 1)) > 0 ? end - (rows - 1) : 0;
-					uri = '?start='+start+'&end='+end;
-				}
-				
-				
+		console.log(index)
+		this.client.api.get({uri: uri+'/'+index.toInt()}, function(err, resp, body, req){
+			
+			if(err){
+				res.status(500).json(err)
 			}
 			else{
-				
-				const start = page * rows;
-				const end = start + (rows - 1);
-				uri = '?start='+start+'&end='+end;
+				console.log(JSON.decode(body));
+				res.json(JSON.decode(body));
 			}
-		}
-		return uri;
+		});
+		
+		
 	},
-  get: function(req, res, next){
+  get_page: function(req, res, next){
 		
 		
 		var sent = false;
@@ -254,7 +262,7 @@ module.exports = new Class({
 													
 													if(enabled_uris.contains(sub_vhost.uri)){
 														
-														this.client.api.get({uri: '/enabled/'+uri}, function(err, resp, body, req){
+														this.client.api.get({uri: 'enabled/'+uri}, function(err, resp, body, req){
 															//console.log('---enabled/'+uri);
 															
 															if(err){
@@ -383,6 +391,38 @@ module.exports = new Class({
 		}.bind(this));
 		
 		
+	},
+	get_page_uri: function(){
+		var uri = '';
+		const page = this.options.session.pagination.page - 1;
+		const rows = this.options.session.pagination.rows;
+		const search = this.options.session.pagination.search;
+		const total = this.options.session.content_range.total;
+		
+		console.log('---search---');
+		console.log(search);
+		
+		if(search == ''){
+			if(this.options.session.pagination.descending === true){
+				if(total == 0){
+					uri = '?last='+rows;
+				}
+				else{
+					const end = (total - (page * rows)) - 1;
+					const start = (end - (rows - 1)) > 0 ? end - (rows - 1) : 0;
+					uri = '?start='+start+'&end='+end;
+				}
+				
+				
+			}
+			else{
+				
+				const start = page * rows;
+				const end = start + (rows - 1);
+				uri = '?start='+start+'&end='+end;
+			}
+		}
+		return uri;
 	},
   render: function(req, res, next){
 		

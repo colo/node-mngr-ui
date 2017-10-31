@@ -45,7 +45,7 @@ module.exports = new Class({
 			
 			version: '1.0.0',
 			
-			path: '/nginx/vhosts',
+			path: '/nginx/vhosts/',
 			
 			routes: {
 				get: [
