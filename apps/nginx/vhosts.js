@@ -126,7 +126,7 @@ module.exports = new Class({
 		const index = req.params.prop_or_index;
 		
 		console.log(index)
-		this.client.api.get({uri: uri+'/'+index.toInt()}, function(err, resp, body, req){
+		this.client.api.get({uri: uri+'/'+index.toInt()+'?comments=false'}, function(err, resp, body, req){
 			
 			if(err){
 				res.status(500).json(err)
