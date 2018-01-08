@@ -165,7 +165,10 @@ var ddoc_status = {
   }
 }
 
-var db = new(cradle.Connection)().database('dashboard');
+//var db = new(cradle.Connection)().database('dashboard');
+
+var db = new(cradle.Connection)('192.168.0.180', 5984).database('dashboard');
+
 var save_views = function(){
 	db.save([ddoc, ddoc_status], function (err, res) {
 		if(err){
