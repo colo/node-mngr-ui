@@ -12,10 +12,8 @@
     "etc-passwd": "^0.1.1",
     "express-handlebars": "^3.0.0",
     "multer": "^1.1.0",
-    "pouchdb": "^5.4.5",
     "serve-index": "^1.7.3",
     "serve-static": "^1.10.2",
-    "sqldown": "^2.1.0",
-    "sqlite3": "^3.1.4"
+    "sqldown": "^2.1.0"
   }
 }
