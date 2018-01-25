@@ -75,73 +75,125 @@ module.exports = new Class({
   doc: function(req, res, next){
 		res.json({doc: 'api doc'});
 	},
-  login: function(req, res, next){
-		
-		
+	login: function(req, res, next){
 		console.log('Login Request');
 		console.log(req.headers);
 		
 		this.authenticate(req, res, next,  function(err, user, info) {
+			//console.log(err);
+			//console.log(user);
+			//console.log(info);
 			
 			this.profile('login_authenticate');
 			
 			if (err) {
-				this.log('login', 'error', err);
-				
+				//console.log('--err--');
+				console.log(err);
+
+				//res.status(403).json({'error': err});
 				res.status(500).json({'error': err.message});
-				//return next(err)
 			}
-			if (!user) {
-				//console.log('info: ');
-				//console.log(info);
+			else if (!user) {
 				
 				this.log('login', 'warn', 'login authenticate ' + info);
 				
-				res.cookie('bad', true, { maxAge: 99999999, httpOnly: false });
+				res.cookie('login', false, { maxAge: 99999999, httpOnly: false });
 				
 				//req.flash('error', info);
-				//res.send({'status': 'error', 'error': info});
-				res.status(403).json({'error': info.error});
+				res.status(403).json({'error': info.message});
 
 			}
 			else{
 				req.logIn(user, function(err) {
-					console.log('----err----');
-					console.log(err);
-					
 					if (err) {
+						//console.log('--err--');
+						//console.log(err);
+						
 						this.log('login', 'error', err);
 						//return next(err);
 						res.status(403).json({'error': err.message});
 					}
-					else {
-						this.log('login', 'info', 'login authenticate ' + util.inspect(user));
-						
-						////add subjects dinamically
-				// 		this.server.authorization.processRules({
-				// 		  "subjects":[
-				// 			{
-				// 			  "id": "lbueno",
-				// 			  "roles":["admin"]
-				// 			},
-				// 			{
-				// 			  "id": "test",
-				// 			  "roles":["user"]
-				// 			},
-				// 		  ],
-				// 		});
-						res.cookie('bad', false, { maxAge: 0, httpOnly: false });
-						
-						//console.log(req.protocol);
-						//console.log(req.hostname);
-						res.status(201).links({ next: req.protocol+'://'+req.hostname+':8080/'}).json({'status': 'ok'});
-					}
+					
+					this.log('login', 'info', 'login authenticate ' + util.inspect(user));
+					
+					res.cookie('login', true, { maxAge: 0, httpOnly: false });
+					
+					//res.send({'status': 'ok'});
+					res.status(201).links({ next: req.protocol+'://'+req.hostname+':8080/'}).json({'status': 'ok'});
+					
 				}.bind(this));
 			}
 		}.bind(this));
+		
+	
+  },
+  //login: function(req, res, next){
+		
+		
+		//console.log('Login Request');
+		//console.log(req.headers);
+		
+		//this.authenticate(req, res, next,  function(err, user, info) {
+			
+			//this.profile('login_authenticate');
+			
+			//if (err) {
+				//this.log('login', 'error', err);
+				
+				//res.status(500).json({'error': err.message});
+				////return next(err)
+			//}
+			//if (!user) {
+				////console.log('info: ');
+				////console.log(info);
+				
+				//this.log('login', 'warn', 'login authenticate ' + info);
+				
+				//res.cookie('bad', true, { maxAge: 99999999, httpOnly: false });
+				
+				////req.flash('error', info);
+				////res.send({'status': 'error', 'error': info});
+				//res.status(403).json({'error': info.error});
+
+			//}
+			//else{
+				//req.logIn(user, function(err) {
+					//console.log('----err----');
+					//console.log(err);
+					
+					//if (err) {
+						//this.log('login', 'error', err);
+						////return next(err);
+						//res.status(403).json({'error': err.message});
+					//}
+					//else {
+						//this.log('login', 'info', 'login authenticate ' + util.inspect(user));
+						
+						//////add subjects dinamically
+				//// 		this.server.authorization.processRules({
+				//// 		  "subjects":[
+				//// 			{
+				//// 			  "id": "lbueno",
+				//// 			  "roles":["admin"]
+				//// 			},
+				//// 			{
+				//// 			  "id": "test",
+				//// 			  "roles":["user"]
+				//// 			},
+				//// 		  ],
+				//// 		});
+						//res.cookie('bad', false, { maxAge: 0, httpOnly: false });
+						
+						////console.log(req.protocol);
+						////console.log(req.hostname);
+						//res.status(201).links({ next: req.protocol+'://'+req.hostname+':8080/'}).json({'status': 'ok'});
+					//}
+				//}.bind(this));
+			//}
+		//}.bind(this));
 	
 		
-  },
+  //},
   render: function(req, res, next){
 		
 		if(req.isAuthenticated()){

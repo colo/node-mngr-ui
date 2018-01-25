@@ -11,6 +11,8 @@
     "node": ">= 0.10.21"
   },
   "dependencies": {
+    "cradle-pouchdb-server": "^0.7.1",
+    "pouchdb": "^6.4.2"
   },
   "devDependencies": {},
   "optionalDependencies": {},

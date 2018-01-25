@@ -31,7 +31,7 @@ module.exports = new Class({
 		 * },
 		*/
 		
-	  session: {
+	  //session: {
 			pagination: {
 				page: 1,
 				rows: 10,
@@ -44,8 +44,8 @@ module.exports = new Class({
 				start: 0,
 				end: 0,
 				total: 0
-			}
-		},
+			},
+		//},
 		
 	  client: {scheme: 'http', url:'127.0.0.1', port: 8081},
 	  
@@ -126,7 +126,7 @@ module.exports = new Class({
 		const index = req.params.prop_or_index;
 		
 		console.log(index)
-		this.client.api.get({uri: uri+'/'+index.toInt()+'?comments=false'}, function(err, resp, body, req){
+		this.client.api.get({uri: uri+'/'+index.toInt()+'?comments=false'}, function(err, client_res, body, client_req){
 			
 			if(err){
 				res.status(500).json(err)
@@ -140,34 +140,37 @@ module.exports = new Class({
 		
 	},
   get_page: function(req, res, next){
-		
+		//req.query = req.query || {};
 		
 		var sent = false;
 		
-		console.log(req.query);
+		console.log(this.session);
 		
-		this.options.session.pagination = {
-			sort : req.query.sort || this.options.session.pagination.sort,
+		req.session.pagination = req.session.pagination || this.options.pagination;
+		req.session.content_range = req.session.content_range || this.options.content_range;
+		
+		req.session.pagination = {
+			sort : req.query.sort || req.session.pagination.sort,
 			//descending : (req.query.descending == "true") ? true : this.options.session.pagination.descending,
-			descending : JSON.parse(req.query.descending),
-			page : req.query.page || this.options.session.pagination.page,
-			rows : req.query.rows || this.options.session.pagination.rows,
+			descending : (req.query.descending) ? JSON.parse(req.query.descending) : req.session.pagination.descending,
+			page : req.query.page || req.session.pagination.page,
+			rows : req.query.rows || req.session.pagination.rows,
 			search: req.query.search || ''
 		};
 		
-		const page_uri = this.get_page_uri();
+		const page_uri = this.get_page_uri(req.session);
 		
 		
 		console.log('---link: '+page_uri);
 		
-		this.client.api.get({uri: page_uri}, function(err, resp, body, req){
+		this.client.api.get({uri: page_uri}, function(err, client_res, body, client_req){
 			
 			if(err){
 				res.status(500).json(err)
 			}
 			else{
 				const items = [];
-				const search = this.options.session.pagination.search;
+				const search = req.session.pagination.search;
 				var uris = [];
 				var total = 0;
 				
@@ -178,27 +181,27 @@ module.exports = new Class({
 						if(uri.match(new RegExp(search, 'gi'))) uris.push(uri)
 					});
 					
-					this.options.session.content_range.total = total = uris.length;
+					req.session.content_range.total = total = uris.length;
 				}
 				else{
 					uris = JSON.decode(body);
 					total = uris.length;
 					
-					if(resp.headers['content-range']){
-						this.options.session.content_range.total = resp.headers['content-range'].split('/')[1].toInt();
+					if(client_res.headers['content-range']){
+						req.session.content_range.total = client_res.headers['content-range'].split('/')[1].toInt();
 					}
-					//this.options.session.content_range.start = resp.headers['content-range'].split('/')[0].split('-')[0].toInt();
-					//this.options.session.content_range.end = resp.headers['content-range'].split('/')[0].split('-')[1].toInt();
+					//req.session.content_range.start = client_res.headers['content-range'].split('/')[0].split('-')[0].toInt();
+					//req.session.content_range.end = client_res.headers['content-range'].split('/')[0].split('-')[1].toInt();
 				}
 				
 				
-				if(this.options.session.pagination.descending === true)
+				if(req.session.pagination.descending === true)
 					uris.reverse();
 					
 				console.log(uris);
 				
-				//this.options.session.pagination.prev = new String(li.parse(resp.headers.link).prev.match(new RegExp(/\/[^\/]+$/g))).replace('/', '');
-				//this.options.session.pagination.next = new String(li.parse(resp.headers.link).next.match(new RegExp(/\/[^\/]+$/g))).replace('/', '');
+				//req.session.pagination.prev = new String(li.parse(client_res.headers.link).prev.match(new RegExp(/\/[^\/]+$/g))).replace('/', '');
+				//req.session.pagination.next = new String(li.parse(client_res.headers.link).next.match(new RegExp(/\/[^\/]+$/g))).replace('/', '');
 				////console.log(next);
 				
 				if(uris.length == 0){
@@ -207,7 +210,7 @@ module.exports = new Class({
 					//res.json({total: 0, items: []})
 				}
 				else{
-					this.client.api.get({uri: 'enabled'}, function(err, resp, body, req){
+					this.client.api.get({uri: 'enabled'}, function(err, client_res, body, client_req){
 						//console.log('---enabled---');
 						
 						if(err){
@@ -223,7 +226,7 @@ module.exports = new Class({
 								
 								
 								//get vhost properties
-								this.client.api.get({uri: uri}, function(err, resp, body, req){
+								this.client.api.get({uri: uri}, function(err, client_res, body, client_req){
 									//console.log('---properties---');
 									
 									if(err){
@@ -262,7 +265,7 @@ module.exports = new Class({
 													
 													if(enabled_uris.contains(sub_vhost.uri)){
 														
-														this.client.api.get({uri: 'enabled/'+uri}, function(err, resp, body, req){
+														this.client.api.get({uri: 'enabled/'+uri}, function(err, client_res, body, client_req){
 															//console.log('---enabled/'+uri);
 															
 															if(err){
@@ -289,7 +292,7 @@ module.exports = new Class({
 														sub_vhost.enabled = true;
 													}
 													
-													if(items.length < this.options.session.pagination.rows)
+													if(items.length < req.session.pagination.rows)
 														vhost.sub_items.push(sub_vhost);
 													
 											}.bind(this))
@@ -343,12 +346,12 @@ module.exports = new Class({
 											if(enabled_uris.contains(vhost.uri))
 												vhost.enabled = true
 											
-											//if(items.length < this.options.session.pagination.rows)
+											//if(items.length < req.session.pagination.rows)
 												//items.push(vhost);
 											
 										}
 										
-										if(items.length < this.options.session.pagination.rows)
+										if(items.length < req.session.pagination.rows)
 											items.push(vhost);
 												
 										//uri_counter++;
@@ -361,14 +364,14 @@ module.exports = new Class({
 										
 										/**
 										 * We select N rows of URIs, but one URI may have more than one vhost associated.
-										 * We must return only this.options.session.pagination.rows number of vhosts,
+										 * We must return only req.session.pagination.rows number of vhosts,
 										 * and save the remaining one for next page.
 										 * */
-										if((items.length == this.options.session.pagination.rows || items.length == total) && sent === false){
+										if((items.length == req.session.pagination.rows || items.length == total) && sent === false){
 											
 											
-											if(this.options.session.content_range.total != 0)
-												total = this.options.session.content_range.total;
+											if(req.session.content_range.total != 0)
+												total = req.session.content_range.total;
 											
 											res.json({total: total, items: items});
 											sent = true;
@@ -392,18 +395,18 @@ module.exports = new Class({
 		
 		
 	},
-	get_page_uri: function(){
+	get_page_uri: function(session){
 		var uri = '';
-		const page = this.options.session.pagination.page - 1;
-		const rows = this.options.session.pagination.rows;
-		const search = this.options.session.pagination.search;
-		const total = this.options.session.content_range.total;
+		const page = session.pagination.page - 1;
+		const rows = session.pagination.rows;
+		const search = session.pagination.search;
+		const total = session.content_range.total;
 		
 		console.log('---search---');
 		console.log(search);
 		
 		if(search == ''){
-			if(this.options.session.pagination.descending === true){
+			if(session.pagination.descending === true){
 				if(total == 0){
 					uri = '?last='+rows;
 				}
