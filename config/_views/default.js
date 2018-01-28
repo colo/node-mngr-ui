@@ -17,11 +17,11 @@ var cradle = require('cradle-pouchdb-server');
 		
 // create a design doc
 var ddoc = {
-  _id: '_design/info',
+  _id: '_design/once',
   views: {
 		by_date: {
-      map: function info(doc) {
-				if (doc.metadata.type == 'info') {
+      map: function once(doc) {
+				if (doc.metadata.type == 'once') {
 					//var id = doc._id.split('@');//get host.path | timestamp
 					//var host = doc.metadata.domain +'.'+doc.metadata.host;
 					//var date = parseInt(id[1]);
@@ -52,8 +52,8 @@ var ddoc = {
       }.toString()
     },
     by_host: {
-      map: function info(doc) {
-				if (doc.metadata.type == 'info') {
+      map: function once(doc) {
+				if (doc.metadata.type == 'once') {
 					//var id = doc._id.split('@');//get host.path | timestamp
 					//var host = id[0];
 					//var date = parseInt(id[1]);
@@ -73,8 +73,8 @@ var ddoc = {
       }.toString()
     },
     by_path_host: {
-      map: function info(doc) {
-				if (doc.metadata.type == 'info') {
+      map: function once(doc) {
+				if (doc.metadata.type == 'once') {
 					//var id = doc._id.split('@');//get host.path | timestamp
 					//var host = id[0];
 					//var date = parseInt(id[1]);
@@ -96,12 +96,12 @@ var ddoc = {
   }
 }
 
-var ddoc_status = {
-  _id: '_design/status',
+var ddoc_periodical = {
+  _id: '_design/periodical',
   views: {
 		by_date: {
-      map: function status(doc) {
-				if (doc.metadata.type == 'status') {
+      map: function periodical(doc) {
+				if (doc.metadata.type == 'periodical') {
 					//var id = doc._id.split('@');//get host.path | timestamp
 					//var host = id[0];
 					//var date = parseInt(id[1]);
@@ -121,8 +121,8 @@ var ddoc_status = {
       }.toString()
     },
     by_host: {
-      map: function status(doc) {
-				if (doc.metadata.type == 'status') {
+      map: function periodical(doc) {
+				if (doc.metadata.type == 'periodical') {
 					//var id = doc._id.split('@');//get host.path | timestamp
 					//var host = id[0];
 					//var date = parseInt(id[1]);
@@ -142,8 +142,8 @@ var ddoc_status = {
       }.toString()
     },
     by_path_host: {
-      map: function info(doc) {
-				if (doc.metadata.type == 'status') {
+      map: function periodical(doc) {
+				if (doc.metadata.type == 'periodical') {
 					//var id = doc._id.split('@');//get host.path | timestamp
 					//var host = id[0];
 					//var date = parseInt(id[1]);
@@ -170,7 +170,7 @@ var db = new(cradle.Connection)().database('dashboard');
 //var db = new(cradle.Connection)('192.168.0.180', 5984).database('dashboard');
 
 var save_views = function(){
-	db.save([ddoc, ddoc_status], function (err, res) {
+	db.save([ddoc, ddoc_periodical], function (err, res) {
 		if(err){
 			console.log('BULK SAVE ERR');
 			console.log(err);
