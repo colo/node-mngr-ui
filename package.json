@@ -1,5 +1,5 @@
 {
-  "name": "express-test2",
+  "name": "node-mngr-ui",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -12,6 +12,7 @@
     "etc-passwd": "^0.1.1",
     "express-handlebars": "^3.0.0",
     "multer": "^1.1.0",
+    "node-express-app": "git+https://github.com/colo/node-express-app.git",
     "serve-index": "^1.7.3",
     "serve-static": "^1.10.2",
     "sqldown": "^2.1.0"
